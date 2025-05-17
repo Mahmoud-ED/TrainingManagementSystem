@@ -1,0 +1,50 @@
+﻿@model SiteVM
+
+@{
+    ViewData["Title"] = "About";
+    ViewData["Url"] = "ManartSahafa";
+}
+
+<div class="container text-center  pt-5 mt-5">
+    <div class="card shadow">
+        <div class="card-header d-flex align-content-center border-bottom-0">
+            @if (Model.SiteInfo != null)
+            {
+                @if (Model.SiteInfo.CoverImageUrl != null)
+                {
+                    <img id="imgAttach" src="~/pictures/@Model.SiteInfo.LogoUrl" alt="no img" style="width:50px;height:50px;" class="img-thumbnail me-3" />
+                }
+                else
+                {
+                    <img id="imgAttach" src="~/img/logo.png" alt="no img" style="width:50px;height:50px;" class="img-thumbnail me-3" />
+                }
+
+
+                <h2 class="mt-2 text-black-50"><b>@Model.SiteInfo.Name</b></h2>
+            }
+            else
+            {
+                <h4><b>Professional Company</b></h4>
+                <img id="imgAttach" src="~/img/logo.png" alt="no img" style="width:200px;height:200px" class="img-thumbnail" />
+            }
+        </div>
+        <div class="card-body text-black-50">
+            <h2 class="mt-2 text-black-50"><b>About Us</b></h2>
+            <h5 class="card-title mb-5 text-success">@Model.SiteInfo.Activity</h5>
+            <h5 class="card-title m-5">@Model.SiteInfo.About</h5>
+
+
+            <div style="color:#64A19D">
+                <p class="card-title mt-2">@Model.Contact.Email</p>
+
+                <p class="card-title mt-2">@Model.Contact.Phone</p>
+            </div>
+
+            <a class="mx-2" href="@Model.Contact.Facebook"><i class="fab fa-facebook-f fs-3" style="color:#64A19D"></i></a>
+            <a class="mx-2" href="@Model.Contact.Instagram"><i class="bg-youtube  fs-3" style="color:#64A19D"></i></a>
+
+        </div>
+
+    </div>
+</div>
+
