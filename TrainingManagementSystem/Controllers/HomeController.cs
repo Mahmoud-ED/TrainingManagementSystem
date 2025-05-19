@@ -14,7 +14,7 @@ using TrainingManagementSystem.ViewModels.Identity;
 
 namespace TrainingManagementSystem.Controllers
 {
-    [ViewLayout("_Layout")]
+    //[ViewLayout("_Layout")]
     public class HomeController : BaseController
     {
         private readonly UserManager<ApplicationUser> _userManager;

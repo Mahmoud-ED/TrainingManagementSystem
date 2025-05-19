@@ -45,6 +45,7 @@ public class Trainer : BaseEntity
     [Display(Name = "CV File")]
     public IFormFile? CV { get; set; }
     public string? CVUrl { get; set; }
+    public string? ProfileImageUrl { get; set; }
 
 
 }

@@ -294,6 +294,9 @@ namespace TrainingManagementSystem.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("ProfileImageUrl")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<Guid>("QualificationId")
                         .HasColumnType("uniqueidentifier");
 

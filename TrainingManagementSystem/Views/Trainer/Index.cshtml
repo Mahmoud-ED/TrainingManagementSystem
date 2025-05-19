@@ -1,0 +1,290 @@
+﻿@* Views/Trainer/Index.cshtml *@
+@model IEnumerable<TrainingManagementSystem.ViewModels.TrainerVM>
+
+@{
+    ViewData["Title"] = "المدربون";
+    string defaultAvatarUrl = Url.Content("~/img/OIP.jpeg"); // تأكد من وجود هذا الملف
+}
+
+<style>
+    .trainer-card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        border: none; /* إزالة الحدود الافتراضية للبطاقة */
+    }
+
+        .trainer-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15), 0 5px 10px rgba(0, 0, 0, 0.1) !important;
+        }
+
+    .trainer-avatar-container {
+        width: 100px; /* حجم ثابت للحاوية */
+        height: 100px; /* حجم ثابت للحاوية */
+        border-radius: 50%;
+        overflow: hidden; /* لإخفاء الأجزاء الزائدة من الصورة */
+        margin: -50px auto 0; /* لسحب الصورة للأعلى قليلاً وجعلها تتداخل مع الهيدر */
+        position: relative;
+        z-index: 2;
+        border: 3px solid white; /* إطار أبيض حول الصورة */
+        background-color: #f8f9fa; /* لون خلفية احتياطي إذا لم يتم تحميل الصورة */
+    }
+
+    .trainer-avatar-img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover; /* لضمان ملء الصورة للدائرة دون تشويه */
+    }
+
+    .card-profile .card-header {
+        min-height: 100px; /* ارتفاع للهيدر لإعطاء مساحة للصورة المتداخلة */
+        background-image: linear-gradient(195deg, #42424a 0%, #191919 100%); /* خلفية متدرجة للهيدر */
+        border-radius: .75rem .75rem 0 0; /* للحفاظ على زوايا البطاقة العلوية مستديرة */
+    }
+
+    .card-profile .card-body {
+        padding-top: 1.5rem; /* مساحة إضافية بعد الصورة */
+    }
+
+    .action-icons a i {
+        transition: color 0.2s ease-in-out, transform 0.2s ease-in-out;
+    }
+
+    .action-icons a:hover i {
+        transform: scale(1.2);
+    }
+
+    /* تخصيص ألوان الأزرار */
+    .btn-edit:hover i {
+        color: #17a2b8;
+    }
+    /* Info */
+    .btn-details:hover i {
+        color: #6c757d;
+    }
+    /* Secondary */
+    .btn-delete:hover i {
+        color: #dc3545;
+    }
+    /* Danger */
+    .btn-cv:hover i {
+        color: #28a745;
+    }
+    /* Success */
+
+    .btn-icon-only {
+        width: 38px;
+        height: 38px;
+        padding: 0;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+        .btn-icon-only i {
+            font-size: 1.1rem; /* حجم الأيقونة داخل الزر */
+        }
+
+    /* تحسين مظهر زر مسح البحث */
+    .btn-clear-search {
+        border-color: #ff6f00 !important; /* لون برتقالي مميز */
+        color: #ff6f00 !important;
+    }
+
+        .btn-clear-search:hover {
+            background-color: #ff6f00 !important;
+            color: white !important;
+        }
+
+</style>
+
+@* زر إضافة مدرب جديد *@
+<div class="row mb-3">
+    <div class="col-12 d-flex justify-content-between align-items-center">
+        <h4 class="mb-0">@ViewData["Title"]</h4>
+        <a asp-action="Create" class="btn btn-success bg-gradient-primary mb-0">
+            @* تغيير لون الزر ليتناسب مع "إضافة" *@
+            <i class="material-symbols-rounded opacity-10 me-1">add</i> إضافة مدرب جديد
+        </a>
+    </div>
+</div>
+
+@* قسم البحث *@
+<div class="card mb-4 shadow-sm">
+    @* إضافة ظل خفيف *@
+    <div class="card-body p-3">
+        <form asp-action="Index" method="get" class="w-100">
+            <div class="input-group input-group-outline">
+                <label class="form-label visually-hidden" for="searchTermInput">ابحث...</label> @* إضافة label لأجل accessibility *@
+                <input type="text" name="searchTerm" id="searchTermInput" class="form-control" placeholder="ابحث بالاسم، البريد، الهاتف..." value="@ViewData["SearchTerm"]">
+                <button class="btn btn-primary mb-0" type="submit">
+                    @* تغيير لون زر البحث *@
+                    <i class="material-symbols-rounded">search</i>
+                </button>
+                @if (!string.IsNullOrEmpty(ViewData["SearchTerm"] as string))
+                {
+                    <a asp-action="Index" class="btn btn-outline-secondary btn-clear-search mb-0 ms-2">
+                        <i class="material-symbols-rounded opacity-10 me-1" style="vertical-align: middle;">clear</i> مسح البحث
+                    </a>
+                }
+            </div>
+        </form>
+    </div>
+</div>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible text-white mx-0 fade show" role="alert">
+        <span class="alert-icon align-middle me-2">
+            <i class="material-symbols-rounded">task_alt</i>
+        </span>
+        <span class="text-sm align-middle">@TempData["SuccessMessage"]</span>
+        <button type="button" class="btn-close text-lg py-3 opacity-10" data-bs-dismiss="alert" aria-label="إغلاق">
+            <span aria-hidden="true">×</span>
+        </button>
+    </div>
+}
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger alert-dismissible text-white mx-0 fade show" role="alert">
+        <span class="alert-icon align-middle me-2">
+            <i class="material-symbols-rounded">error_outline</i>
+        </span>
+        <span class="text-sm align-middle">@TempData["ErrorMessage"]</span>
+        <button type="button" class="btn-close text-lg py-3 opacity-10" data-bs-dismiss="alert" aria-label="إغلاق">
+            <span aria-hidden="true">×</span>
+        </button>
+    </div>
+}
+
+<div class="row">
+    @if (Model != null && Model.Any())
+    {
+        @foreach (var item in Model)
+        {
+            <div class="col-xl-3 col-md-4 col-sm-6 mb-4 d-flex align-items-stretch">
+                @* إضافة d-flex و align-items-stretch لجعل البطاقات متساوية الارتفاع *@
+                <div class="card card-profile trainer-card h-100 shadow-lg">
+                    @* استخدام h-100 *@
+                    <div class="card-header text-center border-0 pt-0 pt-lg-2 pb-4 pb-lg-3">
+                        @* هذا الهيدر سيعرض الخلفية المتدرجة فوق الصورة *@
+                    </div>
+                    <div class="card-body pt-0 text-center">
+                        @* text-center لل card-body *@
+                        <div class="trainer-avatar-container shadow-sm">
+                            @{
+                                string trainerSpecificImageUrl = "";
+                                if (!string.IsNullOrEmpty(item.ProfileImageUrl))
+                                {
+                                    trainerSpecificImageUrl = Url.Content($"~/pictures/trainers/{item.ProfileImageUrl}");
+                                }
+                                var imageUrl = !string.IsNullOrEmpty(trainerSpecificImageUrl) ? trainerSpecificImageUrl : defaultAvatarUrl;
+                            }
+                            <img src="@imageUrl" alt="صورة المدرب @item.ArName" class="trainer-avatar-img"
+                                 onerror="this.onerror=null; this.src='@defaultAvatarUrl';">
+                        </div>
+
+                        <div class="mt-3">
+                            @* إزالة text-center من هنا لأنه مطبق على card-body *@
+                            <h5 class="mb-0">
+                                @Html.DisplayFor(modelItem => item.ArName)
+                            </h5>
+                            @if (!string.IsNullOrEmpty(item.EnName))
+                            {
+                                <div class="text-sm text-muted">
+                                    @Html.DisplayFor(modelItem => item.EnName)
+                                </div>
+                            }
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mt-1">
+                                مدرب
+                            </div>
+                        </div>
+
+                        <hr class="horizontal dark my-3"> @* إضافة خط أفقي لفصل المعلومات *@
+
+                        <div class="px-2 pb-1 text-start">
+                            @* text-start للمعلومات التفصيلية *@
+                            <p class="card-text text-sm mb-2">
+                                <i class="material-symbols-rounded opacity-6 me-1 align-middle">call</i>
+                                <strong class="text-dark">الهاتف:</strong> <a href="tel:@item.PhoneNo" class="text-body">@Html.DisplayFor(modelItem => item.PhoneNo)</a>
+                            </p>
+                            <p class="card-text text-sm mb-2">
+                                <i class="material-symbols-rounded opacity-6 me-1 align-middle">mail</i>
+                                <strong class="text-dark">البريد:</strong> <a href="mailto:@item.Email" class="text-body">@Html.DisplayFor(modelItem => item.Email)</a>
+                            </p>
+                            @if (!string.IsNullOrEmpty(item.NationalNo))
+                            {
+                                <p class="card-text text-sm text-muted mb-2">
+                                    <small><i class="material-symbols-rounded opacity-6 me-1 align-middle" style="font-size: 0.9em;">badge</i> الرقم الوطني: @Html.DisplayFor(modelItem => item.NationalNo)</small>
+                                </p>
+                            }
+                            @if (!string.IsNullOrEmpty(item.Employer))
+                            {
+                                <p class="card-text text-sm text-muted mb-2">
+                                    <small><i class=" opacity-6 me-1 align-middle" style="font-size: 0.9em;">business_center</i> جهة العمل: @Html.DisplayFor(modelItem => item.Employer)</small>
+                                </p>
+                            }
+                        </div>
+
+                        @* قسم الإجراءات *@
+                        <div class="mt-auto d-flex justify-content-around align-items-center pt-3 px-2 pb-2 action-icons">
+                            <a asp-action="Edit" asp-route-id="@item.Id"
+                               class="btn btn-info  p-1 mb-0 btn-edit" 
+                               data-bs-toggle="tooltip" data-bs-placement="top" title="تعديل">
+                                <i class=" ">edit</i>
+                            </a>
+
+                            <a asp-action="Details" asp-route-id="@item.Id"
+                               class="btn btn-info text-bg-light  p-1 mb-0 btn-details"
+                               data-bs-toggle="tooltip" data-bs-placement="top" title="تفاصيل">
+                                <i class=" ">تفاصيل</i>
+                            </a>
+
+                            <a asp-action="Delete" asp-route-id="@item.Id"
+                               class="btn btn-info  p-1 mb-0 btn-delete"
+                               data-bs-toggle="tooltip" data-bs-placement="top" title="حذف">
+                                <i class=" ">حذف</i>
+                            </a>
+
+                            @if (!string.IsNullOrEmpty(item.CVUrl))
+                            {
+                                <a href="@Url.Content(item.CVUrl)" target="_blank"
+                                   class="btn btn-info  p-1 mb-0 btn-cv"
+                                   data-bs-toggle="tooltip" data-bs-placement="top" title="عرض السيرة الذاتية">
+                                    <i class=" ">تفاصيل</i>
+                                </a>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+    else
+    {
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                @* إزالة الحدود وإضافة ظل *@
+                <div class="card-body text-center py-5">
+                    <i class="material-symbols-rounded text-primary opacity-50" style="font-size: 5rem;">group_off</i> @* أيقونة أكثر ملاءمة *@
+                    <h5 class="text-secondary mt-3 mb-2">لا يوجد مدربون لعرضهم حاليًا</h5>
+                    <p class="text-sm text-muted">
+                        يبدو أنه لم يتم إضافة أي مدربين بعد.
+                        <a asp-action="Create" class="text-primary fw-bold">ابدأ بإضافة مدرب جديد</a>.
+                    </p>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // تهيئة tooltips
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl)
+            });
+        });
+    </script>
+}

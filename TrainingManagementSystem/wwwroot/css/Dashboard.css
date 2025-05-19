@@ -1,0 +1,127 @@
+﻿body {
+    /*font-family: 'Cairo', 'Inter', sans-serif;*/ /* تحديد الخطوط مع Cairo كأولوية */
+}
+/* يمكنك إضافة تعديلات RTL هنا إذا لزم الأمر ولم تكن موجودة في القالب */
+.ms-1 {
+    margin-right: 0.25rem !important;
+    margin-left: 0 !important;
+}
+/* مثال لتعديل Margin Start */
+.me-3 {
+    margin-left: 1rem !important;
+    margin-right: 0 !important;
+}
+/* مثال لتعديل Margin End */
+.ms-2 {
+    margin-right: 0.5rem !important;
+    margin-left: 0 !important;
+}
+
+.me-sm-6 {
+    margin-left: 4rem !important;
+    margin-right: 0 !important;
+}
+
+.me-5 {
+    margin-left: 3rem !important;
+    margin-right: 0 !important;
+}
+
+.ms-md-auto {
+    margin-right: auto !important;
+    margin-left: 0 !important;
+}
+
+.pe-md-3 {
+    padding-left: 1rem !important;
+    padding-right: 0 !important;
+}
+
+.ps-3 {
+    padding-right: 1rem !important;
+    padding-left: 0 !important;
+}
+
+.pe-3 {
+    padding-left: 1rem !important;
+    padding-right: 0 !important;
+}
+
+.me-sm-n4 {
+    margin-left: -1.5rem !important;
+    margin-right: 0 !important;
+}
+
+.ps-4 {
+    padding-right: 1.5rem !important;
+    padding-left: 0 !important;
+}
+
+.ms-auto {
+    margin-right: auto !important;
+    margin-left: 0 !important;
+}
+
+.float-start {
+    float: right !important;
+}
+/* تعديل float للغة العربية */
+.float-end {
+    float: left !important;
+}
+/* تعديل float للغة العربية */
+.text-start {
+    text-align: right !important;
+}
+/* تعديل محاذاة النص للغة العربية */
+.text-lg-start {
+    text-align: right !important;
+}
+/* تعديل محاذاة النص للشاشات الكبيرة للغة العربية */
+.fixed-start {
+    right: 0;
+    left: unset;
+}
+/* تعديل الشريط الجانبي ليكون على اليمين */
+.main-content {
+    margin-right: 285px;
+    margin-left: 0;
+}
+/* تعديل هامش المحتوى الرئيسي ليتناسب مع الشريط الجانبي على اليمين */
+#sidenav-main {
+    margin-right: 0 !important;
+    margin-left: unset !important;
+}
+/* تأكيد موقع الشريط الجانبي */
+.border-radius-lg {
+    border-top-left-radius: 0.75rem !important;
+    border-bottom-left-radius: 0.75rem !important;
+    border-top-right-radius: 0 !important;
+    border-bottom-right-radius: 0 !important;
+}
+/* تعديل انحناء الزوايا للشريط الجانبي */
+.navbar-vertical.navbar-expand-xs .navbar-collapse {
+    margin-right: -16px;
+    margin-left: 0px
+}
+
+.fixed-plugin .fixed-plugin-button {
+    left: 35px;
+    right: unset;
+    border-radius: 50% 0 0 50% !important;
+}
+/* تعديل زر الإعدادات */
+.navbar-main .breadcrumb {
+    margin-left: unset !important;
+    margin-right: auto !important;
+}
+
+.sidenav .sidenav-header .navbar-brand .navbar-brand-img {
+    margin-left: 0.25rem;
+    margin-right: 0;
+}
+
+.sidenav .navbar-nav .nav-link .nav-link-text {
+    margin-right: 0.25rem;
+    margin-left: 0;
+}

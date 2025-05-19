@@ -43,13 +43,13 @@ namespace TrainingManagementSystem.Models
         public DbSet<UserProfile> UserProfiles { get; set; }
         public DbSet<Employee> Employees { get; set; }
 
-        //protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        //{
-        //    optionsBuilder
-        //        .UseSqlServer("Server=172.20.10.2;Database=TMS;Trusted_Connection=True;MultipleActiveResultSets=true;TrustServerCertificate=True;")
-        //        .ConfigureWarnings(warnings =>
-        //            warnings.Ignore(RelationalEventId.PendingModelChangesWarning));
-        //}
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            optionsBuilder
+                .UseSqlServer("Server=.;Database=TMS;Trusted_Connection=True;MultipleActiveResultSets=true;TrustServerCertificate=True;")
+                .ConfigureWarnings(warnings =>
+                    warnings.Ignore(RelationalEventId.PendingModelChangesWarning));
+        }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

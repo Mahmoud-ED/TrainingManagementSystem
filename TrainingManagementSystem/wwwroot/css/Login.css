@@ -1,0 +1,90 @@
+﻿    body {
+
+    font-family: 'Cairo', 'Inter', sans-serif;
+}
+
+.form-check .form-check-input {
+    float: right;
+    margin-left: 0.5em;
+    margin-right: 0;
+}
+
+.input-group-outline .form-label {
+    right: 0.75rem;
+    left: auto;
+    transform-origin: right center !important;
+}
+
+.input-group.input-group-outline.is-focused .form-label,
+.input-group.input-group-outline.is-filled .form-label {
+    transform: translateY(-125%) translateX(-10%) scale(.8) !important;
+}
+
+.text-start {
+    text-align: right !important;
+}
+
+.ms-3 {
+    margin-right: 1rem !important;
+    margin-left: 0 !important;
+}
+
+.me-1 {
+    margin-left: 0.25rem !important;
+    margin-right: 0 !important;
+}
+
+.me-2 {
+    margin-left: 0.5rem !important;
+    margin-right: 0 !important;
+}
+
+.ms-lg-0 {
+    margin-right: 0 !important;
+    margin-left: 0 !important;
+}
+
+.mx-auto {
+    margin-right: auto !important;
+    margin-left: auto !important;
+}
+
+.pe-1 {
+    padding-left: 0.25rem !important;
+    padding-right: 0 !important;
+}
+
+.ps-2 {
+    padding-right: 0.5rem !important;
+    padding-left: 0 !important;
+}
+
+.pe-0 {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+}
+
+.mx-4 {
+    margin-right: 1.5rem !important;
+    margin-left: 1.5rem !important;
+}
+
+.start-0 {
+    right: 0 !important;
+    left: unset !important;
+}
+
+.end-0 {
+    left: 0 !important;
+    right: unset !important;
+}
+
+.text-lg-start {
+    text-align: right !important;
+}
+
+.fa-key, .fa-user, .fa-chart-pie, .fa-user-circle {
+    margin-left: 0.25rem;
+    margin-right: 0;
+}
+}

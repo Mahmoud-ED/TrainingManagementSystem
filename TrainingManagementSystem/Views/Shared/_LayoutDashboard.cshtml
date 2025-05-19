@@ -1,7 +1,6 @@
 ﻿<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 
-
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
@@ -10,7 +9,7 @@
     <title>@ViewData["Title"] - لوحة التحكم</title>
     <!--     Fonts and icons     -->
     <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Inter:300,400,500,600,700,900" />
-    <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Cairo:300,400,500,600,700,900" /> @* إضافة خط Cairo كمثال للعربية *@
+    <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Cairo:300,400,500,600,700,900" />
     <!-- Nucleo Icons -->
     <link href="~/assets/css/nucleo-icons.css" rel="stylesheet" />
     <link href="~/assets/css/nucleo-svg.css" rel="stylesheet" />
@@ -20,148 +19,20 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />
     <!-- CSS Files -->
     <link id="pagestyle" href="~/assets/css/material-dashboard.css?v=3.2.0" rel="stylesheet" />
+    <link href="~/css/dashboard.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" />
+  
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 
     @await RenderSectionAsync("Styles", required: false)
 
-    <style>
-        body {
-            font-family: 'Cairo', 'Inter', sans-serif; /* تحديد الخطوط مع Cairo كأولوية */
-        }
-        /* يمكنك إضافة تعديلات RTL هنا إذا لزم الأمر ولم تكن موجودة في القالب */
-        .ms-1 {
-            margin-right: 0.25rem !important;
-            margin-left: 0 !important;
-        }
-        /* مثال لتعديل Margin Start */
-        .me-3 {
-            margin-left: 1rem !important;
-            margin-right: 0 !important;
-        }
-        /* مثال لتعديل Margin End */
-        .ms-2 {
-            margin-right: 0.5rem !important;
-            margin-left: 0 !important;
-        }
-
-        .me-sm-6 {
-            margin-left: 4rem !important;
-            margin-right: 0 !important;
-        }
-
-        .me-5 {
-            margin-left: 3rem !important;
-            margin-right: 0 !important;
-        }
-
-        .ms-md-auto {
-            margin-right: auto !important;
-            margin-left: 0 !important;
-        }
-
-        .pe-md-3 {
-            padding-left: 1rem !important;
-            padding-right: 0 !important;
-        }
-
-        .ps-3 {
-            padding-right: 1rem !important;
-            padding-left: 0 !important;
-        }
-
-        .pe-3 {
-            padding-left: 1rem !important;
-            padding-right: 0 !important;
-        }
-
-        .me-sm-n4 {
-            margin-left: -1.5rem !important;
-            margin-right: 0 !important;
-        }
-
-        .ps-4 {
-            padding-right: 1.5rem !important;
-            padding-left: 0 !important;
-        }
-
-        .ms-auto {
-            margin-right: auto !important;
-            margin-left: 0 !important;
-        }
-
-        .float-start {
-            float: right !important;
-        }
-        /* تعديل float للغة العربية */
-        .float-end {
-            float: left !important;
-        }
-        /* تعديل float للغة العربية */
-        .text-start {
-            text-align: right !important;
-        }
-        /* تعديل محاذاة النص للغة العربية */
-        .text-lg-start {
-            text-align: right !important;
-        }
-        /* تعديل محاذاة النص للشاشات الكبيرة للغة العربية */
-        .fixed-start {
-            right: 0;
-            left: unset;
-        }
-        /* تعديل الشريط الجانبي ليكون على اليمين */
-        .main-content {
-            margin-right: 285px;
-            margin-left: 0;
-        }
-        /* تعديل هامش المحتوى الرئيسي ليتناسب مع الشريط الجانبي على اليمين */
-        #sidenav-main {
-            margin-right: 0 !important;
-            margin-left: unset !important;
-        }
-        /* تأكيد موقع الشريط الجانبي */
-        .border-radius-lg {
-            border-top-left-radius: 0.75rem !important;
-            border-bottom-left-radius: 0.75rem !important;
-            border-top-right-radius: 0 !important;
-            border-bottom-right-radius: 0 !important;
-        }
-        /* تعديل انحناء الزوايا للشريط الجانبي */
-        .navbar-vertical.navbar-expand-xs .navbar-collapse {
-            margin-right: -16px;
-            margin-left: 0px
-        }
-
-        .fixed-plugin .fixed-plugin-button {
-            left: 35px;
-            right: unset;
-            border-radius: 50% 0 0 50% !important;
-        }
-        /* تعديل زر الإعدادات */
-        .navbar-main .breadcrumb {
-            margin-left: unset !important;
-            margin-right: auto !important;
-        }
-
-        .sidenav .sidenav-header .navbar-brand .navbar-brand-img {
-            margin-left: 0.25rem;
-            margin-right: 0;
-        }
-
-        .sidenav .navbar-nav .nav-link .nav-link-text {
-            margin-right: 0.25rem;
-            margin-left: 0;
-        }
-
-        /* قد تحتاج لتعديلات إضافية هنا لتناسب RTL بشكل كامل */
-    </style>
 </head>
 
 <body class="g-sidenav-show bg-gray-100">
-    @*  لا تقم بإضافة rtl هنا إذا كنت ستعتمد على القالب لتحديدها عبر ملف rtl.html *@
     <aside class="sidenav navbar navbar-vertical navbar-expand-xs border-radius-lg fixed-start me-2 bg-white my-2" id="sidenav-main">
-        @* تم تعديل ms-2 إلى me-2 *@
         <div class="sidenav-header">
-            <i class="fas fa-times p-3 cursor-pointer text-dark opacity-5 position-absolute start-0 top-0 d-none d-xl-none" aria-hidden="true" id="iconSidenav"></i> @* end-0 to start-0 *@
+            <i class="fas fa-times p-3 cursor-pointer text-dark opacity-5 position-absolute start-0 top-0 d-none d-xl-none" aria-hidden="true" id="iconSidenav"></i>
             <a class="navbar-brand px-4 py-3 m-0" href=" https://demos.creative-tim.com/material-dashboard/pages/dashboard " target="_blank">
                 <img src="~/assets/img/logo-ct-dark.png" class="navbar-brand-img" width="26" height="26" alt="main_logo">
                 <span class="ms-1 text-sm text-dark">Creative Tim</span>
@@ -171,16 +42,15 @@
         <div class="collapse navbar-collapse w-auto " id="sidenav-collapse-main">
             <ul class="navbar-nav">
                 <li class="nav-item">
-                    <a class="nav-link text-dark" asp-controller="Home" asp-action="Dashboard">
-                        @* مثال لاستخدام Tag Helpers *@
+                    <a class="nav-link text-dark" asp-controller="Admin" asp-action="Index">
                         <i class="material-symbols-rounded opacity-5">dashboard</i>
                         <span class="nav-link-text ms-1">لوحة التحكم</span>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link text-dark" asp-controller="Home" asp-action="Tables">
+                    <a class="nav-link text-dark" asp-controller="Trainer" asp-action="Index">
                         <i class="material-symbols-rounded opacity-5">table_view</i>
-                        <span class="nav-link-text ms-1">الجداول</span>
+                        <span class="nav-link-text ms-1">المدربين</span>
                     </a>
                 </li>
                 <li class="nav-item">
@@ -197,7 +67,6 @@
                 </li>
                 <li class="nav-item">
                     <a class="nav-link text-dark" asp-controller="Home" asp-action="RtlPage">
-                        @* افترضت أن RTL هي صفحة منفصلة *@
                         <i class="material-symbols-rounded opacity-5">format_textdirection_r_to_l</i>
                         <span class="nav-link-text ms-1">RTL</span>
                     </a>
@@ -232,10 +101,6 @@
             </ul>
         </div>
         <div class="sidenav-footer position-absolute w-100 bottom-0 ">
-            <div class="mx-3">
-                <a class="btn btn-outline-dark mt-4 w-100" href="https://www.creative-tim.com/learning-lab/bootstrap/overview/material-dashboard?ref=sidebarfree" type="button">التوثيق</a>
-                <a class="btn bg-gradient-dark w-100" href="https://www.creative-tim.com/product/material-dashboard-pro?ref=sidebarfree" type="button">الترقية إلى برو</a>
-            </div>
         </div>
     </aside>
     <main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg ">
@@ -244,30 +109,25 @@
             <div class="container-fluid py-1 px-3">
                 <nav aria-label="breadcrumb">
                     <ol class="breadcrumb bg-transparent mb-0 pb-0 pt-1 px-0 ms-sm-6 me-5">
-                        @* تم تبديل me-sm-6 و me-5 *@
                         <li class="breadcrumb-item text-sm"><a class="opacity-5 text-dark" href="javascript:;">الصفحات</a></li>
-                        <li class="breadcrumb-item text-sm text-dark active" aria-current="page">@ViewData["Title"]</li> @* استخدام عنوان الصفحة هنا *@
+                        <li class="breadcrumb-item text-sm text-dark active" aria-current="page">@ViewData["Title"]</li>
                     </ol>
                 </nav>
                 <div class="collapse navbar-collapse mt-sm-0 mt-2 me-md-0 ms-sm-4" id="navbar">
-                    @* تم تبديل me-sm-4 *@
                     <div class="me-md-auto ps-md-3 d-flex align-items-center">
-                        @* تم تبديل ms-md-auto و pe-md-3 *@
                         <div class="input-group input-group-outline">
                             <label class="form-label">اكتب هنا...</label>
                             <input type="text" class="form-control">
                         </div>
                     </div>
                     <ul class="navbar-nav d-flex align-items-center justify-content-start">
-                        @* justify-content-end to justify-content-start *@
                         <li class="nav-item d-flex align-items-center">
-                            <a class="btn btn-outline-primary btn-sm mb-0 ms-3" target="_blank" href="https://www.creative-tim.com/builder?ref=navbar-material-dashboard">Online Builder</a> @* me-3 to ms-3 *@
+                            <a class="btn btn-outline-primary btn-sm mb-0 ms-3" target="_blank" href="https://www.creative-tim.com/builder?ref=navbar-material-dashboard">Online Builder</a>
                         </li>
                         <li class="mt-1">
                             <a class="github-button" href="https://github.com/creativetimofficial/material-dashboard" data-icon="octicon-star" data-size="large" data-show-count="true" aria-label="Star creativetimofficial/material-dashboard on GitHub">Star</a>
                         </li>
                         <li class="nav-item d-xl-none pe-3 d-flex align-items-center">
-                            @* ps-3 to pe-3 *@
                             <a href="javascript:;" class="nav-link text-body p-0" id="iconNavbarSidenav">
                                 <div class="sidenav-toggler-inner">
                                     <i class="sidenav-toggler-line"></i>
@@ -282,24 +142,22 @@
                             </a>
                         </li>
                         <li class="nav-item dropdown ps-3 d-flex align-items-center">
-                            @* pe-3 to ps-3 *@
                             <a href="javascript:;" class="nav-link text-body p-0" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
                                 <i class="material-symbols-rounded">notifications</i>
                             </a>
                             <ul class="dropdown-menu dropdown-menu-start px-2 py-3 ms-sm-n4" aria-labelledby="dropdownMenuButton">
-                                @* dropdown-menu-end to dropdown-menu-start, me-sm-n4 to ms-sm-n4 *@
                                 <li class="mb-2">
                                     <a class="dropdown-item border-radius-md" href="javascript:;">
                                         <div class="d-flex py-1">
                                             <div class="my-auto">
-                                                <img src="~/assets/img/team-2.jpg" class="avatar avatar-sm ms-3 "> @* me-3 to ms-3 *@
+                                                <img src="~/assets/img/team-2.jpg" class="avatar avatar-sm ms-3 ">
                                             </div>
                                             <div class="d-flex flex-column justify-content-center">
                                                 <h6 class="text-sm font-weight-normal mb-1">
                                                     <span class="font-weight-bold">رسالة جديدة</span> من Laur
                                                 </h6>
                                                 <p class="text-xs text-secondary mb-0">
-                                                    <i class="fa fa-clock ms-1"></i> @* me-1 to ms-1 *@
+                                                    <i class="fa fa-clock ms-1"></i>
                                                     منذ 13 دقيقة
                                                 </p>
                                             </div>
@@ -310,46 +168,15 @@
                                     <a class="dropdown-item border-radius-md" href="javascript:;">
                                         <div class="d-flex py-1">
                                             <div class="my-auto">
-                                                <img src="~/assets/img/small-logos/logo-spotify.svg" class="avatar avatar-sm bg-gradient-dark ms-3 "> @* me-3 to ms-3 *@
+                                                <img src="~/assets/img/small-logos/logo-spotify.svg" class="avatar avatar-sm bg-gradient-dark ms-3 ">
                                             </div>
                                             <div class="d-flex flex-column justify-content-center">
                                                 <h6 class="text-sm font-weight-normal mb-1">
                                                     <span class="font-weight-bold">ألبوم جديد</span> بواسطة Travis Scott
                                                 </h6>
                                                 <p class="text-xs text-secondary mb-0">
-                                                    <i class="fa fa-clock ms-1"></i> @* me-1 to ms-1 *@
+                                                    <i class="fa fa-clock ms-1"></i>
                                                     منذ يوم واحد
-                                                </p>
-                                            </div>
-                                        </div>
-                                    </a>
-                                </li>
-                                <li>
-                                    <a class="dropdown-item border-radius-md" href="javascript:;">
-                                        <div class="d-flex py-1">
-                                            <div class="avatar avatar-sm bg-gradient-secondary ms-3 my-auto">
-                                                @* me-3 to ms-3 *@
-                                                <svg width="12px" height="12px" viewBox="0 0 43 36" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-                                                    <title>credit-card</title>
-                                                    <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-                                                        <g transform="translate(-2169.000000, -745.000000)" fill="#FFFFFF" fill-rule="nonzero">
-                                                            <g transform="translate(1716.000000, 291.000000)">
-                                                                <g transform="translate(453.000000, 454.000000)">
-                                                                    <path class="color-background" d="M43,10.7482083 L43,3.58333333 C43,1.60354167 41.3964583,0 39.4166667,0 L3.58333333,0 C1.60354167,0 0,1.60354167 0,3.58333333 L0,10.7482083 L43,10.7482083 Z" opacity="0.593633743"></path>
-                                                                    <path class="color-background" d="M0,16.125 L0,32.25 C0,34.2297917 1.60354167,35.8333333 3.58333333,35.8333333 L39.4166667,35.8333333 C41.3964583,35.8333333 43,34.2297917 43,32.25 L43,16.125 L0,16.125 Z M19.7083333,26.875 L7.16666667,26.875 L7.16666667,23.2916667 L19.7083333,23.2916667 L19.7083333,26.875 Z M35.8333333,26.875 L28.6666667,26.875 L28.6666667,23.2916667 L35.8333333,23.2916667 L35.8333333,26.875 Z"></path>
-                                                                </g>
-                                                            </g>
-                                                        </g>
-                                                    </g>
-                                                </svg>
-                                            </div>
-                                            <div class="d-flex flex-column justify-content-center">
-                                                <h6 class="text-sm font-weight-normal mb-1">
-                                                    اكتمل الدفع بنجاح
-                                                </h6>
-                                                <p class="text-xs text-secondary mb-0">
-                                                    <i class="fa fa-clock ms-1"></i> @* me-1 to ms-1 *@
-                                                    منذ يومين
                                                 </p>
                                             </div>
                                         </div>
@@ -359,7 +186,6 @@
                         </li>
                         <li class="nav-item d-flex align-items-center">
                             <a asp-controller="Account" asp-action="Login" class="nav-link text-body font-weight-bold px-0">
-                                @* تم تعديل الرابط *@
                                 <i class="material-symbols-rounded">account_circle</i>
                             </a>
                         </li>
@@ -368,7 +194,7 @@
             </div>
         </nav>
         <!-- End Navbar -->
-        <div class="container-fluid py-2">
+        <div class="container-fluid ">
             @RenderBody()
 
             <footer class="footer py-4  ">
@@ -380,9 +206,6 @@
                                 <script>
                                     document.write(new Date().getFullYear())
                                 </script>,
-                                صنع بـ <i class="fa fa-heart"></i> بواسطة
-                                <a href="https://www.creative-tim.com" class="font-weight-bold" target="_blank">Creative Tim</a>
-                                لويب أفضل.
                             </div>
                         </div>
                         <div class="col-lg-6">
@@ -397,7 +220,7 @@
                                     <a href="https://www.creative-tim.com/blog" class="nav-link text-muted" target="_blank">المدونة</a>
                                 </li>
                                 <li class="nav-item">
-                                    <a href="https://www.creative-tim.com/license" class="nav-link ps-0 text-muted" target="_blank">الرخصة</a> @* pe-0 to ps-0 *@
+                                    <a href="https://www.creative-tim.com/license" class="nav-link ps-0 text-muted" target="_blank">الرخصة</a>
                                 </li>
                             </ul>
                         </div>
@@ -449,7 +272,6 @@
                     <button class="btn bg-gradient-dark px-3 mb-2 ms-2" data-class="bg-transparent" onclick="sidebarType(this)">شفاف</button>
                     <button class="btn bg-gradient-dark px-3 mb-2 active ms-2" data-class="bg-white" onclick="sidebarType(this)">أبيض</button>
                 </div>
-                <p class="text-sm d-xl-none d-block mt-2">يمكنك تغيير نوع الشريط الجانبي فقط في عرض سطح المكتب.</p>
                 <!-- Navbar Fixed -->
                 <div class="mt-3 d-flex">
                     <h6 class="mb-0">تثبيت شريط التنقل</h6>
@@ -465,24 +287,13 @@
                     </div>
                 </div>
                 <hr class="horizontal dark my-sm-4">
-                <a class="btn bg-gradient-info w-100" href="https://www.creative-tim.com/product/material-dashboard-pro">تحميل مجاني</a>
-                <a class="btn btn-outline-dark w-100" href="https://www.creative-tim.com/learning-lab/bootstrap/overview/material-dashboard">عرض التوثيق</a>
-                <div class="w-100 text-center">
-                    <a class="github-button" href="https://github.com/creativetimofficial/material-dashboard" data-icon="octicon-star" data-size="large" data-show-count="true" aria-label="Star creativetimofficial/material-dashboard on GitHub">Star</a>
-                    <h6 class="mt-3">شكرا لمشاركتك!</h6>
-                    <a href="https://twitter.com/intent/tweet?text=Check%20Material%20UI%20Dashboard%20made%20by%20%40CreativeTim%20%23webdesign%20%23dashboard%20%23bootstrap5&url=https%3A%2F%2Fwww.creative-tim.com%2Fproduct%2Fsoft-ui-dashboard" class="btn btn-dark mb-0 ms-2" target="_blank">
-                        @* me-2 to ms-2 *@
-                        <i class="fab fa-twitter me-1" aria-hidden="true"></i> تغريد
-                    </a>
-                    <a href="https://www.facebook.com/sharer/sharer.php?u=https://www.creative-tim.com/product/material-dashboard" class="btn btn-dark mb-0 ms-2" target="_blank">
-                        @* me-2 to ms-2 *@
-                        <i class="fab fa-facebook-square me-1" aria-hidden="true"></i> مشاركة
-                    </a>
-                </div>
+
             </div>
         </div>
     </div>
     <!--   Core JS Files   -->
+    <script src="~/js/jquery.min.js"></script>
+    <script src="~/js/jquery-migrate.js"></script>
     <script src="~/assets/js/core/popper.min.js"></script>
     <script src="~/assets/js/core/bootstrap.min.js"></script>
     <script src="~/assets/js/plugins/perfect-scrollbar.min.js"></script>
@@ -496,12 +307,43 @@
             Scrollbar.init(document.querySelector('#sidenav-scrollbar'), options);
         }
     </script>
-    <!-- Github buttons -->
-    <script async defer src="https://buttons.github.io/buttons.js"></script>
-    <!-- Control Center for Material Dashboard: parallax effects, scripts for the example pages etc -->
     <script src="~/assets/js/material-dashboard.min.js?v=3.2.0"></script>
+    <!-- Easing JS -->
+    <script src="~/js/easing.js"></script>
+    <!-- Color JS -->
+    <script src="~/js/colors.js"></script>
+    <!-- Bootstrap Datepicker JS -->
+    <script src="~/js/bootstrap-datepicker.js"></script>
+    <!-- Jquery Nav JS -->
+    <script src="~/js/jquery.nav.js"></script>
+    <!-- Slicknav JS -->
+    <script src="~/js/slicknav.min.js"></script>
+    <!-- ScrollUp JS -->
+    <script src="~/js/jquery.scrollUp.min.js"></script>
+    <!-- Niceselect JS -->
+    <script src="~/js/niceselect.js"></script>
+    <!-- Tilt Jquery JS -->
+    <script src="~/js/tilt.jquery.min.js"></script>
+    <!-- Owl Carousel JS -->
+    <script src="~/js/owl-carousel.js"></script>
+    <!-- counterup JS -->
+    <script src="~/js/jquery.counterup.min.js"></script>
+    <script src="~/js/waypoints.min.js"></script>
+    <!-- Steller JS -->
+    <script src="~/js/steller.js"></script>
+    <!-- Wow JS -->
+    <script src="~/js/wow.min.js"></script>
+    <!-- Magnific Popup JS -->
+    <script src="~/js/jquery.magnific-popup.min.js"></script>
+    <!-- Main JS -->
+    <script src="~/js/main.js"></script>
+    <!-- Github buttons -->
+   
+    <script async defer src="https://buttons.github.io/buttons.js"></script>
 
-    @* لإضافة سكربتات خاصة بالصفحة الحالية *@
+    <script cript src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script src="~/js/tcreatejs.js"></script>
+
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 

@@ -7,11 +7,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="wwwroot\img\" />
-    <Folder Include="wwwroot\css\" />
-    <Folder Include="wwwroot\js\" />
+    <Folder Include="wwwroot\pictures\userProfile\" />
+    <Folder Include="wwwroot\pictures\trainers\" />
     <Folder Include="wwwroot\templates\" />
-    <Folder Include="wwwroot\pictures\" />
   </ItemGroup>
 
   <ItemGroup>

@@ -194,17 +194,21 @@ namespace TrainingManagementSystem.Controllers
             ViewBag.ErrorMessage = "Email Confirmation failed";
             return View();
         }
-        public async Task<IActionResult> Login()
+        public Task<IActionResult> Login()
         {
             if (_signInManager.IsSignedIn(User))
             {
-                return RedirectToAction("Register", "Account");
+                return Task.FromResult<IActionResult>(RedirectToAction("Register", "Account"));
             }
 
-            return View();
+            var loginViewModel = new LoginVM
+            {
+                Email = string.Empty,    // تهيئة الحقول المطلوبة
+                Password = string.Empty, // تهيئة الحقول المطلوبة
+                RememberMe = false       // القيمة الافتراضية لـ bool
+            };
 
-            //var userName = User.Identity.Name;
-            //User.IsInRole("Admin");
+            return Task.FromResult<IActionResult>(View(loginViewModel)); 
 
 
         }
