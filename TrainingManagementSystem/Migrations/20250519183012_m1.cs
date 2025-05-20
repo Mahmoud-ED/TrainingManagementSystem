@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace TrainingManagementSystem.Migrations
 {
     /// <inheritdoc />
-    public partial class CreateDB : Migration
+    public partial class m1 : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -481,6 +481,7 @@ namespace TrainingManagementSystem.Migrations
                     QualificationId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     UserId = table.Column<string>(type: "nvarchar(450)", nullable: true),
                     CVUrl = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ProfileImageUrl = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Created = table.Column<DateTime>(type: "datetime2", nullable: false),
                     Modified = table.Column<DateTime>(type: "datetime2", nullable: true)
                 },

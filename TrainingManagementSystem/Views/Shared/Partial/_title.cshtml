@@ -1,0 +1,19 @@
+﻿@{
+    if (ViewBag.LogoUrl != null)
+    {
+        <link rel="Shortcut Icon" href="~/pictures/@ViewBag.LogoUrl" />
+    }
+    else
+    {
+        <link rel="Shortcut Icon" href="~/img/nn.jpg" />
+    }
+
+    if (@ViewData["Title"] != null)
+    {
+        <title>@ViewData["Title"] - @ViewBag.SiteName</title>
+    }
+    else
+    {
+        <title>@ViewBag.SiteName</title>
+    }
+}

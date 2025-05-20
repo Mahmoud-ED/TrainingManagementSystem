@@ -1,0 +1,45 @@
+﻿
+@if (TempData["SuccessMessage"] != null)
+{
+    <script>
+        $(function () {
+            var toast = new bootstrap.Toast($("#toastsuccess"));
+            toast.show();
+        });
+    </script>
+}
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <script>
+        $(function () {
+            var toast = new bootstrap.Toast($("#toastdanger"));
+            toast.show();
+        });
+    </script>
+}
+
+<div class="toast-container position-fixed top-0 end-0 p-3">
+    <div id="toastsuccess" class="toast border text-white bg-success fade" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="toast-header">
+            <strong class="me-auto">Done!</strong>
+            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+        <div class="toast-body">
+            @TempData["SuccessMessage"]
+        </div>
+    </div>
+</div>
+
+
+<div class="toast-container position-fixed top-0 end-0 p-3">
+    <div id="toastdanger" class="toast border text-white bg-danger fade" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="toast-header">
+            <strong class="me-auto">faild!</strong>
+            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+        <div class="toast-body">
+            @TempData["ErrorMessage"]
+        </div>
+    </div>
+</div>

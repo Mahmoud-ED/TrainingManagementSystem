@@ -42,6 +42,7 @@ namespace TrainingManagementSystem.Models
         public DbSet<SiteState> SiteState { get; set; }
         public DbSet<UserProfile> UserProfiles { get; set; }
         public DbSet<Employee> Employees { get; set; }
+        public DbSet<SiteInfo> SiteInfo { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {

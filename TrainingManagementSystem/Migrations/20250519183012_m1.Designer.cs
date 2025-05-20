@@ -12,8 +12,8 @@ using TrainingManagementSystem.Models;
 namespace TrainingManagementSystem.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250519122359_Trainer1")]
-    partial class Trainer1
+    [Migration("20250519183012_m1")]
+    partial class m1
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

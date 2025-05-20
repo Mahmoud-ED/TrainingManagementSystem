@@ -14,7 +14,7 @@ using TrainingManagementSystem.ViewModels.Identity;
 
 namespace TrainingManagementSystem.Controllers
 {
-    //[ViewLayout("_Layout")]
+    [ViewLayout("_Layout")]
     public class HomeController : BaseController
     {
         private readonly UserManager<ApplicationUser> _userManager;
@@ -50,7 +50,6 @@ namespace TrainingManagementSystem.Controllers
             _signInManager = signInManager;
         }
 
-        [ViewLayout("_LayoutTemplate")]
         public async Task<IActionResult> Index()
         {
 

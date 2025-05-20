@@ -15,7 +15,7 @@ namespace TrainingManagementSystem.Models
                   new SiteInfo()
                   {
                       Id = Guid.NewGuid(),
-                      Name = "نظام إدارة التدريب للمعهد الليبي للمالية العامة",
+                      Name = "إدارة التدريب للمعهد الليبي للمالية العامة",
                       Activity = "إدارة تدريب",
                       About = "منظومة تدريب إلكترونية تهدف إلى تحسين إدارة الدورات التدريبية داخل المعهد من خلال أتمتة جميع العمليات المرتبطة بالتدريب.",
                       Created = DateTime.Now
@@ -59,8 +59,8 @@ namespace TrainingManagementSystem.Models
             //-------------------Programmer-----------------------------
 
             string programmerId = Guid.NewGuid().ToString();
-            //string programmerName = "Programmer@Gmail.com";
-            
+            //string programmerName = "REEMA2783@GMAIL.COM";
+
             var programmerSettings = serviceProvider.
                              GetRequiredService<IOptions<ProgrammerSettings>>().Value;
             string programmerName = programmerSettings.ProgrammerName;
@@ -84,22 +84,19 @@ namespace TrainingManagementSystem.Models
             };
 
             var hasher = new PasswordHasher<ApplicationUser>();
-            Programmer.PasswordHash = 
+            Programmer.PasswordHash =
                 hasher.HashPassword(Programmer, programmerPassword);
-            
+
             modelBuilder.Entity<ApplicationUser>().HasData(Programmer);
 
 
             //-------------Add User to Role--------------------
             modelBuilder.Entity<IdentityUserRole<string>>().HasData(
-                new IdentityUserRole<string>
-                {
-                    RoleId = progRoleId,
-                    UserId = programmerId
-                });
-            //-----------------------------------------------------
+            new IdentityUserRole<string>
+            {
+                RoleId = progRoleId,
+                UserId = programmerId
+            });
         }
-
     }
 }
-
