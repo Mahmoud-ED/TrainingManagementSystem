@@ -1,90 +1,140 @@
-﻿    body {
-
-    font-family: 'Cairo', 'Inter', sans-serif;
+﻿/* تخصيصات إضافية إذا لزم الأمر */
+body {
+    font-family: 'Cairo', 'Poppins', sans-serif; /* إضافة Cairo كخيار أساسي للعربية */
 }
 
-.form-check .form-check-input {
-    float: right;
-    margin-left: 0.5em;
-    margin-right: 0;
+.login.section {
+    background: #f4f7fe; /* لون خلفية مشابه لما قد يكون في قالب طبي أو احترافي */
+    padding: 80px 0; /* مساحة كافية حول النموذج */
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
-.input-group-outline .form-label {
-    right: 0.75rem;
-    left: auto;
-    transform-origin: right center !important;
+.login-form {
+    background: #fff;
+    padding: 40px;
+    border-radius: 8px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
 }
 
-.input-group.input-group-outline.is-focused .form-label,
-.input-group.input-group-outline.is-filled .form-label {
-    transform: translateY(-125%) translateX(-10%) scale(.8) !important;
+    .login-form h2 {
+        text-align: center;
+        margin-bottom: 15px;
+        color: #333;
+        font-weight: 600;
+    }
+
+    .login-form p {
+        text-align: center;
+        margin-bottom: 30px;
+        font-size: 15px;
+    }
+
+    .login-form .form-group {
+        margin-bottom: 20px;
+    }
+
+        .login-form .form-group input[type="email"],
+        .login-form .form-group input[type="password"],
+        .login-form .form-group input[type="text"] /* للتوافق مع LoginVM إذا كان به حقول أخرى */ {
+            height: 50px;
+            border-radius: 5px;
+            border: 1px solid #e1e1e1;
+            padding: 0 20px;
+        }
+
+            .login-form .form-group input[type="email"]:focus,
+            .login-form .form-group input[type="password"]:focus,
+            .login-form .form-group input[type="text"]:focus {
+                border-color: #007bff; /* لون التمييز من Mediplus أو لونك الخاص */
+                box-shadow: none;
+            }
+
+
+    .login-form .btn {
+        width: 100%;
+        height: 50px;
+        border-radius: 5px;
+        background: #007bff; /* استخدم لون الزر الأساسي من Mediplus */
+        color: #fff;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+        .login-form .btn:hover {
+            background: #0056b3;
+        }
+
+    .login-form .checkbox label {
+        font-size: 14px;
+        color: #555;
+    }
+
+    .login-form .checkbox input {
+        margin-left: 8px; /* تعديل لـ RTL */
+    }
+
+    .login-form .lost-pass {
+        display: block;
+        text-align: center;
+        margin-top: 15px;
+        font-size: 14px;
+        color: #007bff;
+    }
+
+        .login-form .lost-pass:hover {
+            text-decoration: underline;
+        }
+
+.text-danger {
+    font-size: 0.875em; /* حجم خط أصغر لرسائل الخطأ */
+    margin-top: .25rem;
 }
 
-.text-start {
-    text-align: right !important;
+.login-left {
+    /* يمكنك وضع صورة هنا إذا أردت، كما في قالب Mediplus */
+    /* background-image: url('~/img/login-image.jpg'); */
+    background-color: #e9ecef; /* لون مؤقت إذا لم تكن هناك صورة */
+    min-height: 300px; /* أو اجعله 100% من ارتفاع البطاقة */
+    background-size: cover;
+    background-position: center;
+    border-radius: 8px 0 0 8px; /* إذا كانت الصورة على يسار النموذج داخل بطاقة واحدة */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+/* لجعل الصورة والنموذج في "بطاقة" واحدة متصلة */
+.login .inner > .row {
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+    overflow: hidden; /* لإخفاء أي تجاوز من الصورة المستديرة */
 }
 
-.ms-3 {
-    margin-right: 1rem !important;
-    margin-left: 0 !important;
+.login .inner .col-lg-6 {
+    padding: 0; /* إزالة الـ padding الافتراضي من أعمدة bootstrap */
 }
 
-.me-1 {
-    margin-left: 0.25rem !important;
-    margin-right: 0 !important;
+.login .inner .login-form {
+    box-shadow: none; /* الظل الآن على الـ row الرئيسي */
+    border-radius: 0 8px 8px 0;
 }
 
-.me-2 {
-    margin-left: 0.5rem !important;
-    margin-right: 0 !important;
+.login .inner .login-left {
+    border-radius: 8px 0 0 8px;
+}
+/* إذا لم يكن هناك صورة وتريد فقط النموذج في المنتصف */
+.login-form-only .login-left {
+    display: none;
 }
 
-.ms-lg-0 {
-    margin-right: 0 !important;
-    margin-left: 0 !important;
+.login-form-only .login-form-wrapper {
+    margin: auto; /* لتوسيط النموذج إذا كان هو الوحيد */
 }
 
-.mx-auto {
-    margin-right: auto !important;
-    margin-left: auto !important;
-}
-
-.pe-1 {
-    padding-left: 0.25rem !important;
-    padding-right: 0 !important;
-}
-
-.ps-2 {
-    padding-right: 0.5rem !important;
-    padding-left: 0 !important;
-}
-
-.pe-0 {
-    padding-left: 0 !important;
-    padding-right: 0 !important;
-}
-
-.mx-4 {
-    margin-right: 1.5rem !important;
-    margin-left: 1.5rem !important;
-}
-
-.start-0 {
-    right: 0 !important;
-    left: unset !important;
-}
-
-.end-0 {
-    left: 0 !important;
-    right: unset !important;
-}
-
-.text-lg-start {
-    text-align: right !important;
-}
-
-.fa-key, .fa-user, .fa-chart-pie, .fa-user-circle {
-    margin-left: 0.25rem;
-    margin-right: 0;
-}
+.login-form-only .login-form {
+    border-radius: 8px; /* جميع الحواف دائرية */
 }
