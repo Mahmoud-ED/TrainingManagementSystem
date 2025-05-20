@@ -1,0 +1,71 @@
+﻿@model TrainingManagementSystem.Models.Entities.Qualification
+
+@{
+    ViewData["Title"] = "إضافة مؤهل جديد";
+}
+
+<div class="breadcrumbs overlay" style="background-image: url('@Url.Content("~/mediplus_theme/img/breadcrumb-bg.jpg")');">
+    <div class="container">
+        <div class="bread-inner">
+            <div class="row">
+                <div class="col-12">
+                    <h2>@ViewData["Title"]</h2>
+                    <ul class="bread-list">
+                        <li><a asp-controller="Admin" asp-action="Index">لوحة التحكم</a></li>
+                        <li><i class="icofont-simple-right"></i></li>
+                        <li><a asp-controller="Qualifications" asp-action="Index">المؤهلات</a></li>
+                        <li><i class="icofont-simple-right"></i></li>
+                        <li class="active">@ViewData["Title"]</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<section class="appointment single-page section">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-6 col-md-8 col-12 mx-auto">
+                <div class="appointment-inner">
+                    <div class="title text-center mb-4">
+                        <h3><i class="icofont-certificate-alt-1"></i> تفاصيل المؤهل الجديد</h3>
+                        <p>يرجى إدخال اسم المؤهل.</p>
+                    </div>
+
+                    <form asp-action="Create" method="post" class="form">
+                        @Html.AntiForgeryToken()
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger text-center p-2 mb-3" role="alert"></div>
+
+                        <div class="form-group mb-3">
+                            <label asp-for="Name" class="form-label"></label>
+                            <input asp-for="Name" class="form-control" placeholder="اسم المؤهل" />
+                            <span asp-validation-for="Name" class="text-danger d-block mt-1 small"></span>
+                        </div>
+
+                        <div class="row mt-4">
+                            <div class="col-12">
+                                <div class="form-group">
+                                    <div class="button d-flex justify-content-center gap-2">
+                                        <a asp-action="Index" class="btn btn-secondary">
+                                            <i class="icofont-close-line-circled"></i> إلغاء
+                                        </a>
+                                        <button type="submit" class="btn btn-primary">
+                                            <i class="icofont-save"></i> حفظ المؤهل
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

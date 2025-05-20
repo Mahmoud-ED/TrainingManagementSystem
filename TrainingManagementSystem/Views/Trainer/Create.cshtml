@@ -4,225 +4,239 @@
     ViewData["Title"] = "إضافة مدرب جديد";
 }
 
-@* يمكنك إضافة هذا إذا كنت ستضمن Select2 CSS هنا فقط وليس في _Layout.cshtml *@
-@*
-@section Styles {
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" />
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" />
-    <style>
-        /* لتصحيح عرض select2 مع input-group-outline */
-        .select2-container--bootstrap-5 .select2-selection {
-            border: 1px solid #d2d6da; /* لون مشابه لـ input-group-outline */
-            min-height: calc(1.5em + 1rem + 2px); /* ارتفاع مشابه */
-            padding: .5rem .75rem;
-            border-radius: .375rem; /* border-radius مشابه */
-        }
-        .input-group.input-group-outline.is-focused .select2-container--bootstrap-5 .select2-selection,
-        .input-group.input-group-outline.is-filled .select2-container--bootstrap-5 .select2-selection {
-            border-color: #e91e63; /* لون التركيز الأساسي في Material Dashboard، يمكن تعديله */
-            box-shadow: inset 0 0 0 1px #e91e63;
-        }
-        .input-group .select2-container--bootstrap-5 {
-            width: 100% !important; /* لجعل Select2 يملأ العرض داخل input-group */
-        }
-    </style>
-}
-*@
-
-<div class="row">
-    <div class="col-lg-9 col-md-12 mx-auto">
-        @* توسيع العمود قليلاً *@
-        <div class="card my-4">
-            <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
-                <div class="bg-gradient-primary shadow-primary border-radius-lg pt-4 pb-3">
-                    <h6 class="text-white text-capitalize ps-3"><i class="material-symbols-rounded opacity-10 me-2">person_add</i>@ViewData["Title"]</h6>
+<!-- Breadcrumbs (إذا كنت تستخدمه) -->
+<div class="breadcrumbs overlay" style="background-image: url('@Url.Content("~/mediplus_theme/img/breadcrumb-bg.jpg")');">
+    <div class="container">
+        <div class="bread-inner">
+            <div class="row">
+                <div class="col-12">
+                    <h2>@ViewData["Title"]</h2>
+                    <ul class="bread-list">
+                        <li><a asp-controller="Admin" asp-action="Index">لوحة التحكم</a></li>
+                        <li><i class="icofont-simple-right"></i></li>
+                        <li><a asp-controller="Trainer" asp-action="Index">المدربين</a></li>
+                        <li><i class="icofont-simple-right"></i></li>
+                        <li class="active">@ViewData["Title"]</li>
+                    </ul>
                 </div>
-            </div>
-            <div class="card-body px-4 pb-3">
-                <form asp-action="Create" method="post" enctype="multipart/form-data">
-                    @Html.AntiForgeryToken()
-                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
-
-                    <h6 class="text-dark text-sm mt-2 mb-3">المعلومات الأساسية</h6>
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label asp-for="ArName" class="form-label"></label>
-                            <div class="input-group input-group-outline">
-                                <input asp-for="ArName" class="form-control" />
-                            </div>
-                            <span asp-validation-for="ArName" class="text-danger text-xs"></span>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label asp-for="EnName" class="form-label"></label>
-                            <div class="input-group input-group-outline">
-                                <input asp-for="EnName" class="form-control" />
-                            </div>
-                            <span asp-validation-for="EnName" class="text-danger text-xs"></span>
-                        </div>
-                    </div>
-
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label asp-for="PhoneNo" class="form-label"></label>
-                            <div class="input-group input-group-outline">
-                                <span class="input-group-text"><i class="material-symbols-rounded">call</i></span>
-                                <input asp-for="PhoneNo" class="form-control" placeholder="مثال: 05xxxxxxxx" />
-                            </div>
-                            <span asp-validation-for="PhoneNo" class="text-danger text-xs"></span>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label asp-for="Email" class="form-label"></label>
-                            <div class="input-group input-group-outline">
-                                <span class="input-group-text"><i class="material-symbols-rounded">mail</i></span>
-                                <input asp-for="Email" class="form-control" type="email" placeholder="example@domain.com" />
-                            </div>
-                            <span asp-validation-for="Email" class="text-danger text-xs"></span>
-                        </div>
-                    </div>
-
-                    <h6 class="text-dark text-sm mt-3 mb-3">المعلومات الإضافية</h6>
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label asp-for="NationalNo" class="form-label"></label>
-                            <div class="input-group input-group-outline">
-                                <input asp-for="NationalNo" class="form-control" />
-                            </div>
-                            <span asp-validation-for="NationalNo" class="text-danger text-xs"></span>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label asp-for="Employer" class="form-label"></label>
-                            <div class="input-group input-group-outline">
-                                <input asp-for="Employer" class="form-control" />
-                            </div>
-                            <span asp-validation-for="Employer" class="text-danger text-xs"></span>
-                        </div>
-                    </div>
-
-                    <div class="mb-3">
-                        <label asp-for="QualificationId" class="form-label"></label>
-                        <div class="input-group input-group-outline">
-                            @* استخدام id لتطبيق Select2 *@
-                            <select asp-for="QualificationId" id="qualificationSelect" class="form-control select2-basic" asp-items="@Model.QualificationsList">
-                                <option value="">-- اختر المؤهل --</option>
-                            </select>
-                        </div>
-                        <span asp-validation-for="QualificationId" class="text-danger text-xs"></span>
-                    </div>
-
-                    <div class="mb-3">
-                        <label asp-for="SelectedSpecializationIds" class="form-label"></label>
-                        <div class="input-group input-group-outline">
-                            @* استخدام id لتطبيق Select2 *@
-                            <select asp-for="SelectedSpecializationIds" id="specializationSelect" class="form-control select2-multiple" asp-items="@Model.SpecializationsList" multiple="multiple">
-                            </select>
-                        </div>
-                        <span asp-validation-for="SelectedSpecializationIds" class="text-danger text-xs"></span>
-                        @* الملاحظة لم تعد ضرورية مع Select2 *@
-                        @* <small class="form-text text-muted">يمكنك اختيار أكثر من تخصص بالضغط على Ctrl (أو Cmd على Mac) مع النقر.</small> *@
-                    </div>
-
-
-                    <div class="mb-3">
-                        <label asp-for="CVFile" class="form-label"></label>
-                        <div class="input-group input-group-outline">
-                            <span class="input-group-text"><i class="material-symbols-rounded">attach_file</i></span>
-                            <input asp-for="CVFile" class="form-control" type="file" />
-                        </div>
-                        <span asp-validation-for="CVFile" class="text-danger text-xs"></span>
-                    </div>
-
-
-
-                    <div class="col-md-6">
-                        <!-------------------------------------File&Image------------------------------------------------------>
-                        <div class="form-group">
-                            <label class="control-label">ProfileImage</label>
-                            <input id="input1" type="file" asp-for="ProfileImageUrl" onchange="UploadImageFile(this,'img1','isImg1');" class="form-control custom-file-input" />
-                            <input type="hidden" name="isImg1" id="isImg1" value="..." />
-                        </div>
-
-                        <div class="form-group">
-                            <button type="button" class="btn-close" aria-label="Close" onclick="return clearFile('input1','img1','isImg1');"></button>
-                            @if (Model != null)
-                            {
-                                if (Model.ProfileImageUrl != null)
-                                {
-                                    <img id="img1" src="~/pictures/trainers/@Model.ProfileImageUrl" onclick="return clickFile('input1');" style="width:100%;height:300px" class="img-thumbnail" />
-                                    <input type="hidden" asp-for="@Model.ProfileImageUrl" />
-                                }
-                                else
-                                {
-                                    <img id="img1" src="~/img/OIP.jpeg" onclick="return clickFile('input1');" style="width:100%;height:300px" class="img-thumbnail" />
-                                }
-                            }
-                            else
-                            {
-                                <img id="img1" src="~/img/OIP.jpeg" onclick="return clickFile('input1');" style="width:100%;height:300px" class="img-thumbnail" />
-                            }
-                        </div>
-                        <!------------------------------------------------------------------------------->
-                    </div>
-
-                    <hr class="dark horizontal my-4">
-
-                    <div class="d-flex justify-content-end mt-4">
-                        <a asp-action="Index" class="btn btn-outline-secondary me-2">
-                            <i class="material-symbols-rounded opacity-10 me-1"></i> إلغاء
-                        </a>
-                        <button type="submit" class="btn bg-gradient-primary">
-                            <i class="material-symbols-rounded opacity-10 me-1"></i> حفظ المدرب
-                        </button>
-                    </div>
-                </form>
             </div>
         </div>
     </div>
 </div>
+<!-- End Breadcrumbs -->
+
+<section class="appointment single-page section">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-10 col-md-12 col-12 mx-auto">
+                <!-- تم توسيط العمود قليلاً -->
+                <div class="appointment-inner">
+                    <div class="title text-center mb-4">
+                        <h3><i class="icofont-teacher"></i> تفاصيل المدرب الجديد</h3>
+                        <p>يرجى ملء جميع الحقول المطلوبة بعناية.</p>
+                    </div>
+
+                    <form asp-action="Create" method="post" enctype="multipart/form-data" class="form">
+                        @Html.AntiForgeryToken()
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger text-center p-2 mb-3" role="alert"></div>
+
+                        <h5 class="form-section-title">المعلومات الأساسية</h5>
+                        <hr class="mt-1 mb-3">
+
+                        <div class="row">
+                            <div class="col-lg-6 col-md-6 col-12">
+                                <div class="form-group mb-3">
+                                    <label asp-for="ArName" class="form-label"></label>
+                                    <input asp-for="ArName" class="form-control" placeholder="الاسم باللغة العربية" />
+                                    <span asp-validation-for="ArName" class="text-danger d-block mt-1 small"></span>
+                                </div>
+                            </div>
+                            <div class="col-lg-6 col-md-6 col-12">
+                                <div class="form-group mb-3">
+                                    <label asp-for="EnName" class="form-label"></label>
+                                    <input asp-for="EnName" class="form-control" placeholder="الاسم باللغة الإنجليزية (اختياري)" />
+                                    <span asp-validation-for="EnName" class="text-danger d-block mt-1 small"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-lg-6 col-md-6 col-12">
+                                <div class="form-group mb-3">
+                                    <label asp-for="PhoneNo" class="form-label"></label>
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="icofont-phone"></i></span>
+                                        <input asp-for="PhoneNo" class="form-control" placeholder="مثال: 09xxxxxxxx" />
+                                    </div>
+                                    <span asp-validation-for="PhoneNo" class="text-danger d-block mt-1 small"></span>
+                                </div>
+                            </div>
+                            <div class="col-lg-6 col-md-6 col-12">
+                                <div class="form-group mb-3">
+                                    <label asp-for="Email" class="form-label"></label>
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="icofont-email"></i></span>
+                                        <input asp-for="Email" class="form-control" type="email" placeholder="example@domain.com" />
+                                    </div>
+                                    <span asp-validation-for="Email" class="text-danger d-block mt-1 small"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <h5 class="form-section-title mt-4">المعلومات الإضافية</h5>
+                        <hr class="mt-1 mb-3">
+
+                        <div class="row">
+                            <div class="col-lg-6 col-md-6 col-12">
+                                <div class="form-group mb-3">
+                                    <label asp-for="NationalNo" class="form-label"></label>
+                                    <input asp-for="NationalNo" class="form-control" placeholder="الرقم الوطني (اختياري)" />
+                                    <span asp-validation-for="NationalNo" class="text-danger d-block mt-1 small"></span>
+                                </div>
+                            </div>
+                            <div class="col-lg-6 col-md-6 col-12">
+                                <div class="form-group mb-3">
+                                    <label asp-for="Employer" class="form-label"></label>
+                                    <input asp-for="Employer" class="form-control" placeholder="جهة العمل (اختياري)" />
+                                    <span asp-validation-for="Employer" class="text-danger d-block mt-1 small"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-lg-6 col-md-6 col-12">
+                                <div class="form-group mb-3">
+                                    <label asp-for="QualificationId" class="form-label"></label>
+                                    <select asp-for="QualificationId" id="qualificationSelect" class="form-control select2-basic" asp-items="@Model.QualificationsList">
+                                        <option value="">-- اختر المؤهل --</option>
+                                    </select>
+                                    <span asp-validation-for="QualificationId" class="text-danger d-block mt-1 small"></span>
+                                </div>
+                            </div>
+                            <div class="col-lg-6 col-md-6 col-12">
+                                <div class="form-group mb-3">
+                                    <label asp-for="SelectedSpecializationIds" class="form-label"></label>
+                                    <select asp-for="SelectedSpecializationIds" id="specializationSelect" class="form-control select2-multiple" asp-items="@Model.SpecializationsList" multiple="multiple">
+                                    </select>
+                                    <span asp-validation-for="SelectedSpecializationIds" class="text-danger d-block mt-1 small"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <h5 class="form-section-title mt-4">الملفات المرفقة</h5>
+                        <hr class="mt-1 mb-3">
+
+                        <div class="row">
+                            <div class="col-lg-6 col-md-6 col-12">
+                                <div class="form-group mb-3">
+                                    <label asp-for="CVFile" class="form-label"></label>
+                                    <div class="input-group">
+                                        <input asp-for="CVFile" class="form-control" type="file" id="cvFileInput" />
+                                        <label class="input-group-text" for="cvFileInput"><i class="icofont-file-document"></i></label>
+                                    </div>
+                                    <span asp-validation-for="CVFile" class="text-danger d-block mt-1 small"></span>
+                                    <small class="form-text text-muted">الملفات المسموح بها: PDF, DOC, DOCX (الحجم الأقصى: 5MB)</small>
+                                </div>
+                            </div>
+                            <div class="col-lg-6 col-md-6 col-12">
+                                <div class="form-group mb-3">
+                                    <label asp-for="ProfileImageFile" class="form-label">الصورة الشخصية</label>
+                                    <div class="input-group">
+                                        <input id="input1" type="file" asp-for="ProfileImageFile" onchange="UploadImageFile(this,'img1','isImg1');" class="form-control custom-file-input" />
+                                        <label class="input-group-text" for="input1"><i class="icofont-image"></i></label>
+                                    </div>
+                                    <input type="hidden" name="isImg1" id="isImg1" value="@(string.IsNullOrEmpty(Model.ProfileImageUrl) ? "false" : "true")" />
+                                    <span asp-validation-for="ProfileImageFile" class="text-danger d-block mt-1 small"></span>
+                                </div>
+                                <div class="form-group mt-2 text-center position-relative">
+                                    <img id="img1" src="@(string.IsNullOrEmpty(Model.ProfileImageUrl) ? Url.Content("~/mediplus_theme/img/default-avatar.png") : Url.Content("~/pictures/trainers/" + Model.ProfileImageUrl))"
+                                         onclick="return clickFile('input1');"
+                                         style="max-width:150px; max-height:150px; object-fit: cover; cursor:pointer; border-radius: 50%; border: 2px solid #eee;"
+                                         class="img-thumbnail d-block mx-auto mb-2" alt="الصورة الشخصية" />
+                                    @if (!string.IsNullOrEmpty(Model.ProfileImageUrl) || true)
+                                    {
+                                        <button type="button" class="btn-close" aria-label="Close"
+                                                onclick="return clearFile('input1','img1','isImg1', '@Url.Content("~/mediplus_theme/img/default-avatar.png")');"
+                                                title="إزالة الصورة"
+                                                style="position: absolute; top: 0; right: 20%; transform: translate(50%, -50%); background-color: white; border-radius: 50%; padding: 0.2rem 0.35rem; z-index:10; box-shadow: 0 .125rem .25rem rgba(0,0,0,.075);"></button>
+                                    }
+                                    <input type="hidden" asp-for="ProfileImageUrl" /> <!-- للحفاظ على المسار إذا كان موجودًا ولم يتم تغيير الملف -->
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row mt-4">
+                            <div class="col-12">
+                                <div class="form-group">
+                                    <div class="button d-flex justify-content-center gap-2">
+                                        <!-- استخدام gap لتوفير مسافة -->
+                                        <a asp-action="Index" class="btn btn-secondary">
+                                            <i class="icofont-close-line-circled"></i> إلغاء
+                                        </a>
+                                        <button type="submit" class="btn btn-primary">
+                                            <i class="icofont-save"></i> حفظ المدرب
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
 
 @section Scripts {
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
         <script src="~/js/inputfileimage.js"></script>
     }
-    @* يمكنك إضافة هذا إذا كنت ستضمن Select2 JS هنا فقط وليس في _Layout.cshtml *@
     <script>
         $(document).ready(function () {
-            // تهيئة Select2 للقائمة المنسدلة الفردية (المؤهل)
-            $('#qualificationSelect').select2({
-                theme: "bootstrap-5", // استخدام ثيم bootstrap 5
-                placeholder: "-- اختر المؤهل --",
-                allowClear: true,
-                dropdownParent: $('#qualificationSelect').parent() // مهم إذا كان Select2 داخل Modal أو عناصر معقدة
-            });
+            if ($.fn.select2) { // تحقق من وجود مكتبة Select2
+                // تهيئة Select2 للقائمة المنسدلة الفردية (المؤهل)
+                $('#qualificationSelect').select2({
+                    theme: "bootstrap-5",
+                    placeholder: "-- اختر المؤهل --",
+                    allowClear: true,
+                    width: '100%',
+                    // dropdownParent: $('#qualificationSelect').closest('.form-group') // أفضل لـ Bootstrap 5
+                });
 
-            // تهيئة Select2 للقائمة المنسدلة متعددة الاختيارات (التخصصات)
-            $('#specializationSelect').select2({
-                theme: "bootstrap-5",
-                placeholder: "-- اختر التخصصات --",
-                allowClear: true, // يسمح بإزالة كل الاختيارات إذا لم يكن هناك شيء محدد
-                // closeOnSelect: false, // لإبقاء القائمة مفتوحة بعد كل اختيار (مفيد للمتعدد)
-                dropdownParent: $('#specializationSelect').parent()
-            });
+                // تهيئة Select2 للقائمة المنسدلة متعددة الاختيارات (التخصصات)
+                $('#specializationSelect').select2({
+                    theme: "bootstrap-5",
+                    placeholder: "-- اختر التخصصات --",
+                    allowClear: true,
+                    width: '100%',
+                    // dropdownParent: $('#specializationSelect').closest('.form-group')
+                });
+            } else {
+                console.error("Select2 is not loaded.");
+            }
 
-            // Material Dashboard يتلاعب بالـ label عند التركيز، قد تحتاج لتعديل بسيط لـ Select2
-            // للتأكد من أن label يرتفع بشكل صحيح عند فتح select2
-            $('.select2-basic, .select2-multiple').on('select2:open', function (e) {
-                $(this).closest('.input-group.input-group-outline').addClass('is-focused is-filled');
-            });
-            $('.select2-basic, .select2-multiple').on('select2:close', function (e) {
-                if ($(this).val() === null || $(this).val() === '' || ($(this).attr('multiple') && $(this).val().length === 0) ) {
-                     $(this).closest('.input-group.input-group-outline').removeClass('is-focused is-filled');
-                } else {
-                     $(this).closest('.input-group.input-group-outline').addClass('is-filled').removeClass('is-focused');
-                }
-            });
-             // عند التحميل الأولي إذا كانت هناك قيمة
-            $('.select2-basic, .select2-multiple').each(function() {
-                if ($(this).val() !== null && $(this).val() !== '' && (!$(this).attr('multiple') || $(this).val().length > 0)) {
-                    $(this).closest('.input-group.input-group-outline').addClass('is-filled');
-                }
-            });
+            // لتحديث اسم الملف في حقل الإدخال المخصص (إذا كنت تستخدم Bootstrap 5 custom file input)
+             $('#cvFileInput').on('change',function(e){
+                var fileName = e.target.files[0].name;
+                $(this).next('.input-group-text').html('<i class="icofont-file-document"></i> ' + fileName.substring(0,15) + (fileName.length > 15 ? '...' : ''));
+            })
         });
 
+        // تعديل بسيط على دالة clearFile لتقبل مسار الصورة الافتراضية
+        function clearFile(fileElementId, imgElementId, isImgHiddenId, defaultImgSrc) {
+            document.getElementById(fileElementId).value = ""; // مسح قيمة input file
+            document.getElementById(imgElementId).src = defaultImgSrc; // تعيين الصورة الافتراضية
+            document.getElementById(isImgHiddenId).value = "false"; // أو أي قيمة تشير إلى عدم وجود صورة
+            // إذا كان لديك حقل مخفي لـ ProfileImageUrl وتريد مسحه أيضًا
+            // var hiddenImageUrlField = document.querySelector('input[type="hidden"][name$="ProfileImageUrl"]');
+            // if(hiddenImageUrlField) hiddenImageUrlField.value = "";
+            return false;
+        }
+
+        // تعديل على دالة UploadImageFile إذا لزم الأمر (عادةً لا تحتاج لتعديل هنا إذا كانت تعمل)
+        // function UploadImageFile(input, imgTagId, isImgHiddenId) { ... }
+        // function clickFile(fileElementId) { ... }
     </script>
 }
