@@ -1342,7 +1342,6 @@ body {
   font-size: 32px;
 }
 .service-details-inner-left {
-  background-image: url("img/signup-bg.jpg");
   background-size: cover;
   background-position: center center;
   background-repeat: no-repeat;
@@ -2841,7 +2840,6 @@ body {
   overflow: hidden;
 }
 .login .login-left {
-  background-image: url(img/signup-bg.jpg);
   background-size: cover;
   background-position: center center;
   background-repeat: no-repeat;
@@ -2995,7 +2993,6 @@ body {
   overflow: hidden;
 }
 .register .register-left {
-  background-image: url(img/signup-bg.jpg);
   background-size: cover;
   background-position: center center;
   background-repeat: no-repeat;

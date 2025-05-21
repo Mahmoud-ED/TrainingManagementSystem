@@ -1,0 +1,74 @@
+﻿@model IEnumerable<TrainingManagementSystem.Models.Entities.Department>
+
+@{
+    ViewData["Title"] = "قائمة ";
+}
+
+<div class="container-fluid mt-4">
+
+    <div class="row mb-3">
+        <div class="col-md-6">
+            <h2>@ViewData["Title"]</h2>
+        </div>
+        <div class="col-md-6 text-start">
+            <a asp-action="Create" class="btn btn-primary">
+                <i class="icofont-plus-circle"></i> إضافة  
+            </a>
+        </div>
+    </div>
+
+    @if (Model != null && Model.Any())
+    {
+        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4">
+            @foreach (var item in Model)
+            {
+                <div class="col">
+                    <div class="card h-100 shadow-sm">
+                        <div class="card-body text-center">
+                            <h5 class="card-title mb-3">
+                                @Html.DisplayFor(modelItem => item.Name)
+                            </h5>
+                          
+                        </div>
+                        <div class="card-footer bg-light d-flex justify-content-around">
+                            <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary" title="تعديل">
+                                <i class="icofont-edit"></i> تعديل
+                            </a>
+                            <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-info" title="تفاصيل">
+                                <i class="icofont-info-circle"></i> تفاصيل
+                            </a>
+                            <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-outline-danger" title="حذف">
+                                <i class="icofont-ui-delete"></i> حذف
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-info text-center" role="alert">
+            <i class="icofont-info-square"></i> لا توجد مؤهلات لعرضها حاليًا. يمكنك <a asp-action="Create" class="alert-link">إضافة مؤهل جديد</a>.
+        </div>
+    }
+
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script>
+        // يمكنك إضافة أي سكريبت خاص بهذه الصفحة هنا
+        // على سبيل المثال، لتأكيد الحذف
+        $(document).ready(function () {
+            $('.btn-outline-danger').on('click', function (e) {
+                // يمكنك إضافة رسالة تأكيد قبل الحذف إذا أردت
+                // if (!confirm('هل أنت متأكد أنك تريد حذف هذا المؤهل؟')) {
+                //     e.preventDefault();
+                // }
+            });
+        });
+    </script>
+}

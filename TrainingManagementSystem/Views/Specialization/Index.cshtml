@@ -1,0 +1,147 @@
+﻿@model IEnumerable<Specialization>
+
+@{
+    ViewData["Title"] = "قائمة التخصصات";
+    // تأكد أن ملف _ViewStart.cshtml يشير إلى اللي اوت الصحيح
+    // Layout = "_MediplusLayout"; // أو اللي اوت الذي تستخدمه
+}
+
+<style>
+    /* يمكنك وضع هذه الأنماط في ملف CSS عام إذا كنت ستستخدمها في أكثر من مكان */
+    .card-title {
+        font-weight: 600;
+        color: #333; /* أو لون الثيم الأساسي */
+    }
+
+    .card-footer.bg-light {
+        background-color: #f8f9fa !important; /* للتأكد من تطبيق الخلفية */
+    }
+
+    .card-footer .btn {
+        font-size: 0.85rem; /* تصغير حجم الخط في الأزرار */
+        padding: 0.3rem 0.6rem; /* تصغير padding الأزرار */
+    }
+
+        .card-footer .btn i {
+            margin-right: 4px; /* مسافة بين الأيقونة والنص */
+        }
+
+    .alert-info i {
+        margin-right: 5px;
+        font-size: 1.2em;
+        vertical-align: middle;
+    }
+
+    .page-header-flex {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap; /* للسماح بالالتفاف في الشاشات الصغيرة */
+    }
+
+        .page-header-flex h2 {
+            margin-bottom: 0.5rem; /* تقليل الهامش السفلي للعنوان */
+        }
+
+        .page-header-flex .btn {
+            margin-bottom: 0.5rem; /* ليكون متناسقًا مع العنوان في حال التفاف العناصر */
+        }
+</style>
+
+<div class="container-fluid mt-4">
+
+    <div class="row mb-4 page-header-flex">
+        <div class="col-auto">
+            @* استخدام col-auto لجعل العمود يأخذ حجم المحتوى فقط *@
+            <h2>@ViewData["Title"]</h2>
+        </div>
+        <div class="col-auto text-start">
+            @* text-start أو text-md-end حسب تفضيلك *@
+            <a asp-action="Create" class="btn btn-primary">
+                <i class="icofont-plus-circle"></i> إضافة تخصص جديد
+            </a>
+        </div>
+    </div>
+
+    @* رسائل TempData للنجاح أو الخطأ *@
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="icofont-check-circled"></i> @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="icofont-error"></i> @TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+
+    @if (Model != null && Model.Any())
+    {
+        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4">
+            @foreach (var item in Model)
+            {
+                <div class="col d-flex align-items-stretch">
+                    @* لجعل البطاقات بنفس الارتفاع *@
+                    <div class="card h-100 shadow-sm">
+                        <div class="card-body text-center d-flex flex-column">
+                            @* لإدارة المحتوى داخل البطاقة بشكل أفضل *@
+                            <h5 class="card-title mb-3">
+                                @Html.DisplayFor(modelItem => item.Name)
+                            </h5>
+
+                            @* عرض تاريخ الإنشاء والتعديل بشكل منسق (اختياري) *@
+                            <div class="mt-auto text-muted small">
+                                @if (item.Created != DateTime.MinValue)
+                                {
+                                    <div><small>تاريخ الإنشاء: @item.Created.ToString("yyyy/MM/dd")</small></div>
+                                }
+                                @if (item.Modified != null && item.Modified != DateTime.MinValue)
+                                {
+                                    <div><small>آخر تعديل: @item.Modified?.ToString("yyyy/MM/dd")</small></div>
+                                }
+                            </div>
+                        </div>
+                        <div class="card-footer bg-light d-flex justify-content-around align-items-center">
+                            <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary" title="تعديل">
+                                <i class="icofont-edit"></i> تعديل
+                            </a>
+                            @* يمكنك إزالة زر التفاصيل إذا كانت صفحة التفاصيل لا تعرض معلومات إضافية كثيرة عن الاسم فقط *@
+                            @*
+                            <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-info" title="تفاصيل">
+                                <i class="icofont-info-circle"></i> تفاصيل
+                            </a>
+                            *@
+                            <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-outline-danger" title="حذف">
+                                <i class="icofont-ui-delete"></i> حذف
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-info text-center" role="alert">
+            <i class="icofont-info-square"></i> لا توجد تخصصات لعرضها حاليًا. يمكنك <a asp-action="Create" class="alert-link">إضافة تخصص جديد</a>.
+        </div>
+    }
+
+</div>
+
+@section Scripts {
+    @{
+        // إذا كنت تستخدم _ValidationScriptsPartial وهو غير ضروري هنا، يمكنك إزالته
+        // await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script>
+        $(document).ready(function () {
+          
+        });
+    </script>
+}

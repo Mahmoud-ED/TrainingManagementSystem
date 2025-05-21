@@ -1,0 +1,385 @@
+﻿@model Trainer
+
+@{
+    ViewData["Title"] = "تفاصيل المدرب: " + (Model?.ArName ?? "غير متوفر");
+    string profileImageUrl = string.IsNullOrEmpty(Model.ProfileImageUrl) ? Url.Content("~/mediplus_theme/img/default-avatar.png") : Url.Content("~/pictures/trainers/" + Model.ProfileImageUrl);
+    var specializations = Model.TrainerSpecializations?.Select(ts => ts.Specialization?.Name).Where(s => !string.IsNullOrEmpty(s)).ToList() ?? new List<string>();
+}
+
+<style>
+    /* Styles for the flippable card - will be moved to a separate CSS file or <style> in _Layout if used widely */
+    .trainer-card-container {
+        perspective: 1000px;
+        margin-bottom: 30px;
+        width: 350px; /* Adjust as needed */
+        height: 220px; /* Adjust as needed */
+        cursor: pointer;
+    }
+
+    .trainer-card {
+        width: 100%;
+        height: 100%;
+        position: relative;
+        transform-style: preserve-3d;
+        transition: transform 0.8s;
+        box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
+        border-radius: 15px;
+    }
+
+    .trainer-card.is-flipped {
+        transform: rotateY(180deg);
+    }
+
+    .trainer-card-face {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        backface-visibility: hidden;
+        border-radius: 15px;
+        overflow: hidden; /* To ensure rounded corners apply to content */
+        display: flex;
+        flex-direction: column;
+        padding: 20px;
+        box-sizing: border-box;
+    }
+
+    .trainer-card-front {
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        color: #333;
+        align-items: center; /* Center content horizontally */
+    }
+
+     .trainer-card-front .profile-pic-container {
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        overflow: hidden;
+        margin-bottom: 15px;
+        border: 3px solid #fff;
+        box-shadow: 0 0 10px rgba(0,0,0,0.2);
+    }
+
+    .trainer-card-front .profile-pic {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .trainer-card-front h4 {
+        margin-bottom: 5px;
+        color: #007bff; /* Primary color */
+        font-size: 1.3em;
+    }
+    .trainer-card-front p {
+        margin-bottom: 3px;
+        font-size: 0.9em;
+    }
+     .trainer-card-front .qualification {
+        font-style: italic;
+        color: #555;
+    }
+
+
+    .trainer-card-back {
+        background: linear-gradient(135deg, #6a85b6 0%, #bac8e0 100%);
+        color: white;
+        transform: rotateY(180deg);
+        justify-content: space-between; /* Pushes footer to bottom */
+    }
+    .trainer-card-back h5 {
+        border-bottom: 1px solid rgba(255,255,255,0.5);
+        padding-bottom: 5px;
+        margin-bottom: 10px;
+        font-size: 1.1em;
+    }
+    .trainer-card-back ul {
+        list-style: none;
+        padding-left: 0;
+        font-size: 0.85em;
+        margin-bottom:10px;
+        max-height: 80px; /* Adjust if needed */
+        overflow-y: auto;
+    }
+    .trainer-card-back ul li {
+        margin-bottom: 4px;
+    }
+    .trainer-card-back .contact-info p {
+        margin-bottom: 5px;
+        font-size: 0.9em;
+    }
+     .trainer-card-back .footer-logo {
+        text-align: center;
+        font-size: 0.8em;
+        opacity: 0.7;
+        margin-top: auto; /* Pushes to bottom if content is short */
+    }
+    .trainer-card-back .qr-code-container { /* Optional QR Code */
+        text-align:center;
+        margin-top:10px;
+    }
+    .trainer-card-back .qr-code-container img {
+        width: 60px; /* Adjust as needed */
+        height: 60px;
+        background-color: white; /* If QR has transparent background */
+        padding: 5px;
+        border-radius: 5px;
+    }
+
+
+    /* Print-specific styles */
+    @@media print {
+        body * {
+            visibility: hidden; /* Hide everything by default */
+        }
+        .printable-card-area, .printable-card-area * {
+            visibility: visible; /* Make only the card area visible */
+        }
+        .printable-card-area {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%; /* Ensure it takes up print page */
+            height: auto;
+        }
+        .trainer-card-container {
+            width: 85mm !important; /* Standard business card width */
+            height: 55mm !important; /* Standard business card height */
+            margin: 0 auto; /* Center on page */
+            box-shadow: none !important; /* Remove shadow for print */
+            border: 1px solid #ccc; /* Optional border for cutting guide */
+        }
+        .trainer-card-face {
+            padding: 10px !important; /* Reduce padding for print */
+            font-size: 8pt !important; /* Adjust font size for print */
+        }
+         .trainer-card-front .profile-pic-container {
+            width: 30mm !important;
+            height: 30mm !important;
+            margin-bottom: 5mm !important;
+        }
+        .trainer-card-front h4 { font-size: 10pt !important; margin-bottom: 2mm !important;}
+        .trainer-card-front p { font-size: 7pt !important; margin-bottom: 1mm !important;}
+
+        .trainer-card-back h5 { font-size: 9pt !important; }
+        .trainer-card-back ul { font-size: 7pt !important; max-height: none !important; }
+        .trainer-card-back .contact-info p { font-size: 7pt !important;}
+        .trainer-card-back .qr-code-container img { width: 15mm !important; height: 15mm !important;}
+
+
+        /* Handling two-sided print is tricky with just CSS for auto-flip.
+           Usually, you print one side, then manually flip and print the other.
+           Or, if printer supports duplex, it handles it.
+           This CSS will just make both sides available. For a true "flip" in print,
+           you might need to generate two separate pages/sections.
+           For simplicity, we'll show both next to each other or one after another.
+        */
+        .trainer-card {
+            transform: none !important; /* No Y rotation in print */
+            page-break-inside: avoid !important;
+        }
+        .trainer-card-front {
+             display: flex !important; /* Ensure it's visible */
+             position: relative !important; /* Override absolute */
+             transform: none !important;
+        }
+        .trainer-card-back {
+            display: flex !important; /* Ensure it's visible */
+            position: relative !important; /* Override absolute */
+            transform: none !important; /* No Y rotation */
+            margin-top: 5mm; /* Space between front and back if printed on same page side */
+            page-break-before: always; /* Attempt to put back on new page for duplex */
+        }
+        .no-print {
+            display: none !important; /* Hide non-printable elements */
+        }
+    }
+
+</style>
+
+<!-- Breadcrumbs -->
+<div class="breadcrumbs overlay no-print" style="background-image: url('@Url.Content("~/mediplus_theme/img/breadcrumb-bg.jpg")');">
+    <div class="container">
+        <div class="bread-inner">
+            <div class="row">
+                <div class="col-12">
+                    <h2>@ViewData["Title"]</h2>
+                    <ul class="bread-list">
+                        <li><a asp-controller="Admin" asp-action="Index">لوحة التحكم</a></li>
+                        <li><i class="icofont-simple-right"></i></li>
+                        <li><a asp-controller="Trainer" asp-action="Index">المدربين</a></li>
+                        <li><i class="icofont-simple-right"></i></li>
+                        <li class="active">تفاصيل المدرب</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- End Breadcrumbs -->
+
+<section class="section single-page no-print">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-md-12 col-12">
+                <div class="single-news">
+                    <div class="news-head">
+                        @if (!string.IsNullOrEmpty(Model.ProfileImageUrl))
+                        {
+                            <img src="@Url.Content("~/pictures/trainers/" + Model.ProfileImageUrl)" alt="صورة المدرب" style="max-width: 200px; border-radius: 10px; float: left; margin-right: 20px;">
+                        }
+                        else
+                        {
+                            <img src="@Url.Content("~/mediplus_theme/img/default-avatar.png")" alt="صورة افتراضية" style="max-width: 200px; border-radius: 10px; float: left; margin-right: 20px;">
+                        }
+                        <h2>@Model.ArName</h2>
+                        @if (!string.IsNullOrEmpty(Model.EnName))
+                        {
+                            <p class="text-muted">@Model.EnName</p>
+                        }
+                    </div>
+                    <div class="news-content" style="clear:both;">
+                        <h4 class="mt-4">المعلومات الأساسية</h4>
+                        <hr />
+                        <p><strong><i class="icofont-email"></i> البريد الإلكتروني:</strong> @Model.Email</p>
+                        <p><strong><i class="icofont-phone"></i> رقم الهاتف:</strong> @Model.PhoneNo</p>
+                        @if (!string.IsNullOrEmpty(Model.NationalNo))
+                        {
+                            <p><strong><i class="icofont-id-card"></i> الرقم الوطني:</strong> @Model.NationalNo</p>
+                        }
+                        @if (!string.IsNullOrEmpty(Model.Employer))
+                        {
+                            <p><strong><i class="icofont-building"></i> جهة العمل:</strong> @Model.Employer</p>
+                        }
+                        @if (Model.Qualification != null)
+                        {
+                            <p><strong><i class="icofont-graduate-alt"></i> المؤهل:</strong> @Model.Qualification.Name</p>
+                        }
+
+                        @if (specializations.Any())
+                        {
+                            <h4 class="mt-4">التخصصات</h4>
+                            <hr />
+                            <ul>
+                                @foreach (var spec in specializations)
+                                {
+                                    <li>@spec</li>
+                                }
+                            </ul>
+                        }
+
+                        @if (!string.IsNullOrEmpty(Model.CVUrl))
+                        {
+                            <p class="mt-3">
+                                <strong><i class="icofont-file-document"></i> السيرة الذاتية:</strong>
+                                <a href="@Url.Content("~/pictures/cvs/" + Model.CVUrl)" target="_blank" class="btn btn-sm btn-info"> تحميل السيرة الذاتية</a>
+                            </p>
+                        }
+
+                        <p class="mt-3"><strong><i class="icofont-calendar"></i> تاريخ الإنشاء:</strong> @Model.Created.ToString("yyyy/MM/dd")</p>
+
+                        <div class="button mt-4">
+                            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary"><i class="icofont-edit"></i> تعديل</a>
+                            <a asp-action="Index" class="btn btn-secondary"><i class="icofont-arrow-right"></i> العودة إلى القائمة</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4 col-md-12 col-12">
+                <div class="sidebar">
+                    <!-- Trainer Card Section -->
+                    <div class="widget-area">
+                        <h3 class="widget-title">بطاقة المدرب</h3>
+                         <p class="text-muted small mb-2">اضغط على البطاقة لقلبها.</p>
+                        <div class="trainer-card-container" id="trainerCardContainer">
+                            <div class="trainer-card" id="trainerCard">
+                                <div class="trainer-card-face trainer-card-front">
+                                    <div class="profile-pic-container">
+                                        <img src="@profileImageUrl" alt="صورة المدرب" class="profile-pic">
+                                    </div>
+                                    <h4>@Model.ArName</h4>
+                                    @if (!string.IsNullOrEmpty(Model.EnName))
+                                    {
+                                        <p>@Model.EnName</p>
+                                    }
+                                    <p class="qualification">@Model.Qualification?.Name</p>
+                                </div>
+                                <div class="trainer-card-face trainer-card-back">
+                                    <div>
+                                        <h5><i class="icofont-tasks-alt"></i> التخصصات الرئيسية</h5>
+                                        @if (specializations.Any())
+                                        {
+                                            <ul>
+                                                @foreach (var spec in specializations.Take(3)) // Show first 3 for card
+                                                {
+                                                    <li>@spec</li>
+                                                }
+                                            </ul>
+                                        }
+                                        else
+                                        {
+                                            <p class="small">لا توجد تخصصات محددة.</p>
+                                        }
+                                        <div class="contact-info mt-2">
+                                            <p><i class="icofont-email"></i> @Model.Email</p>
+                                            <p><i class="icofont-phone"></i> @Model.PhoneNo</p>
+                                        </div>
+                                        @* Optional: QR Code for vCard or profile link *@
+                                        @* <div class="qr-code-container">
+                                            <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=YOUR_VCARD_OR_URL_HERE" alt="QR Code">
+                                        </div> *@
+                                    </div>
+                                    <div class="footer-logo">
+                                        مركز التدريب النموذجي ©;
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <button onclick="printTrainerCard()" class="btn btn-success btn-sm mt-2 w-100"><i class="icofont-print"></i> طباعة البطاقة</button>
+                    </div>
+                    <!-- End Trainer Card Section -->
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- This area will be used for printing the card -->
+<div class="printable-card-area" style="display:none;">
+    <!-- The card content will be cloned here by JavaScript for printing -->
+</div>
+
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const cardContainer = document.getElementById('trainerCardContainer');
+            const card = document.getElementById('trainerCard');
+
+            if(cardContainer && card) {
+                cardContainer.addEventListener('click', function () {
+                    card.classList.toggle('is-flipped');
+                });
+            }
+        });
+
+        function printTrainerCard() {
+            const printableArea = document.querySelector('.printable-card-area');
+            const cardToPrint = document.getElementById('trainerCardContainer').cloneNode(true); // Clone the entire container
+
+            // Remove the click-to-flip functionality from the cloned card for printing
+            const clonedCard = cardToPrint.querySelector('.trainer-card');
+            if(clonedCard.classList.contains('is-flipped')){
+                 // If you want to print the front by default, or a specific side:
+                 // clonedCard.classList.remove('is-flipped'); // Print front
+                 // To print back: clonedCard.classList.add('is-flipped'); // but this won't work well with current print CSS.
+                 // For simplicity, print CSS will attempt to show both if needed or just the front.
+            }
+            
+            printableArea.innerHTML = ''; // Clear previous content
+            printableArea.appendChild(cardToPrint);
+            
+            window.print(); // Trigger browser's print dialog
+        }
+    </script>
+}

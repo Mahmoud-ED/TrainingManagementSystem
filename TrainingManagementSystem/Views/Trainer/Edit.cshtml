@@ -1,10 +1,11 @@
 ﻿@model TrainingManagementSystem.ViewModels.TrainerVM
 
 @{
-    ViewData["Title"] = "إضافة مدرب جديد";
+    ViewData["Title"] = "تعديل بيانات المدرب: " + (Model?.ArName ?? "مدرب");
+    string profileImageDisplayUrl = string.IsNullOrEmpty(Model.ProfileImageUrl) ? Url.Content("~/img/OIP.jpeg") : Url.Content("~/pictures/trainers/" + Model.ProfileImageUrl);
 }
 
-<!-- Breadcrumbs (إذا كنت تستخدمه) -->
+<!-- Breadcrumbs -->
 <div class="breadcrumbs overlay" style="background-image: url('@Url.Content("~/mediplus_theme/img/breadcrumb-bg.jpg")');">
     <div class="container">
         <div class="bread-inner">
@@ -16,7 +17,7 @@
                         <li><i class="icofont-simple-right"></i></li>
                         <li><a asp-controller="Trainer" asp-action="Index">المدربين</a></li>
                         <li><i class="icofont-simple-right"></i></li>
-                        <li class="active">@ViewData["Title"]</li>
+                        <li class="active">تعديل بيانات مدرب</li>
                     </ul>
                 </div>
             </div>
@@ -31,12 +32,21 @@
             <div class="col-lg-10 col-md-12 col-12 mx-auto">
                 <div class="appointment-inner">
                     <div class="title text-center mb-4">
-                        <h3><i class="icofont-teacher"></i> تفاصيل المدرب الجديد</h3>
-                        <p>يرجى ملء جميع الحقول المطلوبة بعناية.</p>
+                        <h3><i class="icofont-edit"></i> تعديل تفاصيل المدرب</h3>
+                        <p>يرجى تحديث الحقول المطلوبة بعناية.</p>
                     </div>
 
-                    <form asp-action="Create" method="post" enctype="multipart/form-data" class="form">
+                    <form asp-action="Edit" asp-route-id="@Model.Id" method="post" enctype="multipart/form-data" class="form">
                         @Html.AntiForgeryToken()
+                        <input type="hidden" asp-for="Id" />
+                        <input type="hidden" asp-for="CreatedAt" />
+                        <input type="hidden" asp-for="UserId" />
+                        @* This hidden field helps track the existing image URL.
+                           It will be cleared by JavaScript if the user removes the image or uploads a new one. *@
+                        <input type="hidden" asp-for="ProfileImageUrl" id="hiddenProfileImageUrl" />
+                        <input type="hidden" asp-for="CVUrl" id="hiddenCVUrl" />
+
+
                         <div asp-validation-summary="ModelOnly" class="alert alert-danger text-center p-2 mb-3" role="alert"></div>
 
                         <h5 class="form-section-title">المعلومات الأساسية</h5>
@@ -116,13 +126,16 @@
                                 <div class="form-group mb-3">
                                     <label asp-for="SelectedSpecializationIds" class="form-label"></label>
                                     <div id="specializationsCheckboxList" class="border p-2 rounded" style="max-height: 200px; overflow-y: auto;">
-                                        @if (Model.SpecializationsList != null)
+                                        @if (Model.SpecializationsList != null && Model.SpecializationsList.Any())
                                         {
                                             foreach (var specialization in Model.SpecializationsList)
                                             {
+                                                var specializationGuid = Guid.Empty;
+                                                bool canParse = Guid.TryParse(specialization.Value, out specializationGuid);
+
                                                 <div class="form-check">
                                                     <input class="form-check-input" type="checkbox" name="SelectedSpecializationIds" value="@specialization.Value" id="spec_@specialization.Value"
-                                                           @(Model.SelectedSpecializationIds != null && Model.SelectedSpecializationIds.Contains(Guid.Parse(specialization.Value)) ? "checked" : "")>
+                                                           @(canParse && Model.SelectedSpecializationIds != null && Model.SelectedSpecializationIds.Contains(specializationGuid) ? "checked" : "")>
                                                     <label class="form-check-label" for="spec_@specialization.Value">
                                                         @specialization.Text
                                                     </label>
@@ -146,37 +159,47 @@
                             <div class="col-lg-6 col-md-6 col-12">
                                 <div class="form-group mb-3">
                                     <label asp-for="CVFile" class="form-label"></label>
+                                    <div id="cvCurrentFileDisplay" class="mb-2">
+                                        @if (!string.IsNullOrEmpty(Model.CVUrl))
+                                        {
+                                            <small>الملف الحالي: <a href="@Url.Content("~/pictures/cvs/" + Model.CVUrl)" target="_blank" id="cvLink">@Model.CVUrl.Split('_').Skip(1).FirstOrDefault()</a></small>
+                                            <button type="button" class="btn btn-sm btn-outline-danger ms-2"
+                                                    onclick="clearExistingFile('hiddenCVUrl', 'cvFileLabel', 'cvCurrentFileDisplay', 'cvFileInput'); return false;"
+                                                    title="إزالة السيرة الذاتية الحالية" id="removeCvButton">
+                                                <i class="icofont-close"></i> إزالة
+                                            </button>
+                                        }
+                                    </div>
                                     <div class="input-group">
                                         <input asp-for="CVFile" class="form-control" type="file" id="cvFileInput" />
-                                        <label class="input-group-text" for="cvFileInput"><i class="icofont-file-document"></i></label>
+                                        <label class="input-group-text" for="cvFileInput" id="cvFileLabel"><i class="icofont-file-document"></i></label>
                                     </div>
                                     <span asp-validation-for="CVFile" class="text-danger d-block mt-1 small"></span>
-                                    <small class="form-text text-muted">الملفات المسموح بها: PDF, DOC, DOCX (الحجم الأقصى: 5MB)</small>
+                                    <small class="form-text text-muted">الملفات المسموح بها: PDF, DOC, DOCX (الحجم الأقصى: 5MB). اترك الحقل فارغًا للاحتفاظ بالملف الحالي.</small>
                                 </div>
                             </div>
                             <div class="col-lg-6 col-md-6 col-12">
                                 <div class="form-group mb-3">
                                     <label asp-for="ProfileImageFile" class="form-label">الصورة الشخصية</label>
                                     <div class="input-group">
-                                        <input id="input1" type="file" asp-for="ProfileImageFile" onchange="UploadImageFile(this,'img1','isImg1');" class="form-control custom-file-input" />
+                                        <input id="input1" type="file" asp-for="ProfileImageFile" onchange="UploadImageFile(this,'img1','isImg1', 'removeImg1Button', 'hiddenProfileImageUrl');" class="form-control custom-file-input" />
                                         <label class="input-group-text" for="input1"><i class="icofont-image"></i></label>
                                     </div>
-                                    <input type="hidden" name="isImg1" id="isImg1" value="@(string.IsNullOrEmpty(Model.ProfileImageUrl) ? "false" : "true")" />
+                                    <input type="hidden" name="isImg1" id="isImg1" value="@(!string.IsNullOrEmpty(Model.ProfileImageUrl) ? "true" : "false")" />
                                     <span asp-validation-for="ProfileImageFile" class="text-danger d-block mt-1 small"></span>
+                                    <small class="form-text text-muted">اترك الحقل فارغًا للاحتفاظ بالصورة الحالية.</small>
                                 </div>
                                 <div class="form-group mt-2 text-center position-relative">
-                                    <img id="img1" src="@(string.IsNullOrEmpty(Model.ProfileImageUrl) ? Url.Content("~/mediplus_theme/img/default-avatar.png") : Url.Content("~/pictures/trainers/" + Model.ProfileImageUrl))"
+                                    <img id="img1" src="@profileImageDisplayUrl"
                                          onclick="return clickFile('input1');"
                                          style="max-width:150px; max-height:150px; object-fit: cover; cursor:pointer; border-radius: 50%; border: 2px solid #eee;"
                                          class="img-thumbnail d-block mx-auto mb-2" alt="الصورة الشخصية" />
-                                    @if (!string.IsNullOrEmpty(Model.ProfileImageUrl) || Model.ProfileImageFile != null) // تم التعديل هنا
-                                    {
-                                        <button type="button" class="btn-close" aria-label="Close"
-                                                onclick="return clearFile('input1','img1','isImg1', '@Url.Content("~/mediplus_theme/img/default-avatar.png")');"
-                                                title="إزالة الصورة"
-                                                style="position: absolute; top: 0; right: 20%; transform: translate(50%, -50%); background-color: white; border-radius: 50%; padding: 0.2rem 0.35rem; z-index:10; box-shadow: 0 .125rem .25rem rgba(0,0,0,.075);"></button>
-                                    }
-                                    <input type="hidden" asp-for="ProfileImageUrl" />
+                                    <button type="button" class="btn-close @(string.IsNullOrEmpty(Model.ProfileImageUrl) ? "d-none" : "")"
+                                            id="removeImg1Button"
+                                            aria-label="Close"
+                                            onclick="return clearFile('input1','img1','isImg1', '@Url.Content("~/mediplus_theme/img/default-avatar.png")', 'hiddenProfileImageUrl', 'removeImg1Button');"
+                                            title="إزالة الصورة"
+                                            style="position: absolute; top: 0; right: 20%; transform: translate(50%, -50%); background-color: white; border-radius: 50%; padding: 0.2rem 0.35rem; z-index:10; box-shadow: 0 .125rem .25rem rgba(0,0,0,.075);"></button>
                                 </div>
                             </div>
                         </div>
@@ -189,7 +212,7 @@
                                             <i class="icofont-close-line-circled"></i> إلغاء
                                         </a>
                                         <button type="submit" class="btn btn-primary">
-                                            <i class="icofont-save"></i> حفظ المدرب
+                                            <i class="icofont-save"></i> حفظ التعديلات
                                         </button>
                                     </div>
                                 </div>
@@ -206,7 +229,8 @@
 @section Scripts {
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
-        <script src="~/js/inputfileimage.js"></script>
+        // If inputfileimage.js is not globally included or doesn't have these functions, define them here.
+        // <script src="~/js/inputfileimage.js"></script>
     }
     <script>
         $(document).ready(function () {
@@ -217,100 +241,104 @@
                     allowClear: true,
                     width: '100%',
                 });
-
-                var $specializationSelect = $('#specializationSelect');
-                var $selectedSpecializationsContainer = $('#selectedSpecializationsContainer');
-
-                $specializationSelect.select2({
-                    theme: "bootstrap-5",
-                    placeholder: "-- اختر التخصصات --",
-                    allowClear: true,
-                    width: '100%',
-                });
-
-                // Function to update the displayed tags
-                function updateSelectedSpecializationsDisplay() {
-                    $selectedSpecializationsContainer.empty(); // Clear previous tags
-                    var selectedData = $specializationSelect.select2('data');
-
-                    selectedData.forEach(function(item) {
-                        if (item.id && item.text) { // Make sure it's a valid item, not the placeholder
-                             var $tag = $(`
-                                <span class="badge bg-primary p-2">
-                                    ${item.text}
-                                    <a href="#" class="text-white ms-1 remove-specialization-tag" data-id="${item.id}" title="إزالة">×</a>
-                                </span>
-                            `);
-                            $selectedSpecializationsContainer.append($tag);
-                        }
-                    });
-                }
-
-                // Initial display update if there are pre-selected values (e.g., on edit page)
-                updateSelectedSpecializationsDisplay();
-
-
-                // Listen for changes on the select2 element
-                $specializationSelect.on('change', function (e) {
-                    updateSelectedSpecializationsDisplay();
-                });
-
-                // Handle click on remove tag button
-                $selectedSpecializationsContainer.on('click', '.remove-specialization-tag', function(e) {
-                    e.preventDefault();
-                    var specializationIdToRemove = $(this).data('id').toString();
-                    var currentValues = $specializationSelect.val() || [];
-
-                    // Remove the ID from the current values
-                    var newValues = currentValues.filter(id => id !== specializationIdToRemove);
-
-                    $specializationSelect.val(newValues).trigger('change'); // Update select2 and trigger its change event
-                });
-
-
             } else {
                 console.error("Select2 is not loaded.");
             }
 
-             $('#cvFileInput').on('change',function(e){
-                var fileName = e.target.files[0].name;
-                $(this).next('.input-group-text').html('<i class="icofont-file-document"></i> ' + fileName.substring(0,15) + (fileName.length > 15 ? '...' : ''));
-            })
+            $('#cvFileInput').on('change', function (e) {
+                var fileName = e.target.files.length > 0 ? e.target.files[0].name : "";
+                var label = $(this).next('.input-group-text');
+                if (label.length) {
+                    if(fileName){
+                        label.html('<i class="icofont-file-document"></i> ' + (fileName.length > 20 ? fileName.substring(0, 17) + '...' : fileName));
+                    } else {
+                        label.html('<i class="icofont-file-document"></i>'); // Reset to icon if no file
+                    }
+                }
+                // When a new CV file is selected, clear the hiddenCVUrl so the backend knows to use the new file.
+                // And hide the "current file" display.
+                if (fileName) {
+                    $('#hiddenCVUrl').val('');
+                    $('#cvCurrentFileDisplay').hide();
+                    $('#removeCvButton').hide();
 
-            // عرض زر الحذف دائماً إذا كان هناك صورة أو ملف محتمل
-            // وهذا يعتمد على منطق UploadImageFile و clearFile لديك
-            // إذا كانت الصورة الافتراضية هي الحالة الوحيدة لعدم وجود صورة، فاجعل الشرط أبسط
-            // var isImg1Value = $('#isImg1').val();
-            // var profileImageUrl = '@Model.ProfileImageUrl';
-            // if (isImg1Value === "true" || (profileImageUrl && profileImageUrl !== '')) {
-            //     // أظهر زر الحذف
-            // } else {
-            //     // أخف زر الحذف
-            // }
+                }
+            });
+             // Initialize CV file input label based on existing CVUrl
+            var initialCvUrl = "@Model.CVUrl";
+            if (!initialCvUrl) {
+                 $('#cvCurrentFileDisplay').hide(); // No current CV, hide the display area
+                 $('#removeCvButton').hide();
+            } else {
+                 $('#cvCurrentFileDisplay').show();
+                 $('#removeCvButton').show();
+            }
         });
 
-        function clearFile(fileElementId, imgElementId, isImgHiddenId, defaultImgSrc) {
-            document.getElementById(fileElementId).value = "";
-            document.getElementById(imgElementId).src = defaultImgSrc;
-            document.getElementById(isImgHiddenId).value = "false";
-
-            // قد تحتاج إلى إخفاء زر الحذف هنا إذا كان هذا هو المنطق المطلوب
-            // var closeButton = $(document.getElementById(imgElementId)).siblings('.btn-close');
-            // if(closeButton.length) closeButton.hide();
-
-            // إذا كنت تريد تحديث Model.ProfileImageUrl إلى null عند الحذف
-            $('input[name="ProfileImageUrl"]').val('');
-
+        // For clicking on image to trigger file input
+        function clickFile(fileInputId) {
+            document.getElementById(fileInputId).click();
             return false;
         }
 
-        // تأكد أن دالة UploadImageFile تُظهر زر الحذف عند اختيار صورة جديدة
-        // function UploadImageFile(input, imgId, isImgHiddenId) {
-        //     ... your existing code ...
-        //     document.getElementById(isImgHiddenId).value = "true";
-        //     var closeButton = $('#' + imgId).siblings('.btn-close');
-        //     if(closeButton.length) closeButton.show();
-        // }
+        // Clears the selected file, resets image preview, and updates hidden fields.
+        function clearFile(fileElementId, imgElementId, isImgHiddenId, defaultImgSrc, hiddenUrlFieldId, removeButtonId) {
+            document.getElementById(fileElementId).value = "";
+            document.getElementById(imgElementId).src = defaultImgSrc;
+            if (document.getElementById(isImgHiddenId)) {
+                 document.getElementById(isImgHiddenId).value = "false";
+            }
+            if (hiddenUrlFieldId && document.getElementById(hiddenUrlFieldId)) {
+                document.getElementById(hiddenUrlFieldId).value = ""; // Clear the hidden field for existing URL
+            }
+            if (removeButtonId && document.getElementById(removeButtonId)) {
+                $('#' + removeButtonId).addClass('d-none'); // Hide the remove button
+            }
+            return false;
+        }
+
+        // Handles new file selection for image, updates preview and hidden fields.
+        function UploadImageFile(input, imgId, isImgHiddenId, removeButtonId, hiddenUrlFieldId) {
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+                reader.onload = function (e) {
+                    $('#' + imgId).attr('src', e.target.result);
+                    if (document.getElementById(isImgHiddenId)) {
+                         document.getElementById(isImgHiddenId).value = 'true';
+                    }
+                    // A new file is selected, so clear any existing URL from the hidden field
+                    if (hiddenUrlFieldId && document.getElementById(hiddenUrlFieldId)) {
+                        document.getElementById(hiddenUrlFieldId).value = "";
+                    }
+                    if (removeButtonId && document.getElementById(removeButtonId)) {
+                         $('#' + removeButtonId).removeClass('d-none'); // Show the remove button
+                    }
+                };
+                reader.readAsDataURL(input.files[0]);
+            } else {
+                 // If no file is selected (e.g., user cancels dialog), optionally reset to default or do nothing
+            }
+        }
+
+        // Specifically for clearing an *existing* CV file (not one selected via input[type=file])
+        function clearExistingFile(hiddenUrlFieldId, labelId, currentFileDisplayId, cvFileInputId) {
+            if (hiddenUrlFieldId && document.getElementById(hiddenUrlFieldId)) {
+                document.getElementById(hiddenUrlFieldId).value = ""; // Clear the hidden field for existing URL
+            }
+             if (currentFileDisplayId && document.getElementById(currentFileDisplayId)) {
+                $('#' + currentFileDisplayId).html('<small class="text-muted">تمت إزالة الملف الحالي. يمكنك تحميل ملف جديد.</small>');
+                 // Also hide the specific remove button for the existing CV
+                 $('#removeCvButton').hide();
+            }
+            if (labelId && document.getElementById(labelId)) {
+                 $('#' + labelId).html('<i class="icofont-file-document"></i>'); // Reset label
+            }
+            // Clear the file input field itself in case a file was selected then cleared
+            if(cvFileInputId && document.getElementById(cvFileInputId)){
+                document.getElementById(cvFileInputId).value = "";
+            }
+            return false;
+        }
 
     </script>
 }

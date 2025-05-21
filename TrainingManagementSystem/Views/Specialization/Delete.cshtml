@@ -1,0 +1,90 @@
+﻿@model Specialization
+
+@{
+    ViewData["Title"] = "تأكيد حذف التخصص";
+}
+
+<div class="breadcrumbs overlay" style="background-image: url('@Url.Content("~/mediplus_theme/img/breadcrumb-bg.jpg")');">
+    <div class="container">
+        <div class="bread-inner">
+            <div class="row">
+                <div class="col-12">
+                    <h2>@ViewData["Title"]</h2>
+                    <ul class="bread-list">
+                        <li><a asp-controller="Admin" asp-action="Index">لوحة التحكم</a></li>
+                        <li><i class="icofont-simple-right"></i></li>
+                        <li><a asp-controller="Specializations" asp-action="Index">التخصصات</a></li>
+                        <li><i class="icofont-simple-right"></i></li>
+                        <li class="active">حذف تخصص</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<section class="appointment single-page section">
+    <div class="container">
+        @if (Model == null)
+        {
+            <div class="row">
+                <div class="col-lg-6 col-md-8 col-12 mx-auto">
+                    <div class="alert alert-danger text-center p-3">
+                        <h4>خطأ</h4>
+                        <p>لم يتم العثور على التخصص المطلوب حذفه.</p>
+                        <a asp-action="Index" class="btn btn-primary mt-2">العودة إلى قائمة التخصصات</a>
+                    </div>
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="row">
+                <div class="col-lg-6 col-md-8 col-12 mx-auto">
+                    <div class="appointment-inner" style="border: 1px solid #dc3545; border-radius: 8px;">
+                        <div class="title text-center mb-0" style="background-color: #dc3545; color:white; padding: 15px; border-radius: 8px 8px 0 0;">
+                            <h3 style="color:white; margin-bottom:0;"><i class="icofont-warning-alt"></i> @ViewData["Title"]</h3>
+                        </div>
+
+                        <div class="p-4">
+                            <div class="alert alert-warning p-3 mb-4" role="alert">
+                                <h5 class="alert-heading" style="font-size: 1.1rem;"><i class="icofont-notification"></i> تنبيه هام!</h5>
+                                <p>
+                                    أنت على وشك حذف التخصص "<strong>@Model.Name</strong>" بشكل نهائي.
+                                    هذا الإجراء لا يمكن التراجع عنه.
+                                </p>
+                                <hr>
+                                <p class="mb-0">هل أنت متأكد أنك تريد المتابعة؟</p>
+                            </div>
+
+                            <dl class="row">
+                                <dt class="col-sm-4">اسم التخصص:</dt>
+                                <dd class="col-sm-8">@Html.DisplayFor(model => model.Name)</dd>
+
+                              
+                                @if (Model.Created != DateTime.MinValue)
+                                {
+                                    <dt class="col-sm-4">تاريخ الإنشاء:</dt>
+                                    <dd class="col-sm-8">@Model.Created.ToString("yyyy/MM/dd")</dd>
+                                }
+                            </dl>
+
+                            <form asp-action="Delete" method="post">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" asp-for="Id" />
+                                <div class="d-flex justify-content-between mt-4 pt-3 border-top">
+                                    <a asp-action="Index" class="btn btn-secondary">
+                                        <i class="icofont-arrow-left"></i> إلغاء والعودة
+                                    </a>
+                                    <button type="submit" class="btn btn-danger">
+                                        <i class="icofont-trash"></i> نعم، قم بالحذف
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</section>

@@ -87,7 +87,7 @@
                                                 <a href="#" tabindex="-1">الرئيسية <i class="icofont-rounded-down"></i></a>
                                                 <span class="slicknav_arrow">►</span>
                                             </a>
-                                           
+
                                         </li>
                                         <li class="slicknav_collapsed slicknav_parent">
                                             <a href="#" role="menuitem" aria-haspopup="true" tabindex="-1" class="slicknav_item slicknav_row" style="outline: none;">
@@ -127,14 +127,23 @@
                                     <ul class="nav menu">
                                         <li class="active">
                                             <a href="#">الرئيسية <i class="icofont-rounded-down"></i></a>
-                                           
+
                                         </li>
 
                                         <li><a href="contact.html"></a></li>
-                                        
+
                                         <li><a asp-controller="Trainer" asp-action="Index">المدربين</a></li>
-                                        <li><a asp-controller="Qualification" asp-action="Index">المؤهلات</a></li>
                                         <li><a asp-controller="Account" asp-action="Login">تسجيل</a></li>
+
+                                        <li class="">
+                                            <a href="#">البيانات الاساسية <i class="icofont-rounded-down"></i></a>
+                                            <ul class="dropdown">
+                                                <li class="active">
+                                                <li><a asp-controller="Qualification" asp-action="Index">المؤهلات</a></li>
+                                                <li><a asp-controller="Specialization" asp-action="Index">التخصصات</a></li>
+                                                <li><a asp-controller="Department" asp-action="Index">Department</a></li>
+                                            </ul>
+                                        </li>
                                     </ul>
                                 </nav>
                             </div>
@@ -160,7 +169,7 @@
     <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 
-   @*  <environment include="Development">
+    @*  <environment include="Development">
         <script src="~/lib/jquery/jquery.min.js"></script>
         <script src="~/lib/twitter-bootstrap/js/bootstrap.bundle.min.js"></script>
 

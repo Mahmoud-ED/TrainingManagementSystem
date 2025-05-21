@@ -1,0 +1,150 @@
+﻿@model TrainingManagementSystem.ViewModels.TrainerVM // أو نموذج المدرب الأساسي إذا كنت تستخدمه في الكنترولر للـ Delete GET
+
+@{
+    ViewData["Title"] = "تأكيد حذف المدرب";
+    string profileImageUrl = string.IsNullOrEmpty(Model?.ProfileImageUrl) ? Url.Content("~/img/OIP.jpeg") : Url.Content($"~/pictures/trainers/{Model.ProfileImageUrl}");
+}
+
+<style>
+    .delete-confirmation-card {
+        max-width: 600px;
+        margin: 40px auto;
+        box-shadow: 0 5px 25px rgba(0,0,0,0.1);
+        border-radius: 10px;
+    }
+
+        .delete-confirmation-card .card-header {
+            background-color: #dc3545; /* لون أحمر للخطر */
+            color: white;
+            border-bottom: none;
+            border-radius: 10px 10px 0 0;
+            padding: 15px 20px;
+        }
+
+            .delete-confirmation-card .card-header h4 {
+                margin-bottom: 0;
+                font-size: 1.5rem;
+            }
+
+            .delete-confirmation-card .card-header i {
+                margin-right: 10px;
+            }
+
+
+        .delete-confirmation-card .card-body {
+            padding: 25px;
+            line-height: 1.7;
+        }
+
+    .trainer-delete-avatar {
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        object-fit: cover;
+        margin-bottom: 15px;
+        border: 3px solid #eee;
+    }
+
+    .alert-warning {
+        background-color: #fff3cd;
+        border-color: #ffeeba;
+        color: #856404;
+    }
+
+    .btn-delete-confirm {
+        background-color: #dc3545;
+        border-color: #dc3545;
+    }
+
+        .btn-delete-confirm:hover {
+            background-color: #c82333;
+            border-color: #bd2130;
+        }
+</style>
+
+<!-- Breadcrumbs (Mediplus Style - No Background Image) -->
+<div class="breadcrumbs overlay">
+    <div class="container">
+        <div class="bread-inner">
+            <div class="row">
+                <div class="col-12 text-center">
+                    <h2>@ViewData["Title"]</h2>
+                    <ul class="bread-list">
+                        <li><a asp-controller="Admin" asp-action="Index">لوحة التحكم</a></li> @* أو الرابط المناسب للوحة التحكم *@
+                        <li><i class="icofont-simple-right"></i></li>
+                        <li><a asp-action="Index">المدربون</a></li>
+                        <li><i class="icofont-simple-right"></i></li>
+                        <li class="active">حذف مدرب</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- End Breadcrumbs -->
+
+<section class="section">
+    <div class="container">
+        @if (Model == null)
+        {
+            <div class="alert alert-danger text-center">
+                <h4>خطأ</h4>
+                <p>لم يتم العثور على بيانات المدرب المطلوب حذفه.</p>
+                <a asp-action="Index" class="btn btn-primary">العودة إلى قائمة المدربين</a>
+            </div>
+        }
+        else
+        {
+            <div class="card delete-confirmation-card">
+                <div class="card-header text-center">
+                    <h4><i class="icofont-warning-alt"></i> @ViewData["Title"]</h4>
+                </div>
+                <div class="card-body">
+                    <div class="text-center mb-4">
+                        <img src="@profileImageUrl" alt="صورة المدرب" class="trainer-delete-avatar"
+                             onerror="this.onerror=null; this.src='@Url.Content("~/img/OIP.jpeg")';" />
+                        <h5 class="mb-1">@Model.ArName</h5>
+                        @if (!string.IsNullOrEmpty(Model.EnName))
+                        {
+                            <p class="text-muted mb-0">(@Model.EnName)</p>
+                        }
+                    </div>
+
+                    <div class="alert alert-warning p-3" role="alert">
+                        <h5 class="alert-heading"><i class="icofont-notification"></i> تنبيه هام!</h5>
+                        <p>
+                            أنت على وشك حذف بيانات المدرب بشكل نهائي. هذا الإجراء لا يمكن التراجع عنه.
+                            سيتم حذف جميع البيانات المرتبطة بهذا المدرب.
+                        </p>
+                        <hr>
+                        <p class="mb-0">هل أنت متأكد أنك تريد المتابعة؟</p>
+                    </div>
+
+                    <dl class="row mt-4">
+                        <dt class="col-sm-4">الاسم بالعربية:</dt>
+                        <dd class="col-sm-8">@Html.DisplayFor(model => model.ArName)</dd>
+
+                        <dt class="col-sm-4">البريد الإلكتروني:</dt>
+                        <dd class="col-sm-8">@Html.DisplayFor(model => model.Email)</dd>
+
+                        <dt class="col-sm-4">رقم الهاتف:</dt>
+                        <dd class="col-sm-8">@Html.DisplayFor(model => model.PhoneNo)</dd>
+                    </dl>
+
+                    <form asp-action="Delete" method="post">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" asp-for="Id" />
+                        <div class="d-flex justify-content-between mt-4 pt-3 border-top">
+                            <a asp-action="Index" class="btn btn-secondary">
+                                <i class="icofont-arrow-left"></i> إلغاء والعودة للقائمة
+                            </a>
+                            <button type="submit" class="btn btn-danger btn-delete-confirm">
+                                <i class="icofont-trash"></i> نعم، قم بالحذف
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        }
+    </div>
+</section>
