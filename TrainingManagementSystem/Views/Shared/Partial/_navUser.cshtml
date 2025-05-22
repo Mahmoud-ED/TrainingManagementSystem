@@ -1,0 +1,17 @@
+﻿@inject SignInManager<ApplicationUser> _signInManager
+@inject UserManager<ApplicationUser> _userManager
+@inject IUnitOfWork<UserProfile> _userProfile
+
+@if (_signInManager.IsSignedIn(User))
+{
+    <div class="get-quote">
+        <a asp-controller="Account" asp-action="Logout" class="btn">تسجيل الخروج</a>
+    </div>
+}
+else
+{
+    <div class="get-quote">
+        <a asp-controller="Account" asp-action="Login" class="btn">دخول</a>
+        <a asp-controller="Account" asp-action="Register" class="btn">تسجيل</a>
+    </div>
+}

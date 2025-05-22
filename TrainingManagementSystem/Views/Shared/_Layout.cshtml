@@ -19,8 +19,7 @@
     <partial name="Partial/_title"></partial>
     @* --------------------------------------------------------------- *@
 
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css?family=Poppins:200i,300,300i,400,400i,500,500i,600,600i,700,700i,800,800i,900,900i&amp;display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="css/bootstrap.min.css">
@@ -79,93 +78,45 @@
         </div>
         <!-- End Topbar -->
 
+<header>
+    <div class="header-inner">
+        <div class="container">
+            <div class="inner">
+                <div class="row">
+                    <div class="col-lg-3 col-md-3 col-12">
+                        <!-- شعار المعهد -->
+                        <partial name="Partial/_navbrand" />
 
-        <!-- Header Inner -->
-        <div class="header-inner">
-            <div class="container">
-                <div class="inner">
-                    <div class="row">
-                        <div class="col-lg-3 col-md-3 col-12">
-                            <!-- Start Logo -->
-                            <div class="logo">
-                                <a href="index.html"><img src="img/oo.png" alt="#"></a>
-                            </div>
-                            <!-- End Logo -->
-                            <!-- Mobile Nav -->
-                            <div class="mobile-nav">
-                                <div class="slicknav_menu">
-                                    <a href="#" aria-haspopup="true" role="button" tabindex="0" class="slicknav_btn slicknav_collapsed" style="outline: none;"><span class="slicknav_menutxt"></span><span class="slicknav_icon slicknav_no-text"><span class="slicknav_icon-bar"></span><span class="slicknav_icon-bar"></span><span class="slicknav_icon-bar"></span></span></a><ul class="slicknav_nav slicknav_hidden" aria-hidden="true" role="menu" style="display: none;">
-                                        <li class="active slicknav_collapsed slicknav_parent">
-                                            <a href="#" role="menuitem" aria-haspopup="true" tabindex="-1" class="slicknav_item slicknav_row" style="outline: none;">
-                                                <a href="#" tabindex="-1">الرئيسية <i class="icofont-rounded-down"></i></a>
-                                                <span class="slicknav_arrow">►</span>
-                                            </a>
-                                            
-                                        </li>
-                                        <li class="slicknav_collapsed slicknav_parent">
-                                            <a href="#" role="menuitem" aria-haspopup="true" tabindex="-1" class="slicknav_item slicknav_row" style="outline: none;">
-                                                <a href="#" tabindex="-1">الدورات التدريبية <i class="icofont-rounded-down"></i></a>
-                                                <span class="slicknav_arrow">►</span>
-                                            </a>
-                                            <ul class="dropdown slicknav_hidden" role="menu" aria-hidden="true" style="display: none;">
-                                                <li><a href="doctors.html" role="menuitem" tabindex="-1">التخصصات</a></li>
-                                                <li>
-                                                    <a href="doctor-details.html" role="menuitem" tabindex="-1">Doctor Details</a>
-                                                </li>
-                                            </ul>
-                                        </li>
-                                        <li class="slicknav_collapsed slicknav_parent">
-                                            <a href="#" role="menuitem" aria-haspopup="true" tabindex="-1" class="slicknav_item slicknav_row" style="outline: none;">
-                                                <a href="#" tabindex="-1">Services <i class="icofont-rounded-down"></i></a>
-                                                <span class="slicknav_arrow">►</span>
-                                            </a>
-                                            <ul class="dropdown slicknav_hidden" role="menu" aria-hidden="true" style="display: none;">
-                                                <li><a href="service.html" role="menuitem" tabindex="-1">الأقسام</a></li>
-                                                <li>
-                                                    <a href="service-details.html" role="menuitem" tabindex="-1">Service Details</a>
-                                                </li>
-                                            </ul>
-                                        </li>
-                                      
-                                        <li><a href="contact.html" role="menuitem" tabindex="-1">التواصل</a></li>
-                                    </ul>
-                                </div>
-                            </div>
-                            <!-- End Mobile Nav -->
+                        <!-- قائمة الجوال -->
+                        <div class="mobile-nav">
+                            <!-- يمكنك لاحقًا إضافة كود قائمة الهاتف هنا -->
                         </div>
-                        <div class="col-lg-7 col-md-9 col-12">
-                            <!-- Main Menu -->
-                            <div class="main-menu">
-                                <nav class="navigation">
-                                    <ul class="nav menu">
-                                        <li class="active">
-                                            <a href="#">الرئيسية <i class="icofont-rounded-down"></i></a>
-                                            <ul class="dropdown">
-                                                <li class="active">
-                                                    <a href="index.html">Home Page 1</a>
-                                                </li>
-                                                <li><a href="index2.html">Home Page 2</a></li>
-                                            </ul>
-                                        </li>
-                                  
-                                        <li><a href="contact.html">من نحن</a></li>
-                                        <li><a asp-controller="Account" asp-action="Login" >دخول</a></li>
-                                        <li><a asp-controller="Account" asp-action="Login" >تسجيل</a></li>
-                                    </ul>
-                                </nav>
-                            </div>
-                            <!--/ End Main Menu -->
+                    </div>
+
+                    <div class="col-lg-7 col-md-9 col-12">
+                        <!-- القائمة الرئيسية -->
+                        <div class="main-menu">
+                            <nav class="navigation">
+                                <ul class="nav menu">
+                                    <li><a asp-controller="Home" asp-action="Index">الرئيسية</a></li>
+                                    <li><a asp-controller="Home" asp-action="About">من نحن</a></li>
+                                    <li><a asp-controller="Training" asp-action="Courses">الدورات التدريبية</a></li>
+                                    <li><a asp-controller="Home" asp-action="Contact">التواصل</a></li>
+                                </ul>
+                            </nav>
                         </div>
-                        <div class="col-lg-2 col-12">
-                            <div class="get-quote">
-                                <a href="appointment.html" class="btn"> عرض الدورات</a>
-                            </div>
-                        </div>
+                    </div>
+
+                    <div class="col-lg-2 col-12">
+                        <!-- المستخدم: تسجيل / دخول / خروج -->
+                        <partial name="Partial/_navUser" />
                     </div>
                 </div>
             </div>
         </div>
-        <!--/ End Header Inner -->
+    </div>
+</header>
+
 
 </header>
   

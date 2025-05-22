@@ -16,6 +16,8 @@ using TrainingManagementSystem.ViewModels.Identity;
 namespace TrainingManagementSystem.Controllers
 {
     //[AllowAnonymous]  لآكشن معينة داخل الكونترولر Authorize عند استعماله لايمكن تفعيل
+
+    [ViewLayout("_Layout")]
     public class AccountController : BaseController
     {
         private readonly UserManager<ApplicationUser> _userManager;

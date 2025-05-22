@@ -1,32 +1,30 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System.Data;
 using TrainingManagementSystem.Classes;
 using TrainingManagementSystem.Models;
 using TrainingManagementSystem.Models.Entities;
 using TrainingManagementSystem.Models.Interfaces;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace TrainingManagementSystem.Controllers
 {
     [ViewLayout("_LayoutDashboard")]
-    public class QualificationController : BaseController
+    public class DepartmentController : BaseController
     {
         private readonly ApplicationDbContext _context;
-        private readonly IUnitOfWork<Qualification> _qualification;
+        private readonly IUnitOfWork<Department> _Department;
 
-        public QualificationController(
+        public DepartmentController(
             ApplicationDbContext context,
-            IUnitOfWork<Qualification> qualification,
+            IUnitOfWork<Department> Department,
             IWebHostEnvironment host) : base(host)
         {
             _context = context;
-            _qualification = qualification;
+            _Department = Department;
         }
 
         public IActionResult Index()
         {
-            var Qview = _qualification.Entity.GetAll().ToList();
+            var Qview = _Department.Entity.GetAll().ToList();
             return View(Qview);
         }
 
@@ -37,48 +35,48 @@ namespace TrainingManagementSystem.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Name,IsActive")] Qualification qualification)
+        public async Task<IActionResult> Create([Bind("Name")] Department Department)
         {
             if (ModelState.IsValid)
             {
-                if (await _context.Qualifications.AnyAsync(q => q.Name == qualification.Name))
+                if (await _context.Departments.AnyAsync(q => q.Name == Department.Name))
                 {
-                    ModelState.AddModelError("Name", "اسم المؤهل موجود مسبقًا.");
-                    return View(qualification);
+                    ModelState.AddModelError("Name", "الاسم  موجود مسبقًا.");
+                    return View(Department);
                 }
-                qualification.Id = Guid.NewGuid();
-                qualification.Modified = DateTime.Now; // Assuming Modified is similar to CreatedAt for new records
-                _qualification.Entity.Insert(qualification);
-                await _qualification.SaveAsync();
-                TempData["SuccessMessage"] = "تم إضافة المؤهل بنجاح.";
+                Department.Id = Guid.NewGuid();
+                Department.Modified = DateTime.Now; // Assuming Modified is similar to CreatedAt for new records
+                _Department.Entity.Insert(Department);
+                await _Department.SaveAsync();
+                TempData["SuccessMessage"] = "تم الإضافة بنجاح.";
                 return RedirectToAction(nameof(Index));
             }
-            return View(qualification);
+            return View(Department);
         }
 
         public async Task<IActionResult> Edit(Guid? id)
         {
             if (id == null)
             {
-                TempData["ErrorMessage"] = "معرف المؤهل غير صالح أو مفقود.";
+                TempData["ErrorMessage"] = "معرف غير صالح أو مفقود.";
                 return RedirectToAction(nameof(Index));
             }
 
-            var qualification = await _context.Qualifications.FindAsync(id);
+            var Department = await _context.Departments.FindAsync(id);
 
-            if (qualification == null)
+            if (Department == null)
             {
                 TempData["ErrorMessage"] = "لم يتم العثور على المؤهل المطلوب تعديله.";
                 return RedirectToAction(nameof(Index));
             }
-            return View(qualification);
+            return View(Department);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(Guid id, [Bind("Id,Name,IsActive")] Qualification qualification)
+        public async Task<IActionResult> Edit(Guid id, [Bind("Id,Name,IsActive")] Department Department)
         {
-            if (id != qualification.Id)
+            if (id != Department.Id)
             {
                 TempData["ErrorMessage"] = "خطأ في تطابق معرف المؤهل.";
                 return RedirectToAction(nameof(Index));
@@ -88,19 +86,19 @@ namespace TrainingManagementSystem.Controllers
             {
                 try
                 {
-                    if (await _context.Qualifications.AnyAsync(q => q.Name == qualification.Name && q.Id != qualification.Id))
+                    if (await _context.Departments.AnyAsync(q => q.Name == Department.Name && q.Id != Department.Id))
                     {
                         ModelState.AddModelError("Name", "اسم المؤهل موجود مسبقًا لمؤهل آخر.");
-                        return View(qualification);
+                        return View(Department);
                     }
-                    qualification.Modified = DateTime.Now; // Update Modified timestamp
-                    _context.Update(qualification);
+                    Department.Modified = DateTime.Now; // Update Modified timestamp
+                    _context.Update(Department);
                     await _context.SaveChangesAsync();
                     TempData["SuccessMessage"] = "تم تعديل المؤهل بنجاح!";
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!QualificationExists(qualification.Id))
+                    if (!DepartmentExists(Department.Id))
                     {
                         TempData["ErrorMessage"] = "لم يتم العثور على المؤهل أثناء محاولة التحديث.";
                         return RedirectToAction(nameof(Index));
@@ -108,12 +106,12 @@ namespace TrainingManagementSystem.Controllers
                     else
                     {
                         ModelState.AddModelError(string.Empty, "حدث خطأ أثناء محاولة حفظ التغييرات. قد يكون السجل قد تم تعديله بواسطة مستخدم آخر.");
-                        return View(qualification);
+                        return View(Department);
                     }
                 }
                 return RedirectToAction(nameof(Index));
             }
-            return View(qualification);
+            return View(Department);
         }
 
         public async Task<IActionResult> Delete(Guid? id)
@@ -124,24 +122,24 @@ namespace TrainingManagementSystem.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            var qualification = await _context.Qualifications
+            var Department = await _context.Departments
                 .FirstOrDefaultAsync(m => m.Id == id);
 
-            if (qualification == null)
+            if (Department == null)
             {
                 TempData["ErrorMessage"] = "لم يتم العثور على المؤهل المطلوب حذفه.";
                 return RedirectToAction(nameof(Index));
             }
-            return View(qualification);
+            return View(Department);
         }
 
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(Guid id)
         {
-            var qualification = await _context.Qualifications.FindAsync(id);
+            var Department = await _context.Departments.FindAsync(id);
 
-            if (qualification == null)
+            if (Department == null)
             {
                 TempData["ErrorMessage"] = "المؤهل غير موجود أو قد تم حذفه بالفعل.";
                 return RedirectToAction(nameof(Index));
@@ -149,22 +147,22 @@ namespace TrainingManagementSystem.Controllers
 
             try
             {
-                bool isUsedByTrainers = await _context.Trainers
-                                              .AnyAsync(t => t.QualificationId == id);
+                bool isUsedByTrainers = await _context.Trainees
+                                              .AnyAsync(t => t.DepartmentId == id);
 
                 if (isUsedByTrainers)
                 {
-                    TempData["ErrorMessage"] = $"لا يمكن حذف المؤهل '{qualification.Name}' لأنه مستخدم من قبل مدرب واحد على الأقل. يرجى تحديث بيانات المدربين أولاً.";
+                    TempData["ErrorMessage"] = $"لا يمكن حذف المؤهل '{Department.Name}' لأنه مستخدم من قبل متدرب واحد على الأقل. يرجى تحديث البيانات  أولاً.";
                     return RedirectToAction(nameof(Index));
                 }
 
-                _context.Qualifications.Remove(qualification);
+                _context.Departments.Remove(Department);
                 await _context.SaveChangesAsync();
-                TempData["SuccessMessage"] = $"تم حذف المؤهل '{qualification.Name}' بنجاح.";
+                TempData["SuccessMessage"] = $"تم الحذف  '{Department.Name}' بنجاح.";
             }
             catch (DbUpdateException)
             {
-                TempData["ErrorMessage"] = $"لا يمكن حذف المؤهل '{qualification.Name}' لأنه مرتبط بسجلات أخرى (مثل المدربين). يرجى إزالة الارتباطات أولاً.";
+                TempData["ErrorMessage"] = $"لا يمكن الحذف  '{Department.Name}'  يرجى إزالة الارتباطات أولاً.";
                 return RedirectToAction(nameof(Index));
             }
             catch (Exception)
@@ -175,9 +173,9 @@ namespace TrainingManagementSystem.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        private bool QualificationExists(Guid id)
+        private bool DepartmentExists(Guid id)
         {
-            return _context.Qualifications.Any(e => e.Id == id);
+            return _context.Departments.Any(e => e.Id == id);
         }
     }
 }

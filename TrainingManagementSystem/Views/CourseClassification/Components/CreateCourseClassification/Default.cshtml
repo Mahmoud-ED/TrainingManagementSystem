@@ -1,0 +1,19 @@
+﻿@model CourseClassification
+
+<section class="newsletter py-5">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-md-2 col-12">
+                <h4>إضافة تصنيف جديد</h4>
+            </div>
+            <div class="col-md-6 col-12">
+                <div class="subscribe-form">
+                    <form asp-action="Create" asp-controller="CourseClassification" method="post" class="newsletter-inner">
+                        <input asp-for="Name" placeholder="" class="common-input" onfocus="this.placeholder = ''" onblur="this.placeholder = 'اسم التصنيف'" required="">
+                        <button type="submit" class="btn">إضافة</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
