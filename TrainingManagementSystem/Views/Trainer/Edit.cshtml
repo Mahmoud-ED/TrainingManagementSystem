@@ -5,27 +5,6 @@
     string profileImageDisplayUrl = string.IsNullOrEmpty(Model.ProfileImageUrl) ? Url.Content("~/img/OIP.jpeg") : Url.Content("~/pictures/trainers/" + Model.ProfileImageUrl);
 }
 
-<!-- Breadcrumbs -->
-<div class="breadcrumbs overlay" style="background-image: url('@Url.Content("~/mediplus_theme/img/breadcrumb-bg.jpg")');">
-    <div class="container">
-        <div class="bread-inner">
-            <div class="row">
-                <div class="col-12">
-                    <h2>@ViewData["Title"]</h2>
-                    <ul class="bread-list">
-                        <li><a asp-controller="Admin" asp-action="Index">لوحة التحكم</a></li>
-                        <li><i class="icofont-simple-right"></i></li>
-                        <li><a asp-controller="Trainer" asp-action="Index">المدربين</a></li>
-                        <li><i class="icofont-simple-right"></i></li>
-                        <li class="active">تعديل بيانات مدرب</li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-<!-- End Breadcrumbs -->
-
 <section class="appointment single-page section">
     <div class="container">
         <div class="row">

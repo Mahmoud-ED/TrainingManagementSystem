@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations; // ✅ Add this for DisplayAttribute
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
@@ -10,16 +11,17 @@ using TrainingManagementSystem.Classes;
 using TrainingManagementSystem.Models;
 using TrainingManagementSystem.Models.Entities;
 using TrainingManagementSystem.Models.Interfaces;
-using static System.Collections.Specialized.BitVector32;
 
 namespace TrainingManagementSystem.Controllers
 {
     [ViewLayout("_LayoutDashboard")]
     [Authorize(Roles = "Admin,Prog")]
+    [Display(Name = "تصنيفات البرامج التدريبية")] // ✅ Controller title
     public class CourseClassificationController : BaseController
     {
         private readonly ApplicationDbContext _context;
         private readonly IUnitOfWork<CourseClassification> _courseClassification;
+
         public CourseClassificationController(ApplicationDbContext context,
                                               IUnitOfWork<CourseClassification> courseClassification,
                                               IWebHostEnvironment host) : base(host)
@@ -27,30 +29,30 @@ namespace TrainingManagementSystem.Controllers
             _context = context;
             _courseClassification = courseClassification;
         }
-        // GET: CourseClassificationController
+
+        [Display(Name = "قائمة التصنيفات")] // ✅ Action title
         public ActionResult Index()
         {
             var CourseClassification = _courseClassification.Entity.GetAll().ToList();
             return View(CourseClassification);
         }
 
-        // GET: CourseClassificationController/Details/5
+        [Display(Name = "تفاصيل التصنيف")] // ✅ Action title
         public async Task<IActionResult> Details(Guid? id)
         {
             var courseClassification = await _courseClassification.Entity.GetByIdAsync(id);
-
             return View(courseClassification);
         }
 
-        // GET: CourseClassificationController/Create
+        [Display(Name = "إضافة تصنيف جديد")] // ✅ Action title
         public ActionResult Create()
         {
             return View();
         }
 
-        // POST: CourseClassificationController/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Display(Name = "حفظ التصنيف الجديد")] // ✅ Action title
         public async Task<IActionResult> Create([Bind("Name")] CourseClassification courseClassification)
         {
             if (ModelState.IsValid)
@@ -58,7 +60,7 @@ namespace TrainingManagementSystem.Controllers
                 try
                 {
                     var exists = await _courseClassification.Entity
-                                      .GetWhere(a => a.Name == courseClassification.Name) // لا يهم التحويل الى حروف كبيرة لأنه غير حساس لحالة الأحرف
+                                      .GetWhere(a => a.Name == courseClassification.Name)
                                       .FirstOrDefaultAsync();
 
                     if (exists != null)
@@ -67,6 +69,7 @@ namespace TrainingManagementSystem.Controllers
                         return View();
                     }
                     courseClassification.Name = courseClassification.Name.Trim();
+                    courseClassification.Created = DateTime.Now;
                     _courseClassification.Entity.Insert(courseClassification);
                     await _courseClassification.SaveAsync();
                     return RedirectToAction(nameof(Index));
@@ -83,7 +86,7 @@ namespace TrainingManagementSystem.Controllers
         public async Task<JsonResult> NameExists(string name)
         {
             var exists = await _courseClassification.Entity.GetAll()
-                                  .FirstOrDefaultAsync(n => n.Name == name.Trim()); // لا يهم التحويل الى حروف كبيرة لأنه غير حساس لحالة الأحرف
+                                  .FirstOrDefaultAsync(n => n.Name == name.Trim());
 
             if (exists == null)
             {
@@ -94,6 +97,8 @@ namespace TrainingManagementSystem.Controllers
                 return Json($"التصنيف '{exists.Name}' مستخدم مسبقاَ");
             }
         }
+
+        [Display(Name = "تعديل التصنيف")] // ✅ Action title
         public async Task<IActionResult> Edit(Guid? id)
         {
             if (id == null)
@@ -101,21 +106,21 @@ namespace TrainingManagementSystem.Controllers
                 return View("NotFound");
             }
 
-            var section = await _courseClassification.Entity.GetByIdAsync(id);
+            var courseClassification = await _courseClassification.Entity.GetByIdAsync(id);
 
-            if (section == null)
+            if (courseClassification == null)
             {
                 ViewBag.Message = "التصنيف ليس موجود";
                 return View("NotFound");
             }
-            return View(section);
+            return View(courseClassification);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Display(Name = "تحديث التصنيف")] // ✅ Action title
         public async Task<IActionResult> Edit(Guid id, [Bind("Name,Id,Created,Modified")] CourseClassification courseClassification)
         {
-            //لمنع حدوث هجمات CSRF (Cross-Site Request Forgery):
             if (id != courseClassification.Id)
             {
                 return View("NotFound");
@@ -142,16 +147,14 @@ namespace TrainingManagementSystem.Controllers
                 {
                     if (!CourseClassificationExists(courseClassification.Id))
                     {
-                        return View("NotFound"); // في حال غير موجود
+                        return View("NotFound");
                     }
                     else
                     {
-                        //throw; //  صفحة الخطأ الإفتراضية للمتصفح
                         ViewBag.ErrorTitle = "The basic data not found in the database ";
                         ViewBag.ErrorMessage = "Missing data row- " + ex;
                         return View("Error");
                     }
-
                 }
                 return RedirectToAction(nameof(Index));
             }
@@ -163,16 +166,15 @@ namespace TrainingManagementSystem.Controllers
             return (_courseClassification.Entity.GetAll()?.Any(e => e.Id == id)).GetValueOrDefault();
         }
 
-
-        // GET: CourseClassificationController/Delete/5
+        [Display(Name = "عرض حذف التصنيف")] // ✅ Action title
         public ActionResult Delete(int id)
         {
             return View();
         }
 
-        // POST: CourseClassificationController/Delete/5
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Display(Name = "تأكيد حذف التصنيف")] // ✅ Action title
         public async Task<IActionResult> Delete(Guid? id)
         {
             if (id == null)
@@ -187,11 +189,11 @@ namespace TrainingManagementSystem.Controllers
             }
 
             return View(section);
-
         }
 
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
+        [Display(Name = "حذف نهائي للتصنيف")] // ✅ Action title
         public async Task<IActionResult> DeleteConfirmed(Guid id)
         {
             var courseClassification = await _courseClassification.Entity.GetByIdAsync(id);
@@ -211,7 +213,5 @@ namespace TrainingManagementSystem.Controllers
                 throw;
             }
         }
-
-
     }
 }

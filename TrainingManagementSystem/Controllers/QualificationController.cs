@@ -46,8 +46,7 @@ namespace TrainingManagementSystem.Controllers
                     ModelState.AddModelError("Name", "اسم المؤهل موجود مسبقًا.");
                     return View(qualification);
                 }
-                qualification.Id = Guid.NewGuid();
-                qualification.Modified = DateTime.Now; // Assuming Modified is similar to CreatedAt for new records
+                qualification.Created = DateTime.Now; // Assuming Modified is similar to CreatedAt for new records
                 _qualification.Entity.Insert(qualification);
                 await _qualification.SaveAsync();
                 TempData["SuccessMessage"] = "تم إضافة المؤهل بنجاح.";
@@ -93,7 +92,7 @@ namespace TrainingManagementSystem.Controllers
                         ModelState.AddModelError("Name", "اسم المؤهل موجود مسبقًا لمؤهل آخر.");
                         return View(qualification);
                     }
-                    qualification.Modified = DateTime.Now; // Update Modified timestamp
+                    qualification.Modified = DateTime.Now; // Update Modified timestampa
                     _context.Update(qualification);
                     await _context.SaveChangesAsync();
                     TempData["SuccessMessage"] = "تم تعديل المؤهل بنجاح!";

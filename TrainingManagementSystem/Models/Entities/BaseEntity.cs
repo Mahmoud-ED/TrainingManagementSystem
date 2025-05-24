@@ -6,14 +6,18 @@ namespace TrainingManagementSystem.Models.Entities
     {
         public Guid Id { get; set; }
 
+        [Display(Name = "تاريخ الإنشاء")]
         [DisplayFormat(DataFormatString = "{0:dd-MM-yyyy hh:mm:ss tt}")]
         public DateTime Created { get; set; }
 
+        [Display(Name = "تاريخ التعديل")]
         [DisplayFormat(DataFormatString = "{0:dd-MM-yyyy hh:mm:ss tt}")]
         public DateTime? Modified { get; set; }
 
 
         //-------------------------For User Profile-------------------------
+
+        
         public string CreatedDateLocalTime
         {
             get
@@ -21,6 +25,7 @@ namespace TrainingManagementSystem.Models.Entities
                 return Created.ToLocalTime().ToString("dd-MM-yyyy hh:mm:ss tt");
             }
         }
+
         public string? ModifiedDateLocalTime
         {
             get

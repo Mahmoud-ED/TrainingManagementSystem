@@ -4,30 +4,6 @@
     ViewData["Title"] = "قائمة تصنيفات الدورات التدريبية";
 }
 
-
-
-
-<div class="breadcrumbs overlay">
-    <div class="container">
-        <div class="bread-inner">
-            <div class="row">
-                <div class="col-12">
-                    <h2>@ViewData["Title"]</h2>
-                    <ul class="bread-list">
-                        <li><a href="index.html">لوحة التحكم</a></li>
-                        <li><i class="icofont-simple-right"></i></li>
-                        <li class="active">تصنيفات البرامج التدريبية</li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-
-
-
-
 <section class="doctor-calendar-area section">
     <div class="container">
        @*  <div class="row">
@@ -38,10 +14,7 @@
             </div>
         </div> *@
 
-     
-
         @await Component.InvokeAsync("CreateCourseClassification")
-
 
         <div class="row">
             <div class="col-12">
@@ -73,8 +46,6 @@
                                             <td>@Html.DisplayFor(modelItem => item.Modified)</td>
                                             <td>
                                                 <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-info">تعديل</a>
-                                                <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-warning">تفاصيل</a>
-                                                <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-danger">حذف</a>
                                             </td>
                                         </tr>
                                     }
@@ -84,13 +55,8 @@
                     }
                     else
                     {
-                        <div class="card">
-                            <div class="card-header">
-                                لا توجد تصنيفات
-                            </div>
-                            <div class="card-body">
-                                <a asp-controller="CourseClassification" asp-action="Create" class="btn btn-primary">إنشاء تصنيف</a>
-                            </div>
+                        <div class="alert alert-light text-center mt-3" role="alert">
+                            <i class="icofont-info-square"></i> لا توجد تصنيفات لعرضها حاليًا. يمكنك <a asp-action="Create" class="alert-link">إضافة تصنيف جديد</a>.
                         </div>
                     }
                 </div>

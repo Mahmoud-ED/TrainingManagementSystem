@@ -126,26 +126,15 @@
                             <div class="main-menu">
                                 <nav class="navigation">
                                     <ul class="nav menu">
-                                        <li class="active">
+                                       @*  <li class="active">
                                             <a href="#">الرئيسية <i class="icofont-rounded-down"></i></a>
-
-                                        </li>
-
-                                        <li><a href="contact.html"></a></li>
-
+                                        </li> *@
+                                        <li><a asp-controller="Home" asp-action="Index">الرئيسية</a></li>
                                         <li><a asp-controller="Trainer" asp-action="Index">المدربين</a></li>
-                                        <li><a asp-controller="Account" asp-action="Login">تسجيل</a></li>
-
-                                        <li class="">
-                                            <a href="#">البيانات الاساسية <i class="icofont-rounded-down"></i></a>
-                                            <ul class="dropdown">
-                                                <li class="active">
-                                                <li><a asp-controller="Qualification" asp-action="Index">المؤهلات</a></li>
-                                                <li><a asp-controller="Specialization" asp-action="Index">التخصصات</a></li>
-                                                <li><a asp-controller="Department" asp-action="Index">الأقسام</a></li>
-                                                <li><a asp-controller="CourseClassification" asp-action="Index">تصنيفات الدورات</a></li>
-                                            </ul>
-                                        </li>
+                                        <li><a asp-controller="Qualification" asp-action="Index">المؤهلات</a></li>
+                                        <li><a asp-controller="Specialization" asp-action="Index">التخصصات</a></li>
+                                        <li><a asp-controller="Department" asp-action="Index">الأقسام</a></li>
+                                        <li><a asp-controller="CourseClassification" asp-action="Index">تصنيفات الدورات</a></li>
                                     </ul>
                                 </nav>
                             </div>
@@ -161,11 +150,30 @@
             </div>
         </div>
         <!--/ End Header Inner -->
-
     </header>
 
+    <div class="breadcrumbs overlay">
+        <div class="container">
+            <div class="bread-inner">
+                <div class="row">
+                    <div class="col-12">
+                        <h2>@ViewData["Title"]</h2>
+                        <ul class="bread-list">
+                            <li>لوحة التحكم</li>
+                            <li><i class="icofont-simple-right"></i></li>
+                            <li class="active">@BreadcrumbHelper.GetControllerDisplayName(ViewContext)</li>
+                            <li><i class="icofont-simple-right"></i></li>
+                            <li class="active">@BreadcrumbHelper.GetActionDisplayName(ViewContext)</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
-    <div class="container pb-5 pt-5">
+
+
+    <div class="container mb-md-5 pt-5">
         @RenderBody()
     </div>
     <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
