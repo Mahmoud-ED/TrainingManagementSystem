@@ -1,0 +1,86 @@
+﻿@model TrainingManagementSystem.ViewModels.TraineeVM // أو Trainee Entity
+
+@{
+    ViewData["Title"] = "تأكيد حذف المتدرب";
+    string profileImageUrl = string.IsNullOrEmpty(Model.ProfileImageUrl) ? Url.Content("~/img/OIP.jpeg") : Url.Content($"~/pictures/trainees_profiles/{Model.ProfileImageUrl}");
+}
+
+@section Styles {
+    <style>
+        .profile-image-sm-delete {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-bottom: 10px;
+        }</style>
+}
+
+<!-- Breadcrumbs -->
+<div class="breadcrumbs overlay" >
+    <div class="container">
+        <div class="bread-inner">
+            <div class="row">
+                <div class="col-12">
+                    <h2>@ViewData["Title"]</h2>
+                    <ul class="bread-list">
+                        <li><a asp-controller="Admin" asp-action="Index">لوحة التحكم</a></li>
+                        <li><i class="icofont-simple-right"></i></li>
+                        <li><a asp-action="Index">المتدربين</a></li>
+                        <li><i class="icofont-simple-right"></i></li>
+                        <li class="active">حذف المتدرب</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<section class="appointment single-page section">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-8 col-lg-6">
+                <div class="appointment-inner text-center p-4">
+                    <div class="title mb-3">
+                        <i class="icofont-warning-alt icofont-3x text-danger"></i>
+                        <h3>@ViewData["Title"]</h3>
+                    </div>
+                    <hr />
+                    <p class="lead">هل أنت متأكد أنك تريد حذف المتدرب التالي؟</p>
+
+                    <div class="my-3">
+                        @if (!string.IsNullOrEmpty(Model.ProfileImageUrl))
+                        {
+                            <img src="@profileImageUrl" alt="صورة المتدرب" class="profile-image-sm-delete"
+                                 onerror="this.onerror=null; this.src='@Url.Content("~/img/OIP.jpeg")';" />
+                        }
+                        <h4>@Model.ArName</h4>
+                        @if (!string.IsNullOrEmpty(Model.Email))
+                        {
+                            <p class="text-muted"><i class="icofont-email"></i> @Model.Email</p>
+                        }
+                    </div>
+
+                    <form asp-action="Delete" method="post">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" asp-for="Id" />
+
+                        <div class="alert alert-warning small">
+                            <strong>انتباه:</strong> سيتم حذف جميع تسجيلات هذا المتدرب في الدورات. لا يمكن التراجع عن هذا الإجراء.
+                        </div>
+
+                        <div class="d-flex justify-content-center gap-2 mt-4">
+                            <button type="submit" class="btn btn-danger btn-lg">
+                                <i class="icofont-trash"></i> نعم، قم بالحذف
+                            </button>
+                            <a asp-action="Index" class="btn btn-outline-secondary btn-lg">
+                                <i class="icofont-close-line"></i> إلغاء
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

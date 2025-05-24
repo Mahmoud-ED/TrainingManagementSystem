@@ -80,7 +80,7 @@ namespace TrainingManagementSystem.Models
             
             // Trainee -> Organization (تصحيح الاسم)
             modelBuilder.Entity<Trainee>()
-                        .HasOne(t => t.Organization) // <<-- Organaizations -> Organization
+                        .HasOne(t => t.Organizition) // <<-- Organaizations -> Organization
                         .WithMany(o => o.Trainees)
                         .HasForeignKey(t => t.OrganizationId) // <<-- OrganaizitionId -> OrganizationId
                         .OnDelete(DeleteBehavior.Restrict);

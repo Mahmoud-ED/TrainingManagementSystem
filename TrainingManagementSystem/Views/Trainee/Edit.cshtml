@@ -1,0 +1,272 @@
+﻿@model TrainingManagementSystem.ViewModels.TraineeVM
+
+@{
+    ViewData["Title"] = "تعديل بيانات المتدرب";
+    string currentProfileImageUrl = string.IsNullOrEmpty(Model.ProfileImageUrl) ? Url.Content("~/img/OIP.jpeg") : Url.Content($"~/pictures/trainees_profiles/{Model.ProfileImageUrl}");
+    string defaultAvatarUrl = Url.Content("~/img/OIP.jpeg");
+}
+
+@section Styles {
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" />
+    <style>
+        .select2-container--bootstrap-5 .select2-selection {
+            height: calc(1.5em + .75rem + 2px) !important;
+            padding: .375rem .75rem !important;
+        }
+
+        .select2-container--bootstrap-5 .select2-selection__arrow {
+            height: calc(1.5em + .75rem) !important;
+        }
+
+        .img-preview-container {
+            text-align: center;
+            margin-top: 10px;
+        }
+
+        .img-preview {
+            max-width: 150px;
+            max-height: 150px;
+            border-radius: 50%;
+            border: 2px solid #eee;
+            cursor: pointer;
+            object-fit: cover;
+        }
+
+        .btn-remove-img {
+            position: absolute;
+            top: -5px;
+            right: calc(50% - 75px - 10px);
+            transform: translateX(50%);
+            z-index: 10;
+        }
+    </style>
+}
+
+<!-- Breadcrumbs -->
+<div class="breadcrumbs overlay" >
+    <div class="container">
+        <div class="bread-inner">
+            <div class="row">
+                <div class="col-12">
+                    <h2>@ViewData["Title"]: @Model.ArName</h2>
+                    <ul class="bread-list">
+                        <li><a asp-controller="Admin" asp-action="Index">لوحة التحكم</a></li>
+                        <li><i class="icofont-simple-right"></i></li>
+                        <li><a asp-action="Index">المتدربين</a></li>
+                        <li><i class="icofont-simple-right"></i></li>
+                        <li class="active">@ViewData["Title"]</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<section class="appointment single-page section">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-10 col-md-12 col-12 mx-auto">
+                <div class="appointment-inner">
+                    <div class="title text-center mb-4">
+                        <h3><i class="icofont-edit"></i> تعديل بيانات المتدرب: @Model.ArName</h3>
+                        <p>يرجى تحديث الحقول المطلوبة.</p>
+                    </div>
+
+                    <form asp-action="Edit" asp-route-id="@Model.Id" method="post" enctype="multipart/form-data" class="form">
+                        @Html.AntiForgeryToken()
+                        <div asp-validation-summary="All" class="alert alert-danger text-start p-2 mb-3" role="alert"></div>
+
+                        <input type="hidden" asp-for="Id" />
+                        <input type="hidden" asp-for="CreatedAt" />
+                        <input type="hidden" asp-for="ProfileImageUrl" /> @* للحفاظ على الصورة القديمة إذا لم يتم تغييرها *@
+
+
+                        <h5 class="form-section-title">المعلومات الشخصية</h5>
+                        <hr class="mt-1 mb-3">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="ArName" class="form-label fw-bold"></label>
+                                <input asp-for="ArName" class="form-control" />
+                                <span asp-validation-for="ArName" class="text-danger d-block mt-1 small"></span>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="EnName" class="form-label fw-bold"></label>
+                                <input asp-for="EnName" class="form-control" />
+                                <span asp-validation-for="EnName" class="text-danger d-block mt-1 small"></span>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="PhoneNo" class="form-label fw-bold"></label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="icofont-phone"></i></span>
+                                    <input asp-for="PhoneNo" class="form-control" />
+                                </div>
+                                <span asp-validation-for="PhoneNo" class="text-danger d-block mt-1 small"></span>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Email" class="form-label fw-bold"></label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="icofont-email"></i></span>
+                                    <input asp-for="Email" class="form-control" type="email" />
+                                </div>
+                                <span asp-validation-for="Email" class="text-danger d-block mt-1 small"></span>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="NationalNo" class="form-label fw-bold"></label>
+                                <input asp-for="NationalNo" class="form-control" />
+                                <span asp-validation-for="NationalNo" class="text-danger d-block mt-1 small"></span>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Address" class="form-label fw-bold"></label>
+                                <input asp-for="Address" class="form-control" />
+                                <span asp-validation-for="Address" class="text-danger d-block mt-1 small"></span>
+                            </div>
+                        </div>
+
+                        <h5 class="form-section-title mt-4">المعلومات الأكاديمية والمؤسسية</h5>
+                        <hr class="mt-1 mb-3">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="QualificationId" class="form-label fw-bold"></label>
+                                <select asp-for="QualificationId" class="form-select select2-basic" asp-items="Model.QualificationsList">
+                                    <option value="">-- اختر المؤهل --</option>
+                                </select>
+                                <span asp-validation-for="QualificationId" class="text-danger d-block mt-1 small"></span>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="SpecializationId" class="form-label fw-bold"></label>
+                                <select asp-for="SpecializationId" class="form-select select2-basic" asp-items="Model.SpecializationsList">
+                                    <option value="">-- اختر التخصص --</option>
+                                </select>
+                                <span asp-validation-for="SpecializationId" class="text-danger d-block mt-1 small"></span>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="OrganizationId" class="form-label fw-bold"></label>
+                                <select asp-for="OrganizationId" id="organizationSelect" class="form-select select2-basic" asp-items="Model.OrganizationsList">
+                                    <option value="">-- اختر المؤسسة (اختياري) --</option>
+                                </select>
+                                <span asp-validation-for="OrganizationId" class="text-danger d-block mt-1 small"></span>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="DepartmentId" class="form-label fw-bold"></label>
+                                <select asp-for="DepartmentId" id="departmentSelect" class="form-select select2-basic" asp-items="Model.DepartmentsList">
+                                    <option value="">-- اختر القسم (اختياري) --</option>
+                                </select>
+                                <span asp-validation-for="DepartmentId" class="text-danger d-block mt-1 small"></span>
+                            </div>
+                        </div>
+
+                        <h5 class="form-section-title mt-4">معلومات الحساب والصورة</h5>
+                        <hr class="mt-1 mb-3">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="UserId" class="form-label fw-bold">ربط بحساب مستخدم (اختياري)</label>
+                                <select asp-for="UserId" class="form-select select2-basic" asp-items="Model.UsersList">
+                                    <option value="">-- اختر حساب مستخدم لربطه --</option>
+                                </select>
+                                <span asp-validation-for="UserId" class="text-danger d-block mt-1 small"></span>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Imge" class="form-label fw-bold">تغيير الصورة الشخصية</label>
+                                <input asp-for="Imge" type="file" id="profileImageInput" class="form-control" accept="image/*" onchange="previewImage(event)" />
+                                <input type="hidden" name="isImg1" id="isImg1Value" value="@(string.IsNullOrEmpty(Model.ProfileImageUrl) ? "false" : "true")" />
+                            </div>
+                        </div>
+                        <div class="img-preview-container position-relative">
+                            <img id="imgPreview" src="@currentProfileImageUrl" alt="الصورة الشخصية" class="img-preview" onclick="document.getElementById('profileImageInput').click();" />
+                            <button type="button" class="btn-close btn-remove-img @(string.IsNullOrEmpty(Model.ProfileImageUrl) ? "d-none" : "")"
+                                    title="إزالة الصورة" onclick="clearImagePreview()"></button>
+                        </div>
+
+
+                        <div class="row mt-5">
+                            <div class="col-12 text-center">
+                                <button type="submit" class="btn btn-primary btn-lg" style="background-color: #1DC792; border-color: #1DC792;">
+                                    <i class="icofont-save"></i> حفظ التعديلات
+                                </button>
+                                <a asp-action="Index" class="btn btn-outline-secondary btn-lg ms-2">
+                                    <i class="icofont-close-line-circled"></i> إلغاء
+                                </a>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script>
+        // نفس كود JavaScript من Create.cshtml لـ Select2, AJAX, previewImage, clearImagePreview
+        $(document).ready(function () {
+            $('.select2-basic').select2({
+                theme: "bootstrap-5",
+                placeholder: function(){ $(this).data('placeholder'); }, // Placeholder from data attribute or option
+                allowClear: true
+            });
+
+            // AJAX لتحديث الأقسام (نفس كود Create)
+            $('#organizationSelect').on('change', function () {
+                var organizationId = $(this).val();
+                var departmentSelect = $('#departmentSelect');
+                departmentSelect.empty().append(new Option('-- جاري تحميل الأقسام --', ''));
+
+                if (organizationId) {
+                    $.ajax({
+                        url: '@Url.Action("GetDepartmentsByOrganization", "Trainee")',
+                        type: 'GET', data: { organizationId: organizationId },
+                        success: function (data) {
+                            departmentSelect.empty().append(new Option('-- اختر القسم (اختياري) --', ''));
+                            $.each(data, function (i, item) { departmentSelect.append(new Option(item.name, item.id)); });
+                             // إذا كان Model.DepartmentId له قيمة، حاول تحديده هنا إذا كان موجوداً في القائمة الجديدة
+                            departmentSelect.val('@Model.DepartmentId').trigger('change.select2');
+                        },
+                        error: function () { departmentSelect.empty().append(new Option('-- خطأ --', ''));}
+                    });
+                } else {
+                    departmentSelect.empty().append(new Option('-- اختر القسم (يعتمد على المؤسسة، اختياري) --', ''));
+                }
+            });
+             // تشغيل change event للمؤسسة عند تحميل الصفحة لتعبئة الأقسام إذا كانت هناك مؤسسة مختارة
+            if ($('#organizationSelect').val()) {
+                $('#organizationSelect').trigger('change');
+            }
+        });
+
+        function previewImage(event) {
+            var reader = new FileReader();
+            var imgPreview = document.getElementById('imgPreview');
+            var removeBtn = $('.btn-remove-img');
+            var isImg1Value = document.getElementById('isImg1Value');
+            reader.onload = function () {
+                if (reader.readyState == 2) {
+                    imgPreview.src = reader.result;
+                    removeBtn.removeClass('d-none');
+                    isImg1Value.value = "true";
+                }
+            }
+            if(event.target.files[0]){ reader.readAsDataURL(event.target.files[0]); }
+            else { /* clearImagePreview(false); // لا تمسح isImg1 إذا لم يتم اختيار ملف جديد */ }
+        }
+
+        function clearImagePreview() { // لا تحتاج لبارامتر setAsRemoved هنا
+            document.getElementById('imgPreview').src = '@defaultAvatarUrl';
+            document.getElementById('profileImageInput').value = null;
+            $('.btn-remove-img').addClass('d-none');
+            document.getElementById('isImg1Value').value = "false"; // تشير إلى أن الصورة حُذفت
+            // أيضًا، قم بمسح قيمة ProfileImageUrl المخفية إذا كنت تريد أن يقوم الـ Controller بحذفها من قاعدة البيانات
+            $('input[name="ProfileImageUrl"]').val('');
+        }
+    </script>
+}

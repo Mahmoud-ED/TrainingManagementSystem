@@ -1,0 +1,186 @@
+﻿@model IEnumerable<TrainingManagementSystem.Models.Entities.Trainee>
+
+@{
+    ViewData["Title"] = "إدارة المتدربين";
+    var organizationsFilterList = ViewBag.OrganizationsFilterList as SelectList;
+    var specializationsFilterList = ViewBag.SpecializationsFilterList as SelectList;
+
+    string currentSearchTerm = ViewData["SearchTerm"] as string;
+    Guid? currentOrganizationIdFilter = ViewData["OrganizationIdFilter"] as Guid?;
+    Guid? currentSpecializationIdFilter = ViewData["SpecializationIdFilter"] as Guid?;
+}
+
+@section Styles {
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" />
+    <style>
+        .filter-section { background-color: #f8f9fa; padding: 1.5rem; border-radius: .5rem; margin-bottom: 1.5rem; border: 1px solid #dee2e6; }
+        .btn-toggle-filters { margin-bottom: 1rem; }
+        .filters-content { display: none; overflow: hidden; transition: max-height 0.5s ease-out, opacity 0.5s ease-out; max-height: 0; opacity: 0; }
+        .filters-content.show { display: block; max-height: 500px; opacity: 1; }
+        .trainee-avatar-sm { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; margin-right: 10px; }
+    </style>
+}
+
+<!-- Breadcrumbs -->
+<div class="breadcrumbs overlay" >
+    <div class="container">
+        <div class="bread-inner">
+            <div class="row">
+                <div class="col-12">
+                    <h2>@ViewData["Title"]</h2>
+                    <ul class="bread-list">
+                        <li><a asp-controller="Admin" asp-action="Index">لوحة التحكم</a></li> @* افترض Admin/Index *@
+                        <li><i class="icofont-simple-right"></i></li>
+                        <li class="active">@ViewData["Title"]</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container-fluid mt-4 mb-5">
+    <div class="page-header mb-3 d-flex justify-content-between align-items-center flex-wrap">
+        <h3><i class="icofont-users-alt-3"></i> @ViewData["Title"]</h3>
+        <a asp-action="Create" class="btn btn-primary mt-2 mt-md-0" style="background-color: #1DC792; border-color: #1DC792;">
+            <i class="icofont-plus"></i> إضافة متدرب جديد
+        </a>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">@TempData["SuccessMessage"]<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
+    }
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">@TempData["ErrorMessage"]<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
+    }
+
+    <button class="btn btn-outline-info btn-toggle-filters mb-3" type="button" id="toggleFiltersBtn">
+        <i class="icofont-filter"></i> خيارات البحث والفلترة <span id="filterToggleIcon" class="icofont-caret-down"></span>
+    </button>
+
+    <div class="filters-content" id="filtersCollapse">
+        <div class="filter-section">
+            <form asp-action="Index" method="get">
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <label for="searchTerm" class="form-label">بحث عام:</label>
+                        <input type="text" id="searchTerm" name="searchTerm" value="@currentSearchTerm" class="form-control form-control-sm" placeholder="اسم، بريد، هاتف، رقم وطني...">
+                    </div>
+                    <div class="col-md-3">
+                        <label for="organizationId" class="form-label">المؤسسة:</label>
+                        <select name="organizationId" id="organizationId" class="form-select form-select-sm select2-filter" asp-items="organizationsFilterList">
+                            <option value="">-- كل المؤسسات --</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label for="specializationId" class="form-label">التخصص:</label>
+                        <select name="specializationId" id="specializationId" class="form-select form-select-sm select2-filter" asp-items="specializationsFilterList">
+                            <option value="">-- كل التخصصات --</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2 align-self-end">
+                        <button type="submit" class="btn btn-primary btn-sm w-100"><i class="icofont-search-2"></i> تطبيق</button>
+                        @if (!string.IsNullOrEmpty(currentSearchTerm) || currentOrganizationIdFilter.HasValue || currentSpecializationIdFilter.HasValue)
+                        {
+                             <a asp-action="Index" class="btn btn-outline-secondary btn-sm w-100 mt-1"><i class="icofont-eraser"></i> مسح</a>
+                        }
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    @if (Model.Any())
+    {
+        <div class="table-responsive mt-3">
+            <table class="table table-hover table-striped table-bordered table-sm">
+                <thead class="table-light">
+                    <tr>
+                        <th></th>
+                        <th>الاسم (عربي)</th>
+                        <th>الهاتف</th>
+                        <th>البريد الإلكتروني</th>
+                        <th>المؤسسة</th>
+                        <th>التخصص</th>
+                        <th>تاريخ الإضافة</th>
+                        <th class="text-center">الإجراءات</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>
+                                @if (!string.IsNullOrEmpty(item.ProfileImageUrl))
+                                {
+                                    <img src="@Url.Content($"~/pictures/trainees_profiles/{item.ProfileImageUrl}")" alt="صورة المتدرب" class="trainee-avatar-sm"
+                                         onerror="this.onerror=null; this.src='@Url.Content("~/img/OIP.jpeg")';" /> @* صورة افتراضية *@
+                                }
+                                else
+                                {
+                                    <img src="@Url.Content("~/img/OIP.jpeg")" alt="صورة افتراضية" class="trainee-avatar-sm" />
+                                }
+                            </td>
+                            <td>@Html.DisplayFor(modelItem => item.ArName)</td>
+                            <td>@Html.DisplayFor(modelItem => item.PhoneNo)</td>
+                            <td>@Html.DisplayFor(modelItem => item.Email)</td>
+                            <td>@(item.Organizition?.Name ?? "-")</td>
+                            <td>@(item.Specialization?.Name ?? "-")</td>
+                            <td>@item.Created.ToString("dd/MM/yyyy")</td>
+                            <td class="text-center">
+                                <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-info" title="التفاصيل"><i class="icofont-eye-alt"></i></a>
+                                <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary" title="تعديل"><i class="icofont-edit"></i></a>
+                                <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-outline-danger" title="حذف"><i class="icofont-trash"></i></a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+    else
+    {
+        <div class="text-center py-5">
+            <i class="icofont-search-user icofont-5x text-muted mb-3"></i>
+            @if (!string.IsNullOrEmpty(currentSearchTerm) || currentOrganizationIdFilter.HasValue || currentSpecializationIdFilter.HasValue)
+            {
+                <h5 class="text-secondary mt-3 mb-2">لا توجد نتائج تطابق معايير البحث.</h5>
+                <p class="text-muted">حاول تعديل الفلاتر أو <a asp-action="Index" class="text-primary fw-bold">مسح الفلتر</a>.</p>
+            }
+            else
+            {
+                <h5 class="text-secondary mt-3 mb-2">لا يوجد متدربون لعرضهم حاليًا.</h5>
+                <p class="text-muted">يمكنك <a asp-action="Create" class="text-primary fw-bold">البدء بإضافة متدرب جديد</a>.</p>
+            }
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('#toggleFiltersBtn').click(function () {
+                $('#filtersCollapse').toggleClass('show');
+                var icon = $('#filterToggleIcon');
+                icon.toggleClass('icofont-caret-down icofont-caret-up');
+            });
+
+            // تهيئة Select2 للفلاتر
+            $('.select2-filter').select2({
+                theme: "bootstrap-5",
+                placeholder: $(this).find("option[value='']").text(), // يأخذ النص من الخيار الفارغ
+                allowClear: true
+            });
+
+             // إذا كانت هناك فلاتر نشطة عند تحميل الصفحة، أظهر القسم
+            if ('@(!string.IsNullOrEmpty(currentSearchTerm) || currentOrganizationIdFilter.HasValue || currentSpecializationIdFilter.HasValue)'.toLowerCase() === 'true') {
+                $('#filtersCollapse').addClass('show');
+                $('#filterToggleIcon').removeClass('icofont-caret-down').addClass('icofont-caret-up');
+            }
+        });
+    </script>
+}
