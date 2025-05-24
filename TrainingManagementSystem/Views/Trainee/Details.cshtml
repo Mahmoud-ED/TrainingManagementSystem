@@ -1,0 +1,168 @@
+﻿@model TrainingManagementSystem.Models.Entities.Trainee // أو TraineeVM إذا جهزته للتفاصيل
+
+@{
+    ViewData["Title"] = "تفاصيل المتدرب";
+    string profileImageUrl = string.IsNullOrEmpty(Model.ProfileImageUrl) ? Url.Content("~/img/OIP.jpeg") : Url.Content($"~/pictures/trainees_profiles/{Model.ProfileImageUrl}");
+}
+
+@section Styles {
+    <style>
+        .profile-image-lg {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid #eee;
+            margin-bottom: 15px;
+        }
+
+        .detail-label {
+            font-weight: bold;
+            color: #555;
+        }
+
+        .detail-value {
+            color: #333;
+        }
+
+        .course-list-item {
+            background-color: #f9f9f9;
+            border: 1px solid #eee;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 8px;
+        }
+    </style>
+}
+
+<!-- Breadcrumbs -->
+<div class="breadcrumbs overlay">
+    <div class="container">
+        <div class="bread-inner">
+            <div class="row">
+                <div class="col-12">
+                    <h2>@ViewData["Title"]: @Model.ArName</h2>
+                    <ul class="bread-list">
+                        <li><a asp-controller="Admin" asp-action="Index">لوحة التحكم</a></li>
+                        <li><i class="icofont-simple-right"></i></li>
+                        <li><a asp-action="Index">المتدربين</a></li>
+                        <li><i class="icofont-simple-right"></i></li>
+                        <li class="active">@Model.ArName</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<section class="appointment single-page section">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-10 col-md-12 col-12 mx-auto">
+                <div class="appointment-inner p-4">
+                    <div class="title text-center mb-4">
+                        <img src="@profileImageUrl" alt="صورة المتدرب @Model.ArName" class="profile-image-lg d-block mx-auto"
+                             onerror="this.onerror=null; this.src='@Url.Content("~/img/OIP.jpeg")';" />
+                        <h3><i class="icofont-user-alt-4"></i> @Model.ArName</h3>
+                        @if (!string.IsNullOrEmpty(Model.EnName))
+                        {
+                            <p class="text-muted">@Model.EnName</p>
+                        }
+                    </div>
+                    <hr>
+
+                    <dl class="row mt-4">
+                        <dt class="col-sm-3 detail-label">رقم الهاتف:</dt>
+                        <dd class="col-sm-9 detail-value">@Model.PhoneNo</dd>
+
+                        <dt class="col-sm-3 detail-label">البريد الإلكتروني:</dt>
+                        <dd class="col-sm-9 detail-value">@Model.Email</dd>
+
+                        @if (!string.IsNullOrEmpty(Model.NationalNo))
+                        {
+                            <dt class="col-sm-3 detail-label">الرقم الوطني:</dt>
+                            <dd class="col-sm-9 detail-value">@Model.NationalNo</dd>
+                        }
+
+                        @if (!string.IsNullOrEmpty(Model.Address))
+                        {
+                            <dt class="col-sm-3 detail-label">العنوان:</dt>
+                            <dd class="col-sm-9 detail-value">@Model.Address</dd>
+                        }
+                        <hr class="my-3">
+                        <dt class="col-sm-3 detail-label">المؤهل العلمي:</dt>
+                        <dd class="col-sm-9 detail-value">@(Model.Qualification?.Name ?? "غير محدد")</dd>
+
+                        <dt class="col-sm-3 detail-label">التخصص:</dt>
+                        <dd class="col-sm-9 detail-value">@(Model.Specialization?.Name ?? "غير محدد")</dd>
+
+                        @if (Model.Organizition != null)
+                        {
+                            <dt class="col-sm-3 detail-label">المؤسسة:</dt>
+                            <dd class="col-sm-9 detail-value">@Model.Organizition.Name</dd>
+                        }
+
+                        @if (Model.Department != null)
+                        {
+                            <dt class="col-sm-3 detail-label">القسم:</dt>
+                            <dd class="col-sm-9 detail-value">@Model.Department.Name</dd>
+                        }
+                        @if (Model.ApplicationUser != null)
+                        {
+                            <hr class="my-3">
+                            <dt class="col-sm-3 detail-label">اسم المستخدم (الحساب):</dt>
+                            <dd class="col-sm-9 detail-value">@Model.ApplicationUser.UserName</dd>
+                            <dt class="col-sm-3 detail-label">بريد المستخدم (الحساب):</dt>
+                            <dd class="col-sm-9 detail-value">@Model.ApplicationUser.Email</dd>
+                        }
+                        <hr class="my-3">
+                        <dt class="col-sm-3 detail-label">تاريخ الإنشاء:</dt>
+                        <dd class="col-sm-9 detail-value">@Model.Created.ToLocalTime().ToString("dd/MM/yyyy hh:mm tt")</dd>
+
+                        @if (Model.Modified.HasValue)
+                        {
+                            <dt class="col-sm-3 detail-label">آخر تعديل:</dt>
+                            <dd class="col-sm-9 detail-value">@Model.Modified.Value.ToLocalTime().ToString("dd/MM/yyyy hh:mm tt")</dd>
+                        }
+                    </dl>
+
+                    @if (Model.CourseTrainees != null && Model.CourseTrainees.Any())
+                    {
+                        <h5 class="mt-4 mb-3">الدورات المسجل بها</h5>
+                        <div class="list-group">
+                            @foreach (var courseReg in Model.CourseTrainees)
+                            {
+                                if (courseReg.CourseDetails != null)
+                                {
+                                    <div class="list-group-item course-list-item">
+                                        <a asp-controller="Course" asp-action="Details" asp-route-id="@courseReg.CourseDetails.CourseId" class="text-decoration-none">
+                                            <strong>@courseReg.CourseDetails.Course.Name</strong>
+                                        </a>
+                                        <span class="badge bg-secondary float-end">تاريخ التسجيل: @courseReg.Created.ToShortDateString()</span>
+                                        @* يمكنك عرض تفاصيل أخرى من CourseTrainee مثل الحالة أو الدرجة *@
+                                    </div>
+                                }
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <p class="text-muted mt-3">المتدرب غير مسجل في أي دورات حاليًا.</p>
+                    }
+
+
+                    <div class="row mt-5">
+                        <div class="col-12 text-center">
+                            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary btn-lg" style="background-color: #1DC792; border-color: #1DC792;">
+                                <i class="icofont-edit"></i> تعديل بيانات المتدرب
+                            </a>
+                            <a asp-action="Index" class="btn btn-outline-secondary btn-lg ms-2">
+                                <i class="icofont-arrow-left"></i> العودة إلى القائمة
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

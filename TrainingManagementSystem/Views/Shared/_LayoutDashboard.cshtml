@@ -51,6 +51,7 @@
     <link rel="stylesheet" href="~/css/color/color1.css">
 
     <link rel="stylesheet" id="colors">
+    @await RenderSectionAsync("Styles", required: false)
 
 
 </head>
@@ -131,10 +132,18 @@
                                         </li> *@
                                         <li><a asp-controller="Home" asp-action="Index">الرئيسية</a></li>
                                         <li><a asp-controller="Trainer" asp-action="Index">المدربين</a></li>
-                                        <li><a asp-controller="Qualification" asp-action="Index">المؤهلات</a></li>
-                                        <li><a asp-controller="Specialization" asp-action="Index">التخصصات</a></li>
-                                        <li><a asp-controller="Department" asp-action="Index">الأقسام</a></li>
-                                        <li><a asp-controller="CourseClassification" asp-action="Index">تصنيفات الدورات</a></li>
+                                        <li><a asp-controller="Account" asp-action="Login">تسجيل</a></li>
+
+                                        <li class="">
+                                            <a href="#">البيانات الاساسية <i class="icofont-rounded-down"></i></a>
+                                            <ul class="dropdown">
+                                                <li class="active">
+                                                <li><a asp-controller="Qualification" asp-action="Index">المؤهلات</a></li>
+                                                <li><a asp-controller="Specialization" asp-action="Index">التخصصات</a></li>
+                                                <li><a asp-controller="Department" asp-action="Index">الأقسام</a></li>
+                                                <li><a asp-controller="CourseClassification" asp-action="Index">تصنيفات الدورات</a></li>
+                                            </ul>
+                                        </li>
                                     </ul>
                                 </nav>
                             </div>

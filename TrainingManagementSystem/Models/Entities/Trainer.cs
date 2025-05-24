@@ -47,5 +47,7 @@ public class Trainer : BaseEntity
     public string? CVUrl { get; set; }
     public string? ProfileImageUrl { get; set; }
 
+    [NotMapped]
+    public IFormFile? Image { get; set; }
 
 }

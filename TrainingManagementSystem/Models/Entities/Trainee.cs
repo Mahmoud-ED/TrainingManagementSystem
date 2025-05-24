@@ -28,7 +28,7 @@ namespace TrainingManagementSystem.Models.Entities
 
 
         [ValidateNever]
-        public Organizition Organization { get; set; }
+        public Organizition Organizition { get; set; }
         // [Required(ErrorMessage = "Organization is required")] // فك التعليق إذا كان إلزاميًا
         [Display(Name = "المؤسسة")]
         public Guid? OrganizationId { get; set; } // جعله nullable إذا لم يكن إلزاميًا دائمًا
@@ -70,5 +70,11 @@ namespace TrainingManagementSystem.Models.Entities
         public ApplicationUser? ApplicationUser { get; set; } // افترض أنه nullable
         [ForeignKey("ApplicationUser")]
         public string? UserId { get; set; } // مفتاح أجنبي لحساب المستخدم
+
+        public string? ProfileImageUrl { get; set; }
+
+        [NotMapped]
+        public IFormFile? Image { get; set; }
+
     }
 }
