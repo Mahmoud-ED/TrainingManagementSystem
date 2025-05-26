@@ -1,64 +1,75 @@
 ﻿@inject IUnitOfWork<SiteInfo> _siteInfo
 
-
 <!DOCTYPE html>
-<html>
+<html lang="ar">
+
 <head>
-    <!-- Meta Tag -->
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="copyright" content="pavilan">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    @* --------------------------------------------------------------- *@
+
     @{
         var siteInfo = _siteInfo.Entity.GetAll().SingleOrDefault();
-        ViewBag.SiteName = @siteInfo?.Name;
-        ViewBag.LogoUrl = @siteInfo?.LogoUrl;
+        ViewBag.SiteName = siteInfo?.Name;
+        ViewBag.LogoUrl = siteInfo?.LogoUrl;
     }
-    <partial name="Partial/_title"></partial>
-    @* --------------------------------------------------------------- *@
+    <partial name="Partial/_title" />
 
-    <!-- Cairo Font (إضافة الخط العربي إذا لم يكن Poppins يدعمه بشكل جيد كفاية) -->
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Google Fonts: Cairo -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700&display=swap" rel="stylesheet" />
 
+    <!-- CSS Files -->
+    <link rel="stylesheet" href="~/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/nice-select.css" />
+    <link rel="stylesheet" href="~/css/font-awesome.min.css" />
+    <link rel="stylesheet" href="~/css/icofont.css" />
+    <link rel="stylesheet" href="~/css/slicknav.min.css" />
+    <link rel="stylesheet" href="~/css/owl-carousel.css" />
+    <link rel="stylesheet" href="~/css/datepicker.css" />
+    <link rel="stylesheet" href="~/css/animate.min.css" />
+    <link rel="stylesheet" href="~/css/magnific-popup.css" />
+    <link rel="stylesheet" href="~/css/normalize.css" />
+    <link rel="stylesheet" href="~/style.css" />
+    <link rel="stylesheet" href="~/css/responsive.css" />
+    <link rel="stylesheet" href="~/css/color/color1.css" />
 
-    <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="~/css/bootstrap.min.css">
-    <!-- Nice Select CSS -->
-    <link rel="stylesheet" href="~/css/nice-select.css">
-    <!-- Font Awesome CSS -->
-    <link rel="stylesheet" href="~/css/font-awesome.min.css">
-    <!-- icofont CSS -->
-    <link rel="stylesheet" href="~/css/icofont.css">
-    <!-- Slicknav -->
-    <link rel="stylesheet" href="~/css/slicknav.min.css">
-    <!-- Owl Carousel CSS -->
-    <link rel="stylesheet" href="~/css/owl-carousel.css">
-    <!-- Datepicker CSS -->
-    <link rel="stylesheet" href="~/css/datepicker.css">
-    <!-- Animate CSS -->
-    <link rel="stylesheet" href="~/css/animate.min.css">
-    <!-- Magnific Popup CSS -->
-    <link rel="stylesheet" href="~/css/magnific-popup.css">
+    <style>
+        body {
+            font-family: 'Cairo', sans-serif !important;
+        }
 
-    <!-- Mediplus CSS -->
-    <link rel="stylesheet" href="~/css/normalize.css">
-    <link rel="stylesheet" href="~/style.css">
-    <link rel="stylesheet" href="~/css/responsive.css">
+        .main-menu .nav.menu {
+            display: flex !important;
+            flex-direction: row;
+            align-items: center;
+            justify-content: flex-start;
+            gap: 15px;
+            padding: 0;
+            margin: 0;
+        }
 
-    <!-- Color CSS -->
-    <link rel="stylesheet" href="~/css/color/color1.css">
+            .main-menu .nav.menu li {
+                list-style: none;
+            }
 
-    <link rel="stylesheet" id="colors">
+            .main-menu .nav.menu a {
+                text-decoration: none;
+                color: #333;
+                padding: 10px 15px;
+                border-radius: 5px;
+                display: inline-block;
+                transition: 0.3s;
+            }
 
-
+                .main-menu .nav.menu a:hover {
+                    background-color: #f0f0f0;
+                    color: #007bff;
+                }
+    </style>
 </head>
+
 <body class="rtl">
-
-
     <header class="header">
-        <!-- Topbar -->
         <div class="topbar">
             <div class="container">
                 <div class="row">
@@ -67,68 +78,22 @@
                 </div>
             </div>
         </div>
-        <!-- End Topbar -->
-        <!-- Header Inner -->
+
         <div class="header-inner">
             <div class="container">
                 <div class="inner">
-                    <div class="row">
+                    <div class="row align-items-center">
                         <div class="col-lg-3 col-md-3 col-12">
-                            <!-- Start Logo -->
                             <div class="logo">
-                                <a href="index.html"> <img src="~/img/oo.png" />  </a>
+                                <a href="/">
+                                    <img src="~/img/oo.png" alt="Logo" />
+                                </a>
                             </div>
-                            <!-- End Logo -->
-                            <!-- Mobile Nav -->
-                            <div class="mobile-nav">
-                                <div class="slicknav_menu">
-                                    @* <a href="#" aria-haspopup="true" role="button" tabindex="0" class="slicknav_btn slicknav_collapsed" style="outline: none;"><span class="slicknav_menutxt"></span><span class="slicknav_icon slicknav_no-text"><span class="slicknav_icon-bar"></span><span class="slicknav_icon-bar"></span><span class="slicknav_icon-bar"></span></span></a> *@<ul class="slicknav_nav slicknav_hidden" aria-hidden="true" role="menu" style="display: none;">
-                                        <li class="active slicknav_collapsed slicknav_parent">
-                                            <a href="#" role="menuitem" aria-haspopup="true" tabindex="-1" class="slicknav_item slicknav_row" style="outline: none;">
-                                                <a href="#" tabindex="-1">الرئيسية <i class="icofont-rounded-down"></i></a>
-                                                <span class="slicknav_arrow">►</span>
-                                            </a>
-
-                                        </li>
-                                        <li class="slicknav_collapsed slicknav_parent">
-                                            <a href="#" role="menuitem" aria-haspopup="true" tabindex="-1" class="slicknav_item slicknav_row" style="outline: none;">
-                                                <a href="#" tabindex="-1">الدورات التدريبية <i class="icofont-rounded-down"></i></a>
-                                                <span class="slicknav_arrow">►</span>
-                                            </a>
-                                            <ul class="dropdown slicknav_hidden" role="menu" aria-hidden="true" style="display: none;">
-                                                <li><a href="doctors.html" role="menuitem" tabindex="-1">التخصصات</a></li>
-                                                <li>
-                                                    <a href="doctor-details.html" role="menuitem" tabindex="-1">Doctor Details</a>
-                                                </li>
-                                            </ul>
-                                        </li>
-                                        <li class="slicknav_collapsed slicknav_parent">
-                                            <a href="#" role="menuitem" aria-haspopup="true" tabindex="-1" class="slicknav_item slicknav_row" style="outline: none;">
-                                                <a href="#" tabindex="-1">Services <i class="icofont-rounded-down"></i></a>
-                                                <span class="slicknav_arrow">►</span>
-                                            </a>
-                                            <ul class="dropdown slicknav_hidden" role="menu" aria-hidden="true" style="display: none;">
-                                                <li><a href="service.html" role="menuitem" tabindex="-1">الأقسام</a></li>
-                                                <li>
-                                                    <a href="service-details.html" role="menuitem" tabindex="-1">Service Details</a>
-                                                </li>
-                                            </ul>
-                                        </li>
-
-                                        <li><a href="contact.html" role="menuitem" tabindex="-1">التواصل</a></li>
-                                    </ul>
-                                </div>
-                            </div>
-                            <!-- End Mobile Nav -->
                         </div>
-                        <div class="col-lg-7 col-md-9 col-12">
-                            <!-- Main Menu -->
+                        <div class="col-lg-9 col-md-9 col-12">
                             <div class="main-menu">
                                 <nav class="navigation">
                                     <ul class="nav menu">
-                                        @*  <li class="active">
-                                            <a href="#">الرئيسية <i class="icofont-rounded-down"></i></a>
-                                        </li> *@
                                         <li><a asp-controller="Home" asp-action="Index">الرئيسية</a></li>
                                         <li><a asp-controller="Trainer" asp-action="Index">المدربين</a></li>
                                         <li><a asp-controller="Trainee" asp-action="Index">المتدربين</a></li>
@@ -139,18 +104,11 @@
                                     </ul>
                                 </nav>
                             </div>
-                            <!--/ End Main Menu -->
-                        </div>
-                        <div class="col-lg-2 col-12">
-                            <div class="get-quote">
-                                <a href="appointment.html" class="btn"> عرض الدورات</a>
-                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-        <!--/ End Header Inner -->
     </header>
 
     <div class="breadcrumbs overlay">
@@ -172,65 +130,37 @@
         </div>
     </div>
 
-
-
     <div class="container mb-md-5 pt-5">
         @RenderBody()
     </div>
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 
-    @*  <environment include="Development">
-        <script src="~/lib/jquery/jquery.min.js"></script>
-        <script src="~/lib/twitter-bootstrap/js/bootstrap.bundle.min.js"></script>
+    <partial name="Partial/_footer" />
 
-    </environment>
-    <environment include="Staging,Production">
-       
-    </environment> *@
+    <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
 
     @RenderSection("Scripts", required: false)
 
-    @* ------------partial-------------- *@
-    <partial name="Partial/_footer"></partial>
-    @* --------------------------------- *@
-
-    <!-- jquery Min JS -->
     <script src="~/js/jquery.min.js"></script>
-    <!-- jquery Migrate JS -->
     <script src="~/js/jquery-migrate.js"></script>
-    <!-- Easing JS -->
     <script src="~/js/easing.js"></script>
-    <!-- Color JS -->
     <script src="~/js/colors.js"></script>
-    <!-- Popper JS -->
     <script src="~/js/popper.min.js"></script>
-    <!-- Bootstrap JS -->
     <script src="~/js/bootstrap.min.js"></script>
-    <!-- Bootstrap Datepicker JS -->
     <script src="~/js/bootstrap-datepicker.js"></script>
-    <!-- Jquery Nav JS -->
     <script src="~/js/jquery.nav.js"></script>
-    <!-- Slicknav JS -->
     <script src="~/js/slicknav.min.js"></script>
-    <!-- ScrollUp JS -->
     <script src="~/js/jquery.scrollUp.min.js"></script>
-    <!-- Niceselect JS -->
     <script src="~/js/niceselect.js"></script>
-    <!-- Tilt Jquery JS -->
     <script src="~/js/tilt.jquery.min.js"></script>
-    <!-- Owl Carousel JS -->
     <script src="~/js/owl-carousel.js"></script>
-    <!-- counterup JS -->
     <script src="~/js/jquery.counterup.min.js"></script>
     <script src="~/js/waypoints.min.js"></script>
-    <!-- Steller JS -->
     <script src="~/js/steller.js"></script>
-    <!-- Wow JS -->
     <script src="~/js/wow.min.js"></script>
-    <!-- Magnific Popup JS -->
     <script src="~/js/jquery.magnific-popup.min.js"></script>
-    <!-- Main JS -->
     <script src="~/js/main.js"></script>
 </body>
+
 </html>
