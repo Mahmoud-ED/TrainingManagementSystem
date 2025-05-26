@@ -1,4 +1,4 @@
-﻿@model IEnumerable<TrainingManagementSystem.Models.Entities.Trainee>
+﻿@model IEnumerable<TrainingManagementSystem.Models.Entities.Trainee> 
 
 @{
     ViewData["Title"] = "إدارة المتدربين";
@@ -8,6 +8,7 @@
     string currentSearchTerm = ViewData["SearchTerm"] as string;
     Guid? currentOrganizationIdFilter = ViewData["OrganizationIdFilter"] as Guid?;
     Guid? currentSpecializationIdFilter = ViewData["SpecializationIdFilter"] as Guid?;
+    string defaultAvatarUrl = Url.Content("~/img/OIP.jpeg"); // صورة افتراضية
 }
 
 @section Styles {
@@ -18,27 +19,83 @@
         .btn-toggle-filters { margin-bottom: 1rem; }
         .filters-content { display: none; overflow: hidden; transition: max-height 0.5s ease-out, opacity 0.5s ease-out; max-height: 0; opacity: 0; }
         .filters-content.show { display: block; max-height: 500px; opacity: 1; }
-        .trainee-avatar-sm { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; margin-right: 10px; }
+
+        .trainee-card {
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            background-color: #fff;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+            display: flex;
+            flex-direction: column;
+            height: 100%; /* لجعل البطاقات متساوية الارتفاع */
+        }
+        .trainee-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+        .trainee-card-img-top-container {
+            height: 180px; /* ارتفاع ثابت لمنطقة الصورة */
+            overflow: hidden; /* لإخفاء أي أجزاء زائدة من الصورة */
+            border-top-left-radius: 8px;
+            border-top-right-radius: 8px;
+            background-color: #f0f2f5; /* لون خلفية إذا لم تكن هناك صورة */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .trainee-card-img-top {
+            width: 100%;
+            height: 100%;
+            object-fit: cover; /* يجعل الصورة تملأ الحاوية مع الحفاظ على نسبة العرض إلى الارتفاع */
+        }
+        .trainee-card-img-placeholder {
+            font-size: 4rem;
+            color: #adb5bd;
+        }
+        .trainee-card-body {
+            padding: 1rem 1.25rem;
+            flex-grow: 1; /* يسمح لهذا الجزء بالتمدد */
+            display: flex;
+            flex-direction: column;
+        }
+        .trainee-card-title {
+            font-size: 1.15rem;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+        .trainee-card-subtitle {
+            font-size: 0.9rem;
+            color: #6c757d;
+            margin-bottom: 0.75rem;
+        }
+        .trainee-card-info p {
+            margin-bottom: 0.4rem;
+            font-size: 0.85rem;
+            color: #555;
+        }
+        .trainee-card-info p i {
+            margin-right: 8px;
+            color: #007bff; /* أو لون الثيم */
+            width: 16px; /* توحيد عرض الأيقونات */
+            text-align: center;
+        }
+        .trainee-card-actions {
+            margin-top: auto; /* يدفع الأزرار لأسفل */
+            padding-top: 1rem;
+            border-top: 1px solid #f0f0f0;
+            display: flex;
+            gap: 0.5rem;
+        }
+        .trainee-card-actions .btn {
+            font-size: 0.8rem;
+            flex-grow: 1; /* الأزرار تأخذ مساحة متساوية */
+        }
     </style>
 }
 
-<!-- Breadcrumbs -->
-<div class="breadcrumbs overlay" >
-    <div class="container">
-        <div class="bread-inner">
-            <div class="row">
-                <div class="col-12">
-                    <h2>@ViewData["Title"]</h2>
-                    <ul class="bread-list">
-                        <li><a asp-controller="Admin" asp-action="Index">لوحة التحكم</a></li> @* افترض Admin/Index *@
-                        <li><i class="icofont-simple-right"></i></li>
-                        <li class="active">@ViewData["Title"]</li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
 
 <div class="container-fluid mt-4 mb-5">
     <div class="page-header mb-3 d-flex justify-content-between align-items-center flex-wrap">
@@ -50,11 +107,11 @@
 
     @if (TempData["SuccessMessage"] != null)
     {
-        <div class="alert alert-success alert-dismissible fade show" role="alert">@TempData["SuccessMessage"]<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
+        <div class="alert alert-success alert-dismissible fade show">@TempData["SuccessMessage"]<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
     }
     @if (TempData["ErrorMessage"] != null)
     {
-        <div class="alert alert-danger alert-dismissible fade show" role="alert">@TempData["ErrorMessage"]<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
+        <div class="alert alert-danger alert-dismissible fade show">@TempData["ErrorMessage"]<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
     }
 
     <button class="btn btn-outline-info btn-toggle-filters mb-3" type="button" id="toggleFiltersBtn">
@@ -95,50 +152,51 @@
 
     @if (Model.Any())
     {
-        <div class="table-responsive mt-3">
-            <table class="table table-hover table-striped table-bordered table-sm">
-                <thead class="table-light">
-                    <tr>
-                        <th></th>
-                        <th>الاسم (عربي)</th>
-                        <th>الهاتف</th>
-                        <th>البريد الإلكتروني</th>
-                        <th>المؤسسة</th>
-                        <th>التخصص</th>
-                        <th>تاريخ الإضافة</th>
-                        <th class="text-center">الإجراءات</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var item in Model)
-                    {
-                        <tr>
-                            <td>
-                                @if (!string.IsNullOrEmpty(item.ProfileImageUrl))
+        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4 mt-2"> @* 4 بطاقات في الشاشات الكبيرة *@
+            @foreach (var item in Model)
+            {
+                <div class="col d-flex align-items-stretch">
+                    <div class="trainee-card">
+                        <div class="trainee-card-img-top-container">
+                            @if (!string.IsNullOrEmpty(item.ProfileImageUrl))
+                            {
+                                <img src="@Url.Content($"~/pictures/trainees_profiles/{item.ProfileImageUrl}")" class="trainee-card-img-top" alt="صورة @item.ArName"
+                                   />
+                                <i class="icofont-user-alt-4 trainee-card-img-placeholder" style="display:none;"></i>
+                            }
+                            else
+                            {
+                                 <i class="icofont-user-alt-4 trainee-card-img-placeholder"></i>
+                            }
+                        </div>
+                        <div class="trainee-card-body">
+                            <h5 class="trainee-card-title">@item.ArName</h5>
+                            @if (!string.IsNullOrEmpty(item.EnName))
+                            {
+                                <h6 class="trainee-card-subtitle text-muted">@item.EnName</h6>
+                            }
+                            <div class="trainee-card-info">
+                                <p><i class="icofont-phone"></i> @item.PhoneNo</p>
+                                <p><i class="icofont-email"></i> @item.Email</p>
+                                @if (item.Specialization != null)
                                 {
-                                    <img src="@Url.Content($"~/pictures/trainees_profiles/{item.ProfileImageUrl}")" alt="صورة المتدرب" class="trainee-avatar-sm"
-                                         onerror="this.onerror=null; this.src='@Url.Content("~/img/OIP.jpeg")';" /> @* صورة افتراضية *@
+                                    <p><i class="icofont-certificate-alt-1"></i> @item.Specialization.Name</p>
                                 }
-                                else
+                                @if (item.Organizition != null)
                                 {
-                                    <img src="@Url.Content("~/img/OIP.jpeg")" alt="صورة افتراضية" class="trainee-avatar-sm" />
+                                    <p><i class="icofont-company"></i> @item.Organizition.Name</p>
                                 }
-                            </td>
-                            <td>@Html.DisplayFor(modelItem => item.ArName)</td>
-                            <td>@Html.DisplayFor(modelItem => item.PhoneNo)</td>
-                            <td>@Html.DisplayFor(modelItem => item.Email)</td>
-                            <td>@(item.Organizition?.Name ?? "-")</td>
-                            <td>@(item.Specialization?.Name ?? "-")</td>
-                            <td>@item.Created.ToString("dd/MM/yyyy")</td>
-                            <td class="text-center">
-                                <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-info" title="التفاصيل"><i class="icofont-eye-alt"></i></a>
-                                <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary" title="تعديل"><i class="icofont-edit"></i></a>
-                                <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-outline-danger" title="حذف"><i class="icofont-trash"></i></a>
-                            </td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
+                            </div>
+                            <div class="trainee-card-actions">
+                                <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-info" title="التفاصيل"><i class="icofont-eye-alt"></i> تفاصيل</a>
+                                <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary" title="تعديل"><i class="icofont-edit"></i> تعديل</a>
+                                @* زر الحذف يمكن أن يكون أصغر أو يتطلب تأكيد *@
+                                @* <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-outline-danger" title="حذف"><i class="icofont-trash"></i></a> *@
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
         </div>
     }
     else
@@ -169,14 +227,12 @@
                 icon.toggleClass('icofont-caret-down icofont-caret-up');
             });
 
-            // تهيئة Select2 للفلاتر
             $('.select2-filter').select2({
                 theme: "bootstrap-5",
-                placeholder: $(this).find("option[value='']").text(), // يأخذ النص من الخيار الفارغ
+                placeholder: $(this).find("option[value='']").text(),
                 allowClear: true
             });
 
-             // إذا كانت هناك فلاتر نشطة عند تحميل الصفحة، أظهر القسم
             if ('@(!string.IsNullOrEmpty(currentSearchTerm) || currentOrganizationIdFilter.HasValue || currentSpecializationIdFilter.HasValue)'.toLowerCase() === 'true') {
                 $('#filtersCollapse').addClass('show');
                 $('#filterToggleIcon').removeClass('icofont-caret-down').addClass('icofont-caret-up');
