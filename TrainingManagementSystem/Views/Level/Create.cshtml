@@ -1,0 +1,75 @@
+﻿@model TrainingManagementSystem.Models.Entities.Level
+
+@{
+    ViewData["Title"] = "إنشاء مستوى جديد";
+}
+
+@*
+    لتضمين أيقونات Font Awesome (اختياري ولكن يحسن المظهر)
+    أضف هذا السطر إلى ملف _Layout.cshtml داخل الـ <head> إذا لم يكن موجودًا
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+*@
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-6 col-md-8">
+            <div class="card shadow-lg">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">
+                        <i class="fas fa-plus-circle me-2"></i>@ViewData["Title"]
+                    </h4>
+                </div>
+                <div class="card-body p-4">
+                    <form asp-action="Create">
+                        @* لعرض رسائل الخطأ العامة المتعلقة بالنموذج ككل *@
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+
+                        <div class="mb-3">
+                            <label asp-for="Name" class="form-label fw-bold">
+                                <i class="fas fa-signature me-1"></i> اسم المستوى
+                            </label>
+                            <input asp-for="Name" class="form-control form-control-lg" placeholder="أدخل اسم المستوى هنا..." />
+                            <span asp-validation-for="Name" class="text-danger small mt-1"></span>
+                        </div>
+
+                        <hr class="my-4" />
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a asp-action="Index" class="btn btn-outline-secondary btn-lg">
+                                <i class="fas fa-arrow-left me-2"></i> العودة إلى القائمة
+                            </a>
+                            <button type="submit" class="btn btn-success btn-lg">
+                                <i class="fas fa-save me-2"></i> إنشاء المستوى
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                @* يمكنك إضافة تذييل للبطاقة إذا أردت *@
+                @* <div class="card-footer text-muted small">
+                    تأكد من إدخال جميع البيانات المطلوبة.
+                </div> *@
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
+
+<style>
+    .form-label.fw-bold {
+        font-size: 1.05rem; /* حجم أكبر قليلاً للتسمية */
+    }
+
+    .form-control-lg {
+        padding: .75rem 1.25rem; /* حشوة أكبر لحقل الإدخال */
+        font-size: 1.1rem;
+    }
+
+    .btn-lg i {
+        font-size: 0.9em; /* لضمان تناسق حجم الأيقونة داخل الزر الكبير */
+    }
+</style>

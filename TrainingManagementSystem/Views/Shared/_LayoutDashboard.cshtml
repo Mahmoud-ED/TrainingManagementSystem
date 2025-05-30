@@ -38,6 +38,29 @@
             font-family: 'Cairo', sans-serif !important;
         }
 
+        .breadcrumbs {
+            padding: 20px 0; /* قلل من القيمة هنا */
+            font-size: 14px; /* اجعل الخط أصغر */
+        }
+
+            .breadcrumbs h2 {
+                font-size: 18px; /* تقليل حجم العنوان */
+                margin-bottom: 10px; /* تقليل المسافة بين العنوان والقائمة */
+            }
+
+        .bread-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            font-size: 13px; /* حجم النص داخل القائمة */
+        }
+
+            .bread-list li {
+                margin: 0;
+                padding: 0 5px;
+            }
+
+
         .main-menu .nav.menu {
             display: flex !important;
             flex-direction: row;
@@ -68,7 +91,10 @@
 
     </style>
     @RenderSection("Styles", required: false)
-
+    <link rel="stylesheet" href="~/LayoutAjaxApp1.styles.css" asp-append-version="true" />
+    <!---------------Loader Overlay css-------------------->
+    <link href="~/css/loader.css" rel="stylesheet" />
+    <!----------------------------------------------------->
 </head>
 
 <body class="rtl">
@@ -103,6 +129,7 @@
                                         <li><a asp-controller="Qualification" asp-action="Index">المؤهلات</a></li>
                                         <li><a asp-controller="Specialization" asp-action="Index">التخصصات</a></li>
                                         <li><a asp-controller="Department" asp-action="Index">الأقسام</a></li>
+                                        <li><a asp-controller="Level" asp-action="Index">Level</a></li>
                                         <li><a asp-controller="CourseClassification" asp-action="Index">تصنيفات الدورات</a></li>
                                     </ul>
                                 </nav>
@@ -142,7 +169,10 @@
     <!-- Scripts -->
     <script src="https://code.jquery.com/jquery-3.7.1.min.js" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
-
+    <!--------------------SPA AJAX------------------------->
+    <script src="~/js/layoutAjax-spa.js"></script>
+    @*  <script src="~/js/layoutajaxloader.js"></script> *@
+    <!----------------------------------------------------->
     @RenderSection("Scripts", required: false)
 
     <script src="~/js/jquery.min.js"></script>
