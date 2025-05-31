@@ -15,14 +15,14 @@ using TrainingManagementSystem.Models.Entities;
 using TrainingManagementSystem.Models.Interfaces;
 using TrainingManagementSystem.ViewModels;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
+using System.ComponentModel.DataAnnotations; // ✅ Add this for DisplayAttribute
 using System.IO; // Added for Path
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel; // ✅ 
 
 namespace TrainingManagementSystem.Controllers
 {
     [ViewLayout("_LayoutDashboard")]
-    [Display(Name = "المدربين")] // ✅ Controller title
+    [Display(Name = "المدربون")] // ✅ Controller title
+
     public class TrainerController : BaseController
     {
         private readonly ApplicationDbContext _context;
@@ -46,7 +46,7 @@ namespace TrainingManagementSystem.Controllers
             _specialization = specialization;
         }
 
-        [Display(Name = "قائمة المدربين")]
+        [Display(Name = "قائمة المدربون")] // ✅ Action title
         public async Task<IActionResult> Index(string searchTerm = null)
         {
             IQueryable<Trainer> query = _trainer.Entity
@@ -83,7 +83,7 @@ namespace TrainingManagementSystem.Controllers
             return View(trainerVMs);
         }
 
-        [Display(Name = "تفاصيل المدرب")]
+        [Display(Name = "تفاصيل المدرب")] // ✅ Action title
         public async Task<IActionResult> Details(Guid? id)
         {
             if (id == null)
@@ -105,7 +105,8 @@ namespace TrainingManagementSystem.Controllers
             return View(trainer);
         }
 
-        [Display(Name = "إضافة مدرب جديد")]
+        [Display(Name = "إضافة مدرب جديد")] // ✅ Action title
+
         public async Task<IActionResult> Create()
         {
             var viewModel = new TrainerVM
@@ -118,7 +119,6 @@ namespace TrainingManagementSystem.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [Display(Name = "حفظ بيانات المدرب")]
         public async Task<IActionResult> Create(TrainerVM viewModel, string? isImg1)
         {
             if (ModelState.IsValid)
@@ -177,7 +177,7 @@ namespace TrainingManagementSystem.Controllers
             return View(viewModel);
         }
 
-        [Display(Name = "تعديل بيانات المدرب")]
+        [Display(Name = "تعديل المدرب")] // ✅ Action title
         public async Task<IActionResult> Edit(Guid? id)
         {
             if (id == null)
@@ -219,7 +219,6 @@ namespace TrainingManagementSystem.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [Display(Name = "تحديث بيانات المدرب")]
         public async Task<IActionResult> Edit(Guid id, TrainerVM viewModel) // This is the first Edit POST
         {
             if (id != viewModel.Id)
@@ -304,7 +303,6 @@ namespace TrainingManagementSystem.Controllers
             return View(viewModel);
         }
 
-        [Display(Name = "عرض حذف المدرب")]
         public async Task<IActionResult> Delete(Guid? id)
         {
             if (id == null)
@@ -337,7 +335,7 @@ namespace TrainingManagementSystem.Controllers
             return View(trainerViewModel); // سيعرض Views/Trainer/Delete.cshtml ويمرر له trainerViewModel
         }
 
-        [Display(Name = "تأكيد حذف المدرب")]
+
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(Guid id)
