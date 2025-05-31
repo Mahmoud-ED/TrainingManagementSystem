@@ -77,7 +77,7 @@ namespace TrainingManagementSystem.Controllers
 
                 specialization.Id = Guid.NewGuid();
                 specialization.Created = DateTime.UtcNow;
-                specialization.Modified = DateTime.UtcNow;
+                //specialization.Modified = DateTime.UtcNow;
 
                 // Using IUnitOfWork to insert the specialization
                 _specialization.Entity.Insert(specialization);
