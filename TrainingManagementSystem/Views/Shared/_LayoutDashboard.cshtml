@@ -39,20 +39,20 @@
         }
 
         .breadcrumbs {
-            padding: 20px 0; /* قلل من القيمة هنا */
-            font-size: 14px; /* اجعل الخط أصغر */
+            padding: 20px 0;
+            font-size: 14px;
         }
 
             .breadcrumbs h2 {
-                font-size: 18px; /* تقليل حجم العنوان */
-                margin-bottom: 10px; /* تقليل المسافة بين العنوان والقائمة */
+                font-size: 18px;
+                margin-bottom: 10px;
             }
 
         .bread-list {
             display: flex;
             flex-wrap: wrap;
             gap: 5px;
-            font-size: 13px; /* حجم النص داخل القائمة */
+            font-size: 13px;
         }
 
             .bread-list li {
@@ -65,29 +65,71 @@
             display: flex !important;
             flex-direction: row;
             align-items: center;
-            justify-content: flex-start;
-            gap: 15px;
+            justify-content: flex-start; /* أو center إذا أردت توسط القائمة */
+            gap: 5px; /* تقليل المسافة بين عناصر القائمة الرئيسية */
             padding: 0;
             margin: 0;
         }
 
             .main-menu .nav.menu li {
                 list-style: none;
+                position: relative; /* مهم للقوائم المنسدلة */
             }
 
-            .main-menu .nav.menu a {
+                /* تنسيق الرابط الرئيسي للقائمة المنسدلة */
+                .main-menu .nav.menu li.dropdown > a.dropdown-toggle::after {
+                    display: inline-block;
+                    margin-left: .255em;
+                    vertical-align: .255em;
+                    content: "";
+                    border-top: .3em solid;
+                    border-right: .3em solid transparent;
+                    border-bottom: 0;
+                    border-left: .3em solid transparent;
+                }
+
+            .main-menu .nav.menu a,
+            .main-menu .nav.menu .dropdown-toggle { /* إضافة dropdown-toggle هنا */
                 text-decoration: none;
-                color: #333;
-                padding: 10px 15px;
+                color: #333; /* لون النص الافتراضي */
+                padding: 10px 12px; /* تعديل الحشوة قليلاً */
                 border-radius: 5px;
                 display: inline-block;
-                transition: 0.3s;
+                transition: background-color 0.3s, color 0.3s;
             }
 
-                .main-menu .nav.menu a:hover {
-                    background-color: #f0f0f0;
-                    color: #007bff;
+                .main-menu .nav.menu a:hover,
+                .main-menu .nav.menu .dropdown-toggle:hover {
+                    background-color: #f0f0f0; /* لون الخلفية عند المرور */
+                    color: #007bff; /* لون النص عند المرور */
                 }
+
+        /* تنسيقات القائمة المنسدلة */
+        .main-menu .dropdown-menu {
+            font-family: 'Cairo', sans-serif; /* ضمان استخدام نفس الخط */
+            border-radius: 5px;
+            box-shadow: 0 .5rem 1rem rgba(0,0,0,.15);
+            border: 1px solid rgba(0,0,0,.1);
+            padding: .5rem 0;
+            min-width: 200px; /* تحديد عرض أدنى للقائمة المنسدلة */
+        }
+
+        .main-menu .dropdown-item {
+            padding: .5rem 1rem; /* حشوة عناصر القائمة المنسدلة */
+            color: #333;
+            font-size: 14px; /* حجم خط عناصر القائمة المنسدلة */
+        }
+
+            .main-menu .dropdown-item:hover {
+                background-color: #007bff; /* لون خلفية العنصر عند المرور */
+                color: #fff; /* لون نص العنصر عند المرور */
+            }
+        /* لإظهار القائمة المنسدلة عند المرور (اختياري، Bootstrap يتطلب نقرة افتراضياً) */
+        /*
+                .main-menu .nav.menu li.dropdown:hover > .dropdown-menu {
+                    display: block;
+                }
+                */
 
     </style>
     @RenderSection("Styles", required: false)
@@ -103,6 +145,7 @@
             <div class="container">
                 <div class="row">
                     <div class="col-lg-6 col-md-5 col-12">
+                        @* يمكنك وضع عناصر هنا مثل معلومات الاتصال أو روابط تسجيل الدخول *@
                     </div>
                 </div>
             </div>
@@ -115,7 +158,7 @@
                         <div class="col-lg-3 col-md-3 col-12">
                             <div class="logo">
                                 <a href="/">
-                                    <img src="~/img/oo.png" alt="Logo" />
+                                    <img src="@(ViewBag.LogoUrl ?? "~/img/oo.png")" alt="Logo @ViewBag.SiteName" style="max-height: 50px;" /> @* استخدام الشعار من ViewBag وتحجيمه *@
                                 </a>
                             </div>
                         </div>
@@ -124,14 +167,35 @@
                                 <nav class="navigation">
                                     <ul class="nav menu">
                                         <li><a asp-controller="Home" asp-action="Index">الرئيسية</a></li>
-                                        <li><a asp-controller="Trainer" asp-action="Index">المدربين</a></li>
-                                        <li><a asp-controller="Trainee" asp-action="Index">المتدربين</a></li>
-                                        <li><a asp-controller="Qualification" asp-action="Index">المؤهلات</a></li>
-                                        <li><a asp-controller="Specialization" asp-action="Index">التخصصات</a></li>
-                                        <li><a asp-controller="Courses" asp-action="Index">الكورسات</a></li>
-                                        <li><a asp-controller="Department" asp-action="Index">الأقسام</a></li>
-                                        <li><a asp-controller="Level" asp-action="Index">Level</a></li>
-                                        <li><a asp-controller="CourseClassification" asp-action="Index">تصنيفات الدورات</a></li>
+
+                                        @* قائمة التحكم *@
+                                        <li class="nav-item dropdown">
+                                            <a class="nav-link dropdown-toggle" href="#" id="controlDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                                <i class="fas fa-cogs me-1"></i> التحكم
+                                            </a>
+                                            <ul class="dropdown-menu" aria-labelledby="controlDropdown">
+                                                <li><a class="dropdown-item" asp-controller="Courses" asp-action="Index">الكورسات</a></li>
+                                                <li><a class="dropdown-item" asp-controller="Trainer" asp-action="Index">المدربين</a></li>
+                                                <li><a class="dropdown-item" asp-controller="Trainee" asp-action="Index">المتدربين</a></li>
+                                            </ul>
+                                        </li>
+
+                                        @* قائمة الإعدادات *@
+                                        <li class="nav-item dropdown">
+                                            <a class="nav-link dropdown-toggle" href="#" id="settingsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                                <i class="fas fa-tools me-1"></i> الإعدادات
+                                            </a>
+                                            <ul class="dropdown-menu" aria-labelledby="settingsDropdown">
+                                                <li><a class="dropdown-item" asp-controller="Department" asp-action="Index">الأقسام</a></li>
+                                                <li><a class="dropdown-item" asp-controller="Qualification" asp-action="Index">المؤهلات</a></li>
+                                                <li><a class="dropdown-item" asp-controller="Specialization" asp-action="Index">التخصصات</a></li>
+                                                <li><hr class="dropdown-divider"></li>
+                                                <li><a class="dropdown-item" asp-controller="CourseClassification" asp-action="Index">تصنيفات الدورات</a></li>
+                                                <li><a class="dropdown-item" asp-controller="Level" asp-action="Index">المستويات (Level)</a></li>
+                                            </ul>
+                                        </li>
+
+                                        @* يمكنك إضافة المزيد من العناصر هنا إذا لزم الأمر *@
                                     </ul>
                                 </nav>
                             </div>
@@ -149,11 +213,15 @@
                     <div class="col-12">
                         <h2>@ViewData["Title"]</h2>
                         <ul class="bread-list">
-                            <li>لوحة التحكم</li>
+                            <li><a asp-controller="Home" asp-action="Index"> <i class="fas fa-tachometer-alt"></i> لوحة التحكم</a></li>
                             <li><i class="icofont-simple-left"></i></li>
                             <li class="active">@BreadcrumbHelper.GetControllerDisplayName(ViewContext)</li>
-                            <li><i class="icofont-simple-left"></i></li>
-                            <li class="active">@BreadcrumbHelper.GetActionDisplayName(ViewContext)</li>
+                            @if (BreadcrumbHelper.GetActionDisplayName(ViewContext) != "Index" &&
+                                                        BreadcrumbHelper.GetActionDisplayName(ViewContext) != BreadcrumbHelper.GetControllerDisplayName(ViewContext)) // لتجنب التكرار
+                            {
+                                <li><i class="icofont-simple-left"></i></li>
+                                <li class="active">@BreadcrumbHelper.GetActionDisplayName(ViewContext)</li>
+                            }
                         </ul>
                     </div>
                 </div>
@@ -170,18 +238,10 @@
     <!-- Scripts -->
     <script src="https://code.jquery.com/jquery-3.7.1.min.js" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
-    <!--------------------SPA AJAX------------------------->
-    <script src="~/js/layoutAjax-spa.js"></script>
-    @*  <script src="~/js/layoutajaxloader.js"></script> *@
-    <!----------------------------------------------------->
-    @RenderSection("Scripts", required: false)
 
-    <script src="~/js/jquery.min.js"></script>
-    <script src="~/js/jquery-migrate.js"></script>
+    <script src="~/js/jquery-migrate.js"></script> <!-- للمساعدة في توافق الإضافات القديمة -->
+    @* سكربتات الإضافات التي تعتمد على jQuery *@
     <script src="~/js/easing.js"></script>
-    <script src="~/js/colors.js"></script>
-    <script src="~/js/popper.min.js"></script>
-    <script src="~/js/bootstrap.min.js"></script>
     <script src="~/js/bootstrap-datepicker.js"></script>
     <script src="~/js/jquery.nav.js"></script>
     <script src="~/js/slicknav.min.js"></script>
@@ -191,10 +251,16 @@
     <script src="~/js/owl-carousel.js"></script>
     <script src="~/js/jquery.counterup.min.js"></script>
     <script src="~/js/waypoints.min.js"></script>
-    <script src="~/js/steller.js"></script>
+    <script src="~/js/steller.js"></script> @* تأكد أن هذا الملف موجود وسليم *@
     <script src="~/js/wow.min.js"></script>
     <script src="~/js/jquery.magnific-popup.min.js"></script>
-    <script src="~/js/main.js"></script>
-</body>
 
+    <!--------------------SPA AJAX------------------------->
+    <script src="~/js/layoutAjax-spa.js" asp-append-version="true"></script>
+
+    @* main.js يجب أن يكون من بين آخر السكربتات لأنه قد يقوم بتهيئة الإضافات المذكورة أعلاه *@
+    <script src="~/js/main.js" asp-append-version="true"></script>
+
+    @RenderSection("Scripts", required: false)
+</body>
 </html>

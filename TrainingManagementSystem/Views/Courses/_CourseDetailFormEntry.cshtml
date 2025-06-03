@@ -15,9 +15,9 @@
     bool isOnlyOneEntryInitially = parentList != null && parentList.Count <= 1 && (int)index == 0;
 
 
-    var locationsList = parentViewModel?.Locations ?? new SelectList(Enumerable.Empty<SelectListItem>());
-    var courseTypesList = parentViewModel?.CourseTypes ?? new SelectList(Enumerable.Empty<SelectListItem>());
-    var statusesList = parentViewModel?.Statuses ?? new SelectList(Enumerable.Empty<SelectListItem>());
+    var locationsList = parentViewModel?.Locations?.ToList() ?? new List<SelectListItem>();
+    var courseTypesList = parentViewModel?.CourseTypes?.ToList() ?? new List<SelectListItem>();
+    var statusesList = parentViewModel?.Statuses?.ToList() ?? new List<SelectListItem>();
 }
 
 <div class="course-detail-entry border p-3 mb-3 bg-light rounded shadow-sm" data-entry-index="@index">
@@ -52,21 +52,18 @@
         <div class="col-md-4 mb-3">
             <label asp-for="LocationId" class="form-label">الموقع<span class="text-danger">*</span></label>
             <select asp-for="LocationId" name="@($"CourseDetailsEntries[{index}].LocationId")" id="@($"CourseDetailsEntries_{index}__LocationId")" class="form-select" asp-items="locationsList">
-                <option value="">-- اختر الموقع --</option>
             </select>
             <span asp-validation-for="LocationId" data-valmsg-for="@($"CourseDetailsEntries[{index}].LocationId")" class="text-danger"></span>
         </div>
         <div class="col-md-4 mb-3">
             <label asp-for="CourseTypeId" class="form-label">نوع الدورة<span class="text-danger">*</span></label>
             <select asp-for="CourseTypeId" name="@($"CourseDetailsEntries[{index}].CourseTypeId")" id="@($"CourseDetailsEntries_{index}__CourseTypeId")" class="form-select" asp-items="courseTypesList">
-                <option value="">-- اختر نوع الدورة --</option>
             </select>
             <span asp-validation-for="CourseTypeId" data-valmsg-for="@($"CourseDetailsEntries[{index}].CourseTypeId")" class="text-danger"></span>
         </div>
         <div class="col-md-4 mb-3">
             <label asp-for="StatusId" class="form-label">الحالة<span class="text-danger">*</span></label>
             <select asp-for="StatusId" name="@($"CourseDetailsEntries[{index}].StatusId")" id="@($"CourseDetailsEntries_{index}__StatusId")" class="form-select" asp-items="statusesList">
-                <option value="">-- اختر الحالة --</option>
             </select>
             <span asp-validation-for="StatusId" data-valmsg-for="@($"CourseDetailsEntries[{index}].StatusId")" class="text-danger"></span>
         </div>

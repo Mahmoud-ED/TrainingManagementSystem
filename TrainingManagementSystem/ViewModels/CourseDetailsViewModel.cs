@@ -4,9 +4,11 @@
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using TrainingManagementSystem.Models.Entities;
 
 public class CourseDetailsDisplayViewModel
 {
+    public Course Course { get; set; } // الكورس الرئيسي
     public Guid Id { get; set; } // CourseDetailsId
     public string CourseName { get; set; } // اسم الكورس الرئيسي
     public Guid ParentCourseId { get; set; } // ID للكورس الرئيسي

@@ -73,10 +73,10 @@ public class CourseFormViewModel // (نفس الـ ViewModel السابق مع �
     [Display(Name = "مرجع الدورة السابقة")]
     public Guid? CourseParentId { get; set; }
 
-    // لملء الـ Dropdowns الرئيسية
-    public SelectList CourseClassifications { get; set; }
-    public SelectList Levels { get; set; }
-    public SelectList CourseParents { get; set; }
+    public List<SelectListItem> CourseClassifications { get; set; } = new();
+    public List<SelectListItem> Levels { get; set; } = new();
+    public List<SelectListItem> CourseParents { get; set; } = new();
+
 
     // لإدارة المدربين (كما كان)
     [Display(Name = "المدربون")]
@@ -90,9 +90,10 @@ public class CourseFormViewModel // (نفس الـ ViewModel السابق مع �
     // ---- الجديد: قوائم منسدلة لـ CourseDetails ----
     // يتم تمريرها مرة واحدة لتستخدمها جميع إدخالات CourseDetails في الواجهة
     [ValidateNever]
-    public SelectList Locations { get; set; }
+    // ⬇️ أيضاً يُفضل تغييرهم لنفس السبب
+    public List<SelectListItem> Locations { get; set; } = new();
     [ValidateNever]
-    public SelectList CourseTypes { get; set; }
+    public List<SelectListItem> CourseTypes { get; set; } = new();
     [ValidateNever]
-    public SelectList Statuses { get; set; }
+    public List<SelectListItem> Statuses { get; set; } = new();
 }

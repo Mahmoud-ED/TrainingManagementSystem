@@ -5,13 +5,17 @@
 
 <h1 class="mb-4">@ViewData["Title"]</h1>
 
-<div class="d-flex justify-content-between align-items-center mb-3">
+<div class="d-flex justify-content-between align-items-center mb-4">
+   
     <p class="mb-0">
         <a asp-action="Create" class="btn btn-lg btn-primary shadow-sm">
             <i class="fas fa-plus me-2"></i>إنشاء دورة جديدة
         </a>
     </p>
-    @* يمكنك وضع زر لفتح/إخفاء الفلاتر هنا إذا أردت *@
+    @* زر إظهار/إخفاء الفلاتر الإضافي - اختياري *@
+    <button class="btn btn-outline-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#filtersCollapse" aria-expanded="false" aria-controls="filtersCollapse">
+        <i class="fas fa-filter me-1"></i> <span class="d-none d-sm-inline">إظهار/إخفاء الفلاتر</span>
+    </button>
 </div>
 
 
@@ -31,16 +35,19 @@
     </div>
 }
 
-@* قسم الفلترة والبحث - يمكن وضعه في Card أو Accordion لجعله قابلاً للطي *@
+@* قسم الفلترة والبحث *@
 <div class="card shadow-sm mb-4">
     <div class="card-header bg-light">
         <h5 class="mb-0">
-            <button class="btn btn-link text-decoration-none" type="button" data-bs-toggle="collapse" data-bs-target="#filtersCollapse" aria-expanded="true" aria-controls="filtersCollapse">
+            @* جعلنا الزر هنا أوضح قليلاً ويمكن الاعتماد عليه فقط أو الزر العلوي الإضافي *@
+            <a href="#" class="btn btn-link text-decoration-none p-0 text-dark fw-bold" data-bs-toggle="collapse" data-bs-target="#filtersCollapse" aria-expanded="false" aria-controls="filtersCollapse">
                 <i class="fas fa-filter me-1"></i> خيارات البحث والفلترة
-            </button>
+                <i class="fas fa-chevron-down fa-xs ms-1 toggle-icon"></i>
+            </a>
         </h5>
     </div>
-    <div id="filtersCollapse" class="collapse show">
+    <div id="filtersCollapse" class="collapse">
+        @*  أزلنا "show" لجعله مخفياً افتراضياً *@
         <div class="card-body">
             <form asp-action="Index" method="get">
                 <div class="row g-3">
@@ -94,7 +101,7 @@ else
         {
             <div class="col">
                 <div class="card h-100 shadow-hover">
-                    <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                    <div class="card-header bg-white d-flex justify-content-between align-items-center py-3">
                         <h5 class="card-title mb-0 text-primary">
                             <a asp-action="Details" asp-route-id="@item.Id" class="text-decoration-none stretched-link">
                                 @item.Name
@@ -108,11 +115,11 @@ else
                     <div class="card-body">
                         <ul class="list-unstyled mb-3">
                             <li>
-                                <i class="fas  fa-fw text-muted me-2"></i>
+                                <i class="fas fa-sitemap fa-fw text-muted me-2"></i> @* أيقونة للتصنيف *@
                                 <strong>التصنيف:</strong> @(item.CourseClassificationName ?? "غير محدد")
                             </li>
                             <li>
-                                <i class="fas  fa-fw text-muted me-2"></i>
+                                <i class="fas fa-layer-group fa-fw text-muted me-2"></i> @* أيقونة للمستوى *@
                                 <strong>المستوى:</strong> @(item.LevelName ?? "غير محدد")
                             </li>
                             @if (!string.IsNullOrEmpty(item.CourseParentName))
@@ -134,12 +141,10 @@ else
                             </div>
                         </div>
                     </div>
-                    <div class="card-footer bg-light border-top-0 text-center">
-                        <div class="btn-group w-100" role="group" aria-label="Course Actions">
-                            <a asp-controller="Courses" asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-info flex-grow-1" title="تفاصيل">
-                                <i class="fas fa-info-circle me-1"></i> تفاصيل
-                            </a>
-                            <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary flex-grow-1" title="تعديل">
+                    <div class="card-footer bg-light border-top-0 text-center py-3">
+                        @* أزلنا btn-group وأضفنا هوامش للأزرار *@
+                        <div class="d-flex justify-content-center w-100">
+                            <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary flex-grow-1 me-1" title="تعديل">
                                 <i class="fas fa-edit me-1"></i> تعديل
                             </a>
                             <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-outline-danger flex-grow-1" title="حذف">
@@ -156,7 +161,7 @@ else
         }
     </div>
 
-    @* قسم ترقيم الصفحات *@
+    @* قسم ترقيم الصفحات (كما هو، يبدو جيداً) *@
     @if (Model.TotalPages > 1)
     {
         <nav aria-label="Page navigation" class="mt-4">
@@ -175,18 +180,12 @@ else
 
                 @for (int i = 1; i <= Model.TotalPages; i++)
                 {
-                    // منطق لعرض عدد محدود من أرقام الصفحات (مثلاً: 1 ... 5 6 7 ... 10)
-                    // هذا مثال مبسط يعرض كل الصفحات
                     const int maxPagesToShow = 5;
                     const int halfMaxPages = maxPagesToShow / 2;
                     bool showPage = (i >= Model.PageIndex - halfMaxPages && i <= Model.PageIndex + halfMaxPages) ||
                     i == 1 || i == Model.TotalPages ||
                     (Model.PageIndex <= halfMaxPages + 1 && i <= maxPagesToShow) ||
                     (Model.PageIndex >= Model.TotalPages - halfMaxPages && i >= Model.TotalPages - maxPagesToShow + 1);
-
-                    bool addEllipsisBefore = (i == 1 && Model.PageIndex > halfMaxPages + 2 && maxPagesToShow < Model.TotalPages);
-                    bool addEllipsisAfter = (i == Model.TotalPages - 1 && Model.PageIndex < Model.TotalPages - halfMaxPages - 1 && maxPagesToShow < Model.TotalPages);
-
 
                     if (i == 2 && Model.PageIndex > halfMaxPages + 2 && Model.TotalPages > maxPagesToShow + 1)
                     {
@@ -230,13 +229,37 @@ else
     <style>
         .shadow-hover:hover {
             transition: box-shadow .3s ease-in-out;
-            box-shadow: 0 .5rem 1rem rgba(0,0,0,.15)!important;
+            box-shadow: 0 .5rem 1rem rgba(0,0,0,.15) !important;
         }
+
         .card-title a.stretched-link:hover {
             color: var(--bs-primary-dark) !important; /* Or your preferred hover color */
         }
-         .card-title a.stretched-link {
+
+        .card-title a.stretched-link {
             color: var(--bs-primary);
         }
+
+        /* لتغيير أيقونة السهم عند فتح وإغلاق الفلاتر */
+        #filtersCollapse + .card-header a[data-bs-toggle="collapse"] .toggle-icon, /* If card-header is after collapse div */
+        .card-header a[data-bs-toggle="collapse"][aria-expanded="true"] .toggle-icon {
+            transform: rotate(180deg);
+            transition: transform 0.2s ease-in-out;
+        }
+
+        .card-header a[data-bs-toggle="collapse"][aria-expanded="false"] .toggle-icon {
+            transform: rotate(0deg);
+            transition: transform 0.2s ease-in-out;
+        }
     </style>
+}
+
+@section Scripts {
+    <script>
+        // لتحسين تجربة المستخدم مع زر الفلاتر في رأس الكارد
+        // يمكننا جعل الأيقونة تتغير (سهم لأعلى/لأسفل)
+        // هذا السكربت ليس ضرورياً إذا كنت ستعتمد على الـ CSS فقط لتغيير الأيقونة
+        // لكن Bootstrap 5 يعتني بهذا تلقائياً إذا استخدمت بنية accordion صحيحة
+        // الـ CSS المضاف في قسم Styles كافي لتغيير شكل السهم.
+    </script>
 }

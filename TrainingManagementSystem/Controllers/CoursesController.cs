@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering; // For SelectList
 using Microsoft.EntityFrameworkCore; // For EF Core operations like Include, ThenInclude
+using Rotativa.AspNetCore;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -106,32 +107,48 @@ namespace TrainingManagementSystem.Controllers
             return View(viewModel); // مرر الـ ViewModel الكامل
         }
 
-   
+
         // GET: Courses/Create
         public async Task<IActionResult> Create()
         {
+            var allTrainers = await _context.Trainers
+                .OrderBy(t => t.ArName)
+                .Select(t => new TrainerCheckboxViewModel
+                {
+                    Id = t.Id,
+                    Name = t.ArName
+                })
+                .ToListAsync();
+
             var viewModel = new CourseFormViewModel
             {
-                CourseClassifications = new SelectList(await _context.CourseClassifications.OrderBy(c => c.Name).ToListAsync(), "Id", "Name"),
-                Levels = new SelectList(await _context.Levels.OrderBy(l => l.Name).ToListAsync(), "Id", "Name"),
-                CourseParents = new SelectList(await _context.CourseParent.OrderBy(cp => cp.Name).ToListAsync(), "Id", "Name"),
-                AvailableTrainers = await _context.Trainers
-                                        .OrderBy(t => t.ArName)
-                                        .Select(t => new TrainerCheckboxViewModel { Id = t.Id, Name = t.ArName, IsSelected = false })
-                                        .ToListAsync(),
-                // الجديد: ملء القوائم المنسدلة لـ CourseDetails
-                Locations = new SelectList(await _context.Locations.OrderBy(l => l.Name).ToListAsync(), "Id", "Name"),
-                CourseTypes = new SelectList(await _context.CourseTypes.OrderBy(ct => ct.Name).ToListAsync(), "Id", "Name"),
-                Statuses = new SelectList(await _context.Statuses.OrderBy(s => s.Name).ToListAsync(), "Id", "Name"),
+                CourseClassifications = (await _context.CourseClassifications
+                    .OrderBy(c => c.Name)
+                    .Select(c => new SelectListItem { Value = c.Id.ToString(), Text = c.Name })
+                    .ToListAsync()),
 
-                // يمكنك إضافة عنصر تفاصيل فارغ واحد ليبدأ به المستخدم
-                // CourseDetailsEntries = new List<CourseDetailFormEntryViewModel> { new CourseDetailFormEntryViewModel() }
+                Levels = (await _context.Levels
+                    .OrderBy(l => l.Name)
+                    .Select(l => new SelectListItem { Value = l.Id.ToString(), Text = l.Name })
+                    .ToListAsync()),
+
+                CourseParents = (await _context.CourseParent
+                    .OrderBy(cp => cp.Name)
+                    .Select(cp => new SelectListItem { Value = cp.Id.ToString(), Text = cp.Name })
+                    .ToListAsync()),
+
+                AvailableTrainers = allTrainers,
+                SelectedTrainerIds = new List<Guid>() // فارغة لأن إنشاء جديد
             };
-            // إذا لم تضف عنصراً افتراضياً، سيبدأ المستخدم بدون أي فورم CourseDetails ظاهر
-            // وسيعتمد على JavaScript لإضافة أول فورم.
+
+            // إضافة خيار فارغ للقوائم المنسدلة
+            viewModel.CourseClassifications.Insert(0, new SelectListItem { Value = "", Text = "-- اختر تصنيف الدورة --" });
+            viewModel.Levels.Insert(0, new SelectListItem { Value = "", Text = "-- اختر المستوى --" });
+            viewModel.CourseParents.Insert(0, new SelectListItem { Value = "", Text = "-- اختر الدورة المرجعية --" });
 
             return View(viewModel);
         }
+
 
         // POST: Courses/Create
         [HttpPost]
@@ -208,35 +225,40 @@ namespace TrainingManagementSystem.Controllers
                 await _context.SaveChangesAsync();
                 TempData["SuccessMessage"] = "تم إنشاء الدورة وتفاصيلها بنجاح!";
                 return RedirectToAction(nameof(Index));
-            //}
-
-            //// إذا فشل الـ ModelState, أعد ملء الـ SelectLists
-            //await PopulateFormViewModelDropdowns(viewModel); // دالة مساعدة جديدة
-            return View(viewModel);
+            
         }
 
    
         [HttpGet]
         public async Task<IActionResult> GetCourseDetailEntryPartial(int index)
         {
-            // نحتاج إلى تمرير القوائم المنسدلة إلى الـ Partial View
-            // حتى لو كان الـ Model الرئيسي (CourseDetailFormEntryViewModel) فارغاً
             var parentViewModelForDropdowns = new CourseFormViewModel
             {
-                Locations = new SelectList(await _context.Locations.OrderBy(l => l.Name).ToListAsync(), "Id", "Name"),
-                CourseTypes = new SelectList(await _context.CourseTypes.OrderBy(ct => ct.Name).ToListAsync(), "Id", "Name"),
-                Statuses = new SelectList(await _context.Statuses.OrderBy(s => s.Name).ToListAsync(), "Id", "Name")
-                // لا نحتاج لملء بقية خصائص CourseFormViewModel هنا، فقط القوائم المنسدلة
+                Locations = (await _context.Locations
+              .OrderBy(l => l.Name)
+              .Select(l => new SelectListItem { Value = l.Id.ToString(), Text = l.Name })
+              .ToListAsync()),
+
+                CourseTypes = (await _context.CourseTypes
+              .OrderBy(ct => ct.Name)
+              .Select(ct => new SelectListItem { Value = ct.Id.ToString(), Text = ct.Name })
+              .ToListAsync()),
+
+                Statuses = (await _context.Statuses
+              .OrderBy(s => s.Name)
+              .Select(s => new SelectListItem { Value = s.Id.ToString(), Text = s.Name })
+              .ToListAsync())
             };
+
+            // إضافة عنصر اختياري فارغ لكل Dropdown
+            parentViewModelForDropdowns.Locations.Insert(0, new SelectListItem { Value = "", Text = "-- اختر الموقع --" });
+            parentViewModelForDropdowns.CourseTypes.Insert(0, new SelectListItem { Value = "", Text = "-- اختر نوع الدورة --" });
+            parentViewModelForDropdowns.Statuses.Insert(0, new SelectListItem { Value = "", Text = "-- اختر الحالة --" });
+
 
             ViewData["index"] = index;
             ViewData["ParentViewModel"] = parentViewModelForDropdowns;
-            // ParentListSize مهم لإخفاء زر الحذف في أول عنصر إذا كان هو الوحيد.
-            // عند الإضافة عبر AJAX، يمكننا افتراض أننا نضيف إلى قائمة قد تحتوي على عناصر أخرى
-            // أو أن JavaScript سيتولى إظهار/إخفاء زر الحذف.
-            // للتبسيط، يمكن تمرير قائمة فارغة هنا، لأن المنطق الرئيسي لـ isOnlyOneEntry في الـ Partial
-            // يعتمد أكثر على عدد العناصر الموجودة في الـ DOM عند الإضافة.
-            ViewData["ParentListSize"] = new List<CourseDetailFormEntryViewModel>(); // أو يمكنك تمرير قيمة تعكس العدد الحالي من الـ client إذا أردت
+            ViewData["ParentListSize"] = new List<CourseDetailFormEntryViewModel>(); 
 
             // نرجع الـ Partial View مع Model جديد فارغ (أو مهيأ بقيم افتراضية إذا أردت)
             return PartialView("_CourseDetailFormEntry", new CourseDetailFormEntryViewModel { StartDate = DateTime.Today });
@@ -248,9 +270,54 @@ namespace TrainingManagementSystem.Controllers
 
         private async Task PopulateFormViewModelDropdowns(CourseFormViewModel viewModel)
         {
-            viewModel.CourseClassifications = new SelectList(await _context.CourseClassifications.OrderBy(c => c.Name).ToListAsync(), "Id", "Name", viewModel.CourseClassificationId);
-            viewModel.Levels = new SelectList(await _context.Levels.OrderBy(l => l.Name).ToListAsync(), "Id", "Name", viewModel.LevelId);
-            viewModel.CourseParents = new SelectList(await _context.CourseParent.OrderBy(cp => cp.Name).ToListAsync(), "Id", "Name", viewModel.CourseParentId);
+            viewModel.CourseClassifications = (await _context.CourseClassifications
+      .OrderBy(c => c.Name)
+      .Select(c => new SelectListItem
+      {
+          Value = c.Id.ToString(),
+          Text = c.Name,
+          Selected = (c.Id == viewModel.CourseClassificationId)
+      })
+      .ToListAsync());
+
+            viewModel.CourseClassifications.Insert(0, new SelectListItem
+            {
+                Value = "",
+                Text = "-- اختر تصنيف الدورة --",
+                Selected = (viewModel.CourseClassificationId == Guid.Empty)
+            });
+            viewModel.Levels = (await _context.Levels
+     .OrderBy(l => l.Name)
+     .Select(l => new SelectListItem
+     {
+         Value = l.Id.ToString(),
+         Text = l.Name,
+         Selected = (l.Id == viewModel.LevelId)
+     })
+     .ToListAsync());
+
+            viewModel.Levels.Insert(0, new SelectListItem
+            {
+                Value = "",
+                Text = "-- اختر المستوى --",
+                Selected = (viewModel.LevelId == Guid.Empty)
+            });
+            viewModel.CourseParents = (await _context.CourseParent
+      .OrderBy(cp => cp.Name)
+      .Select(cp => new SelectListItem
+      {
+          Value = cp.Id.ToString(),
+          Text = cp.Name,
+          Selected = (cp.Id == viewModel.CourseParentId)
+      })
+      .ToListAsync());
+
+            viewModel.CourseParents.Insert(0, new SelectListItem
+            {
+                Value = "",
+                Text = "-- اختر الدورة المرجعية --",
+                Selected = (!viewModel.CourseParentId.HasValue || viewModel.CourseParentId == Guid.Empty)
+            });
 
             var allTrainers = await _context.Trainers.OrderBy(t => t.ArName).ToListAsync();
             viewModel.AvailableTrainers = allTrainers.Select(t => new TrainerCheckboxViewModel
@@ -260,9 +327,48 @@ namespace TrainingManagementSystem.Controllers
                 IsSelected = viewModel.SelectedTrainerIds != null && viewModel.SelectedTrainerIds.Contains(t.Id)
             }).ToList();
 
-            viewModel.Locations = new SelectList(await _context.Locations.OrderBy(l => l.Name).ToListAsync(), "Id", "Name");
-            viewModel.CourseTypes = new SelectList(await _context.CourseTypes.OrderBy(ct => ct.Name).ToListAsync(), "Id", "Name");
-            viewModel.Statuses = new SelectList(await _context.Statuses.OrderBy(s => s.Name).ToListAsync(), "Id", "Name");
+            viewModel.Locations = (await _context.Locations
+      .OrderBy(l => l.Name)
+      .Select(l => new SelectListItem
+      {
+          Value = l.Id.ToString(),
+          Text = l.Name
+      })
+      .ToListAsync());
+
+            viewModel.Locations.Insert(0, new SelectListItem
+            {
+                Value = "",
+                Text = "-- اختر الموقع --"
+            });
+            viewModel.CourseTypes = (await _context.CourseTypes
+      .OrderBy(ct => ct.Name)
+      .Select(ct => new SelectListItem
+      {
+          Value = ct.Id.ToString(),
+          Text = ct.Name
+      })
+      .ToListAsync());
+
+            viewModel.CourseTypes.Insert(0, new SelectListItem
+            {
+                Value = "",
+                Text = "-- اختر نوع الدورة --"
+            });
+            viewModel.Statuses = (await _context.Statuses
+      .OrderBy(s => s.Name)
+      .Select(s => new SelectListItem
+      {
+          Value = s.Id.ToString(),
+          Text = s.Name
+      })
+      .ToListAsync());
+
+            viewModel.Statuses.Insert(0, new SelectListItem
+            {
+                Value = "",
+                Text = "-- اختر الحالة --"
+            });
 
             // إذا كنت تريد إعادة ملء قيم CourseDetailsEntries عند الفشل، فهذا أكثر تعقيداً
             // لأنك تحتاج إلى الحفاظ على القيم التي أدخلها المستخدم.
@@ -285,6 +391,24 @@ namespace TrainingManagementSystem.Controllers
                 return NotFound();
             }
 
+            var classifications = await _context.CourseClassifications
+     .OrderBy(c => c.Name)
+     .Select(c => new SelectListItem { Value = c.Id.ToString(), Text = c.Name })
+     .ToListAsync();
+            classifications.Insert(0, new SelectListItem { Value = "", Text = "-- اختر التصنيف --" });
+
+            var levels = await _context.Levels
+                .OrderBy(l => l.Name)
+                .Select(l => new SelectListItem { Value = l.Id.ToString(), Text = l.Name })
+                .ToListAsync();
+            levels.Insert(0, new SelectListItem { Value = "", Text = "-- اختر المستوى --" });
+
+            var parents = await _context.CourseParent
+                .OrderBy(cp => cp.Name)
+                .Select(cp => new SelectListItem { Value = cp.Id.ToString(), Text = cp.Name })
+                .ToListAsync();
+            parents.Insert(0, new SelectListItem { Value = "", Text = "-- لا يوجد مرجع --" });
+
             var viewModel = new CourseFormViewModel
             {
                 Id = course.Id,
@@ -294,11 +418,12 @@ namespace TrainingManagementSystem.Controllers
                 CourseClassificationId = course.CourseClassificationId,
                 LevelId = course.LevelId,
                 CourseParentId = course.CourseParentId,
-                CourseClassifications = new SelectList(await _context.CourseClassifications.OrderBy(c => c.Name).ToListAsync(), "Id", "Name", course.CourseClassificationId),
-                Levels = new SelectList(await _context.Levels.OrderBy(l => l.Name).ToListAsync(), "Id", "Name", course.LevelId),
-                CourseParents = new SelectList(await _context.CourseParent.OrderBy(cp => cp.Name).ToListAsync(), "Id", "Name", course.CourseParentId),
-                SelectedTrainerIds = course.CourseTrainers.Select(ct => ct.TrainerId).ToList() // المدربون المختارون حالياً
+                CourseClassifications = classifications,
+                Levels = levels,
+                CourseParents = parents,
+                SelectedTrainerIds = course.CourseTrainers.Select(ct => ct.TrainerId).ToList()
             };
+
 
             // بناء قائمة المدربين مع تحديد المختارين
             var allTrainers = await _context.Trainers.OrderBy(t => t.ArName).ToListAsync();
@@ -469,9 +594,54 @@ namespace TrainingManagementSystem.Controllers
         // دالة مساعدة لإعادة ملء القوائم المنسدلة وقائمة المدربين في حالة فشل التحقق من صحة النموذج في Edit (POST)
         private async Task PopulateEditViewModelDropdownsAndTrainers(CourseFormViewModel viewModel)
         {
-            viewModel.CourseClassifications = new SelectList(await _context.CourseClassifications.OrderBy(c => c.Name).ToListAsync(), "Id", "Name", viewModel.CourseClassificationId);
-            viewModel.Levels = new SelectList(await _context.Levels.OrderBy(l => l.Name).ToListAsync(), "Id", "Name", viewModel.LevelId);
-            viewModel.CourseParents = new SelectList(await _context.CourseParent.OrderBy(cp => cp.Name).ToListAsync(), "Id", "Name", viewModel.CourseParentId);
+            viewModel.CourseClassifications = (await _context.CourseClassifications
+     .OrderBy(c => c.Name)
+     .Select(c => new SelectListItem
+     {
+         Value = c.Id.ToString(),
+         Text = c.Name,
+         Selected = (c.Id == viewModel.CourseClassificationId)
+     })
+     .ToListAsync());
+
+            viewModel.CourseClassifications.Insert(0, new SelectListItem
+            {
+                Value = "",
+                Text = "-- اختر تصنيف الدورة --",
+                Selected = (viewModel.CourseClassificationId == Guid.Empty)
+            });
+            viewModel.Levels = (await _context.Levels
+      .OrderBy(l => l.Name)
+      .Select(l => new SelectListItem
+      {
+          Value = l.Id.ToString(),
+          Text = l.Name,
+          Selected = (l.Id == viewModel.LevelId)
+      })
+      .ToListAsync());
+
+            viewModel.Levels.Insert(0, new SelectListItem
+            {
+                Value = "",
+                Text = "-- اختر المستوى --",
+                Selected = (viewModel.LevelId == Guid.Empty)
+            });
+            viewModel.CourseParents = (await _context.CourseParent
+    .OrderBy(cp => cp.Name)
+    .Select(cp => new SelectListItem
+    {
+        Value = cp.Id.ToString(),
+        Text = cp.Name,
+        Selected = (cp.Id == viewModel.CourseParentId)
+    })
+    .ToListAsync());
+
+            viewModel.CourseParents.Insert(0, new SelectListItem
+            {
+                Value = "",
+                Text = "-- اختر الدورة المرجعية --",
+                Selected = (!viewModel.CourseParentId.HasValue || viewModel.CourseParentId == Guid.Empty)
+            });
 
             var allTrainers = await _context.Trainers.OrderBy(t => t.ArName).ToListAsync();
             viewModel.AvailableTrainers = allTrainers.Select(t => new TrainerCheckboxViewModel
@@ -517,6 +687,7 @@ namespace TrainingManagementSystem.Controllers
             var viewModel = new CourseDetailsDisplayViewModel
             {
                 // بيانات CourseDetails الحالية
+                Course= courseDetails.Course, // جلب الكورس الرئيسي
                 Id = courseDetails.Id,
                 StartDate = courseDetails.StartDate,
                 EndDate = courseDetails.EndDate,
@@ -661,7 +832,9 @@ namespace TrainingManagementSystem.Controllers
         {
             if (ModelState.IsValid)
             {
-                var courseTraineeToUpdate = await _context.CourseTrainees.FindAsync(viewModel.CourseTraineeId);
+                var courseTraineeToUpdate = await _context.CourseTrainees
+      .Include(ct => ct.CourseDetails) // هذا الجزء هو الذي يقوم بالـ Include
+      .FirstOrDefaultAsync(ct => ct.Id == viewModel.CourseTraineeId); // نبحث عن الكيان المطلوب باستخدام الشرط
                 if (courseTraineeToUpdate == null)
                 {
                     return NotFound();
@@ -677,6 +850,8 @@ namespace TrainingManagementSystem.Controllers
 
                 try
                 {
+
+
                     _context.Update(courseTraineeToUpdate);
                     await _context.SaveChangesAsync();
                     TempData["SuccessMessage"] = "تم تحديث بيانات تسجيل المتدرب بنجاح!";
@@ -727,6 +902,136 @@ namespace TrainingManagementSystem.Controllers
             return RedirectToAction(nameof(Details), new { id = CourseDetails.CourseId });
         }
 
+        public async Task<IActionResult> PrintCertificate(Guid id) // id هنا هو CourseTraineeId
+        {
+            if (id == Guid.Empty)
+            {
+                return BadRequest("معرف التسجيل مطلوب.");
+            }
 
+            var courseTrainee = await _context.CourseTrainees
+                .Include(ct => ct.Trainee) // لجلب اسم المتدرب وبياناته
+                .Include(ct => ct.CourseDetails) // لجلب تفاصيل تنفيذ الدورة
+                    .ThenInclude(cd => cd.Course) // لجلب اسم الدورة الرئيسي وبياناتها
+                .Include(ct => ct.CourseDetails)
+                    .ThenInclude(cd => cd.Location) // إذا كان الموقع جدول منفصل
+                .FirstOrDefaultAsync(ct => ct.Id == id);
+
+            if (courseTrainee == null)
+            {
+                return NotFound("بيانات التسجيل غير موجودة.");
+            }
+
+            if (courseTrainee.Trainee == null || courseTrainee.CourseDetails == null || courseTrainee.CourseDetails.Course == null)
+            {
+                // هذا يعني أن بعض البيانات المرتبطة مفقودة، يجب معالجة هذا
+                return BadRequest("بيانات مرتبطة بالدورة أو المتدرب مفقودة.");
+            }
+
+            // تحويل Grade الرقمي إلى نصي إذا لزم الأمر
+            string gradeText = "غير محدد";
+            if (courseTrainee.Grade.HasValue)
+            {
+                // يمكنك هنا وضع منطق لتحويل الدرجة الرقمية إلى وصف
+                // مثال بسيط:
+                if (courseTrainee.Grade >= 90) gradeText = "ممتاز";
+                else if (courseTrainee.Grade >= 80) gradeText = "جيد جداً";
+                else if (courseTrainee.Grade >= 70) gradeText = "جيد";
+                else if (courseTrainee.Grade >= 60) gradeText = "مقبول";
+                else gradeText = "لم يجتز"; // أو اتركه كرقم courseTrainee.Grade.Value.ToString("0.##")
+            }
+
+
+            var viewModel = new CertificateViewModel
+            {
+                TraineeName = courseTrainee.Trainee.ArName, // افترض أن لديك خاصية FullName في Trainee
+                CourseName = courseTrainee.CourseDetails.Course.Name,
+                CourseStartDate = courseTrainee.CourseDetails.StartDate,
+                CourseEndDate = courseTrainee.CourseDetails.EndDate,
+                CourseDurationHours = courseTrainee.CourseDetails.DurationHours,
+                CourseLocation = courseTrainee.CourseDetails.Location?.Name ?? "غير محدد", // افترض أن Location له Name
+                CertificateNumber = courseTrainee.CertificateNumber,
+                CertificateIssueDate = courseTrainee.CertificateIssueDate ?? DateTime.Now, // تاريخ اليوم كافتراضي إذا لم يحدد
+                Grade = gradeText, // أو courseTrainee.Grade?.ToString("0.##") إذا أردت عرض الرقم
+
+                // يمكنك تخصيص النصوص الثابتة هنا إذا أردت، أو تركها للقيم الافتراضية في ViewModel
+                // IssuingOrganizationName = "اسم مؤسستك",
+                // LogoUrl = "/path/to/your/logo.png",
+                // StampUrl = "/path/to/your/stamp.png"
+            };
+
+            // اسم الـ View سيكون PrintCertificate.cshtml
+            return View("PrintCertificate", viewModel);
+        }
+
+
+
+
+
+
+
+        public async Task<IActionResult> CourseDetailsPdfView(Guid id) // id هو CourseDetailsId
+        {
+            var courseDetails = await _context.CourseDetails
+                .Include(cd => cd.Course)
+                    .ThenInclude(c => c.CourseClassification)
+                .Include(cd => cd.Course)
+                    .ThenInclude(c => c.Level)
+                .Include(cd => cd.Location)
+                .Include(cd => cd.CourseType)
+                .Include(cd => cd.Status)
+                .Include(cd => cd.CourseTrainees)
+                    .ThenInclude(ct => ct.Trainee)
+                .FirstOrDefaultAsync(cd => cd.CourseId == id);
+
+            if (courseDetails == null)
+            {
+                return NotFound();
+            }
+
+            var viewModel = new CourseDetailsDisplayViewModel // استخدم نفس الـ ViewModel
+            {
+                Id = courseDetails.Id,
+                ParentCourseId = courseDetails.CourseId,
+                StartDate = courseDetails.StartDate,
+                EndDate = courseDetails.EndDate,
+                DurationHours = courseDetails.DurationHours,
+                LocationName = courseDetails.Location?.Name ?? "غير محدد",
+                CourseTypeName = courseDetails.CourseType?.Name ?? "غير محدد",
+                StatusName = courseDetails.Status.Name ?? "غير محدد",
+                CourseName = courseDetails.Course.Name, // اسم الكورس الرئيسي
+                                                        // تأكد من تعبئة هذه الخصائص إذا كنت ستعرضها في الـ PDF View
+                Course = new Course // افترض أن CourseViewModel يحتوي على الخصائص الفرعية
+                {
+                    Name = courseDetails.Course.Name, // مكرر، اختر واحداً
+                    Code = courseDetails.Course.Code,
+                    Description = courseDetails.Course.Description,
+                    CourseClassification = new CourseClassification { Name = courseDetails.Course.CourseClassification?.Name ?? "غير محدد" },
+                    Level = new Level { Name = courseDetails.Course.Level?.Name ?? "غير محدد" }
+                },
+                EnrolledTrainees = courseDetails.CourseTrainees.Select(ct => new EnrolledTraineeViewModel
+                {
+                    CourseTraineeId = ct.Id,
+                    TraineeId = ct.TraineeId,
+                    TraineeName = ct.Trainee.EnName, // افترض أن لديك FullName
+                    TraineeEmail = ct.Trainee.Email,
+                    AttendancePercentage = ct.AttendancePercentage,
+                    Grade = ct.Grade,
+                    CertificateNumber = ct.CertificateNumber,
+                    CertificateIssueDate = ct.CertificateIssueDate
+                }).ToList()
+            };
+
+           
+
+            return View( viewModel);
+        }
     }
+
+
+
+
+
+
 }
+

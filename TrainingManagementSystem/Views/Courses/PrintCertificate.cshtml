@@ -1,0 +1,423 @@
+﻿@model CertificateViewModel
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"]</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800;900&family=Marhey:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- مكتبة QR Code JS -->
+    <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+    <style>
+        body {
+            font-family: 'Cairo', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #FFFFFF;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            -webkit-print-color-adjust: exact !important;
+            color-adjust: exact !important;
+        }
+
+        .certificate-wrapper {
+            width: 297mm;
+            height: 210mm;
+            background-color: #F0F8FF; /* AliceBlue */
+            padding: 7mm;
+            box-sizing: border-box;
+            border: 1px solid #B0C4DE; /* LightSteelBlue */
+            position: relative;
+            box-shadow: 0 0 12px rgba(0,0,0,0.15);
+            margin: 10mm auto;
+            overflow: hidden;
+        }
+
+            .certificate-wrapper::before,
+            .certificate-wrapper::after {
+                content: "";
+                position: absolute;
+                border-style: solid;
+                border-color: #FFD700; /* Gold */
+                z-index: 0;
+            }
+
+            .certificate-wrapper::before {
+                left: 3mm;
+                right: 3mm;
+                top: 3mm;
+                bottom: 3mm;
+                border-width: 2px;
+            }
+
+            .certificate-wrapper::after {
+                left: 5mm;
+                right: 5mm;
+                top: 5mm;
+                bottom: 5mm;
+                border-width: 1px;
+                border-color: #DAA520; /* Goldenrod */
+            }
+
+        .certificate-container {
+            width: 100%;
+            height: 100%;
+            padding: 7mm 15mm 10mm 15mm;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            position: relative; /* ضروري لـ ::before */
+            z-index: 1; /* فوق الـ wrapper */
+        }
+            /* --- تعديل رقم 1: إضافة نقش مائي باستخدام ::before --- */
+            .certificate-container::before {
+                content: "";
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                /* غيّر هذا المسار إلى مسار شعارك أو النقش المائي المناسب */
+                /* تأكد أن الصورة نفسها مناسبة (إما شفافة أو ألوانها فاتحة) */
+                /* أو استخدم شعاراً تم تخفيفه مسبقاً */
+                background-image: url('@(Model.LogoUrl)'); /* مثال: استخدام شعار المؤسسة نفسه كنقش */
+                background-repeat: no-repeat;
+                background-position: center center;
+                background-size: 150mm auto; /* عدّل الحجم ليناسب تصميمك */
+                opacity: 0.06; /* تحكم بالشفافية هنا - قيمة بين 0 و 1 (مثلاً 0.05 إلى 0.1) */
+                z-index: -1; /* يجعله خلف محتوى .certificate-container */
+            }
+
+
+        .header-section {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 4mm;
+            color: #2F4F4F;
+        }
+
+        .logo-area {
+            text-align: right;
+            display: flex;
+            align-items: center;
+        }
+
+        .logo {
+            max-width: 200px; /* قد تحتاج لتقليل هذا إذا كان الشعار كبيراً جداً للنقش */
+            max-height: 200px; /* قد تحتاج لتقليل هذا */
+            margin-left: 30px;
+        }
+
+        .organization-name {
+            font-size: 19px;
+            font-weight: 700;
+            color: #004D40;
+        }
+
+        .certificate-number-area {
+            text-align: left;
+            font-size: 13px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+            .certificate-number-area p {
+                margin: 1px 0;
+            }
+
+        .certificate-number-val {
+            font-weight: 700;
+            font-size: 15px;
+        }
+
+        .certificate-main-title {
+            font-size: 36px;
+            font-weight: 600;
+            color: #005A9C;
+            margin-bottom: 3mm;
+            line-height: 1.3;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+        }
+
+        .content-section {
+            color: #333333;
+            width: 100%;
+        }
+
+            .content-section p {
+                font-size: 19px;
+                line-height: 1.7;
+                margin: 1.5mm 0;
+                font-weight: 400;
+            }
+
+        .trainee-name {
+            font-size: 30px;
+            font-weight: 700;
+            color: #00695C;
+            margin: 2.5mm 0 !important;
+            letter-spacing: 0.2px;
+        }
+
+        .course-name {
+            font-size: 24px;
+            font-weight: 600;
+            color: #4A0072;
+            margin: 2.5mm 0 !important;
+        }
+
+        .details-text {
+            font-size: 17px !important;
+            line-height: 1.6 !important;
+            font-weight: 500;
+        }
+
+            .details-text span {
+                font-weight: 700;
+                color: #1A237E;
+            }
+
+        .issue-date-text {
+            font-size: 16px !important;
+            margin-top: 3mm !important;
+            font-weight: 500;
+        }
+
+            .issue-date-text span {
+                font-weight: 700;
+                color: #1A237E;
+            }
+
+        .footer-section {
+            width: 100%;
+            margin-top: auto;
+            padding-top: 3mm;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            color: #2F4F4F;
+            flex-shrink: 0;
+            /* --- تعديل رقم 2 و 5: تغيير الخط الفاصل --- */
+            border-top: 1.5px solid #005A9C;
+        }
+
+        .signature-area {
+            text-align: center;
+            font-size: 15px;
+            font-weight: 500;
+            flex-basis: 30%;
+            padding: 0 3mm;
+        }
+
+            .signature-area p {
+                margin-top: 5px;
+                margin-bottom: 0;
+            }
+
+        .signature-line {
+            border-bottom: 1.5px solid #005A9C;
+            width: 100%;
+            max-width: 130px;
+            margin: 20px auto 5px auto;
+        }
+
+        .stamp-placeholder {
+            width: 75px;
+            height: 75px;
+            /* --- تعديل رقم 5: إضافة خلفية خفيفة للختم --- */
+            background-color: rgba(218, 165, 32, 0.08); /* Goldenrod خفيف جداً مع شفافية */
+            border: 2px solid #DAA520;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            font-weight: 500;
+            color: #B8860B;
+            margin: 0 auto 5px auto;
+            border-radius: 50%;
+        }
+
+            .stamp-placeholder img {
+                max-width: 90%;
+                max-height: 90%;
+                border-radius: 50%;
+                filter: grayscale(30%) sepia(20%);
+            }
+
+        @@media print {
+            body {
+                background-color: #fff;
+                margin: 0;
+                padding: 0;
+            }
+
+            .certificate-wrapper {
+                margin: 0 auto;
+                box-shadow: none;
+                width: 297mm;
+                height: 210mm;
+                border-color: #B0C4DE;
+                background-color: #F0F8FF !important; /* الخلفية الرئيسية للشهادة عند الطباعة */
+            }
+            /* تأكد من أن النقش المائي لا يزال يظهر في الطباعة */
+            /* المتصفحات الحديثة عادةً ما تطبع خلفيات العناصر التي تستخدم pseudo-elements */
+            /* إذا لم يظهر، قد تحتاج إلى إضافة !important لخصائص الخلفية في .certificate-container::before داخل  print */
+            .certificate-container::before {
+                opacity: 0.06 !important; /* تأكيد الشفافية للطباعة */
+            }
+
+
+            .certificate-wrapper::before, /* هذه هي الإطارات الذهبية */
+            .certificate-wrapper::after {
+                border-color: #FFD700 !important;
+            }
+
+            .certificate-wrapper::after { /* الإطار الذهبي الداخلي */
+                border-color: #DAA520 !important;
+            }
+
+
+            .no-print {
+                display: none !important;
+            }
+
+            @@page {
+                size: A4 landscape;
+                margin: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="certificate-wrapper">
+        <div class="certificate-container">
+            <!-- المحتوى هنا -->
+            <div class="header-section">
+                <div class="logo-area">
+                    @if (!string.IsNullOrEmpty(Model.LogoUrl) && Model.LogoUrl != "/images/logo_placeholder.png" && Model.LogoUrl != "~/img/oo.png")
+                    {
+                        <img src="@Model.LogoUrl" alt="شعار المؤسسة" class="logo" />
+                    }
+                    else
+                    {
+                        <div class="logo" style="border:1px dashed #ccc; display:flex; align-items:center; justify-content:center; font-size:10px; color:#888; background-color: #fff;">شعار</div>
+                    }
+                    <div class="organization-name">@Model.IssuingOrganizationName</div>
+                </div>
+                @if (!string.IsNullOrEmpty(Model.CertificateNumber))
+                {
+                    <div class="certificate-number-area">
+                        <p>رقم الشهادة:</p>
+                        <p class="certificate-number-val">@Model.CertificateNumber</p>
+                        <div id="qrcodeCanvas"></div>
+                    </div>
+                }
+            </div>
+
+            <h1 class="certificate-main-title">@Model.CertificateTitle</h1>
+
+            <div class="content-section">
+                <p>@Model.PresentedToText</p>
+                <p class="trainee-name">@Model.TraineeName</p>
+                <p>@Model.CompletedCourseText</p>
+                <p class="course-name">"@Model.CourseName"</p>
+
+                <p class="details-text">
+                    @if (Model.CourseEndDate.HasValue)
+                    {
+                        @Model.CoursePeriodText
+                        <span>@Model.CourseStartDate.ToString("dd / MM / yyyy")</span>
+                        @Model.ToText
+                        <span>@Model.CourseEndDate.Value.ToString("dd / MM / yyyy")</span>
+                        <span>،</span>
+                    }
+                    else
+                    {
+                        <span>والتي بدأت بتاريخ: @Model.CourseStartDate.ToString("dd / MM / yyyy")،</span>
+                    }
+                    @Model.ForDurationText
+                    <span>@Model.CourseDurationHours</span>
+                    @Model.HoursText
+                </p>
+
+                @if (!string.IsNullOrWhiteSpace(Model.CourseLocation) && Model.CourseLocation != "غير محدد")
+                {
+                    <p class="details-text">
+                        مكان الانعقاد: <span>@Model.CourseLocation</span>.
+                    </p>
+                }
+
+                @if (!string.IsNullOrWhiteSpace(Model.Grade) && Model.Grade != "غير محدد")
+                {
+                    <p class="details-text">
+                        @Model.AndAchievedGradeText: <span>@Model.Grade</span>.
+                    </p>
+                }
+
+                @if (Model.CertificateIssueDate.HasValue)
+                {
+                    <p class="issue-date-text">
+                        @Model.IssuedOnText <span>@Model.CertificateIssueDate.Value.ToString("dd / MM / yyyy")</span>
+                    </p>
+                }
+            </div>
+
+            <div class="footer-section">
+                <div class="signature-area">
+                    <div class="signature-line"></div>
+                    <p>@Model.Signature1Title</p>
+                </div>
+                <div class="signature-area">
+                    <div class="stamp-placeholder">
+                        @if (!string.IsNullOrEmpty(Model.StampUrl) && Model.StampUrl != "/images/stamp_placeholder.png")
+                        {
+                            <img src="@Model.StampUrl" alt="الختم" />
+                        }
+                        else
+                        {
+                            <span>الختم</span>
+                        }
+                    </div>
+                    <p>الختم الرسمي</p>
+                </div>
+                <div class="signature-area">
+                    <div class="signature-line"></div>
+                    <p>@Model.Signature2Title</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="text/javascript">
+        window.onload = function() {
+            var qrCodeElement = document.getElementById("qrcodeCanvas");
+            if (qrCodeElement) {
+                var currentUrl = window.location.href;
+                new QRCode(qrCodeElement, {
+                    text: currentUrl,
+                    width: 100,
+                    height: 100,
+                    colorDark : "#000000",
+                    colorLight : "#ffffff",
+                    correctLevel : QRCode.CorrectLevel.H
+                });
+            }
+
+            setTimeout(function() {
+                window.print();
+            }, 700);
+        };
+    </script>
+</body>
+</html>

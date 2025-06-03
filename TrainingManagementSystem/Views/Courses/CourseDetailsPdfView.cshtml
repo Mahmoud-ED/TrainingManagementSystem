@@ -1,0 +1,281 @@
+﻿@model CourseDetailsDisplayViewModel
+@{
+    Layout = null; // لا تستخدم Layout رئيسي
+}
+
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="utf-8" />
+    <title>تقرير تفاصيل الدورة: @Model.CourseName</title>
+    <style>
+        body {
+            font-family: 'Tahoma', 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif; /* خط مناسب للطباعة */
+            font-size: 12px;
+            line-height: 1.6;
+            margin: 20px;
+            color: #333;
+        }
+
+        .report-container {
+            width: 100%;
+            margin: 0 auto;
+        }
+
+        .report-header {
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 10px;
+        }
+
+            .report-header h1 {
+                margin: 0;
+                font-size: 22px;
+                color: #007bff;
+            }
+
+            .report-header p {
+                margin: 5px 0 0;
+                font-size: 14px;
+            }
+
+        .section {
+            margin-bottom: 25px;
+            padding: 15px;
+            border: 1px solid #eee;
+            border-radius: 5px;
+            background-color: #fdfdfd;
+        }
+
+        .section-title {
+            font-size: 16px;
+            font-weight: bold;
+            color: #0056b3;
+            margin-top: 0;
+            margin-bottom: 15px;
+            padding-bottom: 5px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        dl.details-list dt {
+            font-weight: bold;
+            width: 150px; /* عرض ثابت للـ dt */
+            float: right; /* لجعله على اليمين في RTL */
+            clear: right;
+            margin-bottom: 8px;
+        }
+
+        dl.details-list dd {
+            margin-right: 160px; /* مسافة بعد الـ dt */
+            margin-bottom: 8px;
+            padding-right: 10px; /* مسافة بين الـ dt والـ dd */
+        }
+
+        /* لتجنب تداخل العناصر بسبب الـ float */
+        dl.details-list::after {
+            content: "";
+            display: table;
+            clear: both;
+        }
+
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: right; /* محاذاة لليمين في RTL */
+        }
+
+        thead th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+            font-size: 13px;
+        }
+
+        tbody tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        .text-center {
+            text-align: center !important;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: .35em .65em;
+            font-size: .9em;
+            font-weight: 700;
+            line-height: 1;
+            color: #fff;
+            text-align: center;
+            white-space: nowrap;
+            vertical-align: baseline;
+            border-radius: .25rem;
+        }
+
+        .bg-success {
+            background-color: #28a745 !important;
+        }
+
+        .bg-primary {
+            background-color: #007bff !important;
+        }
+
+        .bg-info {
+            background-color: #17a2b8 !important;
+        }
+
+        .bg-danger {
+            background-color: #dc3545 !important;
+        }
+
+        .bg-secondary {
+            background-color: #6c757d !important;
+        }
+
+        /* تحسينات للطباعة */
+        @@media print {
+            body {
+                margin: 10mm; /* هوامش الصفحة عند الطباعة */
+                font-size: 10pt; /* حجم خط أصغر للطباعة */
+            }
+
+            .section {
+                border: 1px solid #ccc;
+                page-break-inside: avoid; /* محاولة تجنب كسر الصفحة داخل القسم */
+            }
+
+            .report-header {
+                border-bottom: 2px solid #333; /* استخدام لون داكن للطباعة */
+            }
+
+                .report-header h1 {
+                    color: #000;
+                }
+
+            .section-title {
+                color: #000;
+            }
+
+            a {
+                text-decoration: none;
+                color: inherit;
+            }
+            /* إزالة تمييز الروابط */
+        }
+    </style>
+</head>
+<body>
+    <div class="report-container">
+        <div class="report-header">
+            <h1>تقرير تفاصيل الدورة المنفذة</h1>
+            <p>@Model.CourseName</p>
+        </div>
+
+        @* قسم معلومات الدورة الرئيسية *@
+        <div class="section">
+            <h3 class="section-title">معلومات الدورة الرئيسية</h3>
+            <dl class="details-list">
+                <dt>اسم الدورة:</dt>
+                <dd>@Model.Course.Name @(!string.IsNullOrEmpty(Model.Course.Code) ? $"({Model.Course.Code})" : "")</dd>
+
+                @if (!string.IsNullOrEmpty(Model.Course.Description))
+                {
+                    <dt>وصف الدورة:</dt>
+                    <dd>@Model.Course.Description</dd>
+                }
+                <dt>تصنيف الدورة:</dt>
+                <dd>@Model.Course.CourseClassification.Name</dd>
+
+                <dt>المستوى:</dt>
+                <dd>@Model.Course.Level.Name</dd>
+            </dl>
+        </div>
+
+        @* قسم تفاصيل تنفيذ الدورة *@
+        <div class="section">
+            <h3 class="section-title">تفاصيل التنفيذ</h3>
+            <dl class="details-list">
+                <dt>تاريخ البدء:</dt>
+                <dd>@Model.StartDate.ToString("dd MMMM yyyy")</dd>
+
+                <dt>تاريخ الانتهاء:</dt>
+                <dd>@(Model.EndDate?.ToString("dd MMMM yyyy") ?? "غير محدد")</dd>
+
+                <dt>المدة (ساعات):</dt>
+                <dd>@Model.DurationHours ساعة</dd>
+
+                <dt>الموقع:</dt>
+                <dd>@Model.LocationName</dd>
+
+                <dt>نوع الدورة:</dt>
+                <dd>@Model.CourseTypeName</dd>
+
+                <dt>الحالة:</dt>
+                <dd>
+                    @{
+                        string statusBadgeClass = "bg-secondary";
+                        if (Model.StatusName?.ToLower().Contains("مكتملة") == true) { statusBadgeClass = "bg-success"; }
+                        else if (Model.StatusName?.ToLower().Contains("جارية") == true) { statusBadgeClass = "bg-primary"; }
+                        else if (Model.StatusName?.ToLower().Contains("مجدولة") == true) { statusBadgeClass = "bg-info"; }
+                        else if (Model.StatusName?.ToLower().Contains("ملغاة") == true) { statusBadgeClass = "bg-danger"; }
+                    }
+                    <span class="badge @statusBadgeClass">@Model.StatusName</span>
+                </dd>
+            </dl>
+        </div>
+
+        @* قسم المتدربين المسجلين *@
+        <div class="section">
+            <h3 class="section-title">المتدربون المسجلون (@Model.EnrolledTrainees.Count)</h3>
+            @if (!Model.EnrolledTrainees.Any())
+            {
+                <p>لا يوجد متدربون مسجلون في هذه الدورة بعد.</p>
+            }
+            else
+            {
+                <table>
+                    <thead>
+                        <tr>
+                            <th>اسم المتدرب</th>
+                            <th>البريد الإلكتروني</th>
+                            <th class="text-center">الحضور (%)</th>
+                            <th class="text-center">الدرجة</th>
+                            <th>رقم الشهادة</th>
+                            <th>تاريخ الإصدار</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var trainee in Model.EnrolledTrainees)
+                        {
+                            <tr>
+                                <td>@trainee.TraineeName</td>
+                                <td>@trainee.TraineeEmail</td>
+                                <td class="text-center">@(trainee.AttendancePercentage?.ToString("N1") ?? "-")</td>
+                                <td class="text-center">@(trainee.Grade?.ToString("N1") ?? "-")</td>
+                                <td>@(trainee.CertificateNumber ?? "-")</td>
+                                <td>@(trainee.CertificateIssueDate?.ToString("dd-MM-yyyy") ?? "-")</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+        </div>
+
+        <div style="margin-top: 30px; font-size: 10px; text-align: center; color: #777;">
+            تم إنشاء هذا التقرير بتاريخ: @DateTime.Now.ToString("dd MMMM yyyy, hh:mm tt")
+        </div>
+    </div>
+    <script type="text/javascript">
+            setTimeout(function() {
+                window.print();
+            }, 700);
+    </script>
+</body>
+</html>
