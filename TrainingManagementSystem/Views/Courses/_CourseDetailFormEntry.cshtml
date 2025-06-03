@@ -1,0 +1,74 @@
+﻿@model CourseDetailFormEntryViewModel
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
+@functions {
+    public string GetAntiXsrfRequestToken()
+    {
+        return Xsrf.GetAndStoreTokens(Context).RequestToken;
+    }
+}
+@{
+    var index = ViewData["index"] ?? new Random().Next(1000, 9999); // قيمة عشوائية إذا لم يتم تمرير index
+    var parentViewModel = ViewData["ParentViewModel"] as CourseFormViewModel;
+    var parentList = ViewData["ParentListSize"] as List<CourseDetailFormEntryViewModel>;
+    // تحديد هل هذا هو الإدخال الوحيد بناءً على العدد الفعلي للعناصر في DOM سيكون أدق
+    // لكن هذا تقريب جيد إذا تم تمرير ParentListSize بشكل صحيح عند التحميل الأولي
+    bool isOnlyOneEntryInitially = parentList != null && parentList.Count <= 1 && (int)index == 0;
+
+
+    var locationsList = parentViewModel?.Locations ?? new SelectList(Enumerable.Empty<SelectListItem>());
+    var courseTypesList = parentViewModel?.CourseTypes ?? new SelectList(Enumerable.Empty<SelectListItem>());
+    var statusesList = parentViewModel?.Statuses ?? new SelectList(Enumerable.Empty<SelectListItem>());
+}
+
+<div class="course-detail-entry border p-3 mb-3 bg-light rounded shadow-sm" data-entry-index="@index">
+    @* ***** الحقل المساعد للمفهرس - مهم جداً ***** *@
+    <input type="hidden" name="CourseDetailsEntries.Index" value="@index" />
+
+    <div class="d-flex justify-content-between align-items-center mb-2">
+        <h5 class="mb-0">تفصيل تنفيذ دورة #@( ((int)index) + 1 )</h5>
+        <button type="button" class="btn btn-sm btn-outline-danger remove-course-detail @(isOnlyOneEntryInitially ? "d-none" : "")" title="إزالة هذا التفصيل">
+            <i class="fas fa-trash-alt"></i> إزالة
+        </button>
+    </div>
+
+    <div class="row">
+        <div class="col-md-4 mb-3">
+            <label asp-for="StartDate" class="form-label">تاريخ البدء<span class="text-danger">*</span></label>
+            <input asp-for="StartDate" name="@($"CourseDetailsEntries[{index}].StartDate")" id="@($"CourseDetailsEntries_{index}__StartDate")" class="form-control" type="date" value="@Model.StartDate.ToString("yyyy-MM-dd")" />
+            <span asp-validation-for="StartDate" data-valmsg-for="@($"CourseDetailsEntries[{index}].StartDate")" class="text-danger"></span>
+        </div>
+        <div class="col-md-4 mb-3">
+            <label asp-for="EndDate" class="form-label">تاريخ الانتهاء</label>
+            <input asp-for="EndDate" name="@($"CourseDetailsEntries[{index}].EndDate")" id="@($"CourseDetailsEntries_{index}__EndDate")" class="form-control" type="date" value="@(Model.EndDate.HasValue? Model.EndDate.Value.ToString("yyyy-MM-dd") : "")" />
+            <span asp-validation-for="EndDate" data-valmsg-for="@($"CourseDetailsEntries[{index}].EndDate")" class="text-danger"></span>
+        </div>
+        <div class="col-md-4 mb-3">
+            <label asp-for="DurationHours" class="form-label">المدة (ساعات)<span class="text-danger">*</span></label>
+            <input asp-for="DurationHours" name="@($"CourseDetailsEntries[{index}].DurationHours")" id="@($"CourseDetailsEntries_{index}__DurationHours")" class="form-control" type="number" min="1" />
+            <span asp-validation-for="DurationHours" data-valmsg-for="@($"CourseDetailsEntries[{index}].DurationHours")" class="text-danger"></span>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-4 mb-3">
+            <label asp-for="LocationId" class="form-label">الموقع<span class="text-danger">*</span></label>
+            <select asp-for="LocationId" name="@($"CourseDetailsEntries[{index}].LocationId")" id="@($"CourseDetailsEntries_{index}__LocationId")" class="form-select" asp-items="locationsList">
+                <option value="">-- اختر الموقع --</option>
+            </select>
+            <span asp-validation-for="LocationId" data-valmsg-for="@($"CourseDetailsEntries[{index}].LocationId")" class="text-danger"></span>
+        </div>
+        <div class="col-md-4 mb-3">
+            <label asp-for="CourseTypeId" class="form-label">نوع الدورة<span class="text-danger">*</span></label>
+            <select asp-for="CourseTypeId" name="@($"CourseDetailsEntries[{index}].CourseTypeId")" id="@($"CourseDetailsEntries_{index}__CourseTypeId")" class="form-select" asp-items="courseTypesList">
+                <option value="">-- اختر نوع الدورة --</option>
+            </select>
+            <span asp-validation-for="CourseTypeId" data-valmsg-for="@($"CourseDetailsEntries[{index}].CourseTypeId")" class="text-danger"></span>
+        </div>
+        <div class="col-md-4 mb-3">
+            <label asp-for="StatusId" class="form-label">الحالة<span class="text-danger">*</span></label>
+            <select asp-for="StatusId" name="@($"CourseDetailsEntries[{index}].StatusId")" id="@($"CourseDetailsEntries_{index}__StatusId")" class="form-select" asp-items="statusesList">
+                <option value="">-- اختر الحالة --</option>
+            </select>
+            <span asp-validation-for="StatusId" data-valmsg-for="@($"CourseDetailsEntries[{index}].StatusId")" class="text-danger"></span>
+        </div>
+    </div>
+</div>

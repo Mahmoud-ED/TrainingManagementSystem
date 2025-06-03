@@ -383,5 +383,75 @@ namespace TrainingManagementSystem.Controllers
                 .ToListAsync();
             return Json(departments);
         }
+
+
+        [HttpGet]
+        public async Task<IActionResult> SearchTrainees(string term, int page = 1, int pageSize = 20, Guid? courseDetailsIdToExclude = null)
+        {
+            // 'term' هو مصطلح البحث الذي يكتبه المستخدم
+            // 'page' لدعم ترقيم الصفحات في نتائج البحث (إذا كانت النتائج كثيرة)
+            // 'pageSize' عدد النتائج لكل صفحة
+            // 'courseDetailsIdToExclude' (اختياري) لاستبعاد المتدربين المسجلين بالفعل في دورة معينة
+
+            if (string.IsNullOrWhiteSpace(term) || term.Length < 2) // يمكنك تعديل الحد الأدنى لعدد الأحرف
+            {
+                // لا ترجع شيئاً أو أرجع قائمة فارغة إذا كان البحث قصيراً جداً
+                return Json(new { results = new List<object>(), total_count = 0 });
+            }
+
+            var query = _context.Trainees.AsQueryable();
+
+            // تطبيق فلتر البحث (عدل هذه لتناسب الحقول التي تريد البحث فيها في Trainee Entity)
+            // افترض أن Trainee Entity لديه Name, Email, وربما NationalId أو TraineeCode
+            string searchTermLower = term.ToLower();
+            query = query.Where(t =>
+                (t.ArName != null && t.ArName.ToLower().Contains(searchTermLower)) ||
+                (t.Email != null && t.Email.ToLower().Contains(searchTermLower)) ||
+                // (t.NationalId != null && t.NationalId.Contains(term)) || // مثال إذا كان لديك NationalId
+                (t.PhoneNo != null && t.PhoneNo.Contains(term)) // مثال إذا كان لديك PhoneNumber
+                                                                        // أضف أي حقول أخرى تريد البحث فيها
+            );
+
+            // استبعاد المتدربين المسجلين بالفعل في الدورة المحددة (إذا تم تمرير courseDetailsIdToExclude)
+            if (courseDetailsIdToExclude.HasValue)
+            {
+                var enrolledTraineeIdsInSpecificCourse = await _context.CourseTrainees
+                    .Where(ct => ct.CourseDetailsId == courseDetailsIdToExclude.Value)
+                    .Select(ct => ct.TraineeId)
+                    .Distinct() // تأكد من عدم وجود تكرار إذا كان هناك خطأ ما في البيانات
+                    .ToListAsync();
+
+                if (enrolledTraineeIdsInSpecificCourse.Any())
+                {
+                    query = query.Where(t => !enrolledTraineeIdsInSpecificCourse.Contains(t.Id));
+                }
+            }
+
+            // حساب العدد الإجمالي قبل الترقيم (مهم لـ Select2 pagination)
+            var totalCount = await query.CountAsync();
+
+            // تطبيق الترقيم
+            var trainees = await query
+                .OrderBy(t => t.ArName) // أو أي ترتيب تفضله
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .Select(t => new // التنسيق الذي يتوقعه Select2 (أو أي مكتبة أخرى)
+                {
+                    id = t.Id, // قيمة الـ option
+                    text = $"{t.ArName}{(t.Email != null ? $" ({t.Email})" : "")}{(t.PhoneNo != null ? $" - {t.PhoneNo}" : "")}" // النص الذي سيظهر للمستخدم
+                    // يمكنك إضافة أي بيانات إضافية هنا إذا احتجتها في templateResult
+                    // مثلاً: description = t.SomeOtherField
+                })
+                .ToListAsync();
+
+            // Select2 يتوقع JSON يحتوي على خاصية 'results'
+            // وإذا كنت تدعم ترقيم الصفحات من جانب الخادم، يتوقع 'pagination: { more: true/false }'
+            return Json(new
+            {
+                results = trainees,
+                total_count = totalCount, // إرسال العدد الإجمالي للنتائج
+                pagination = new { more = (page * pageSize) < totalCount }
+            });
+        }
     }
 }

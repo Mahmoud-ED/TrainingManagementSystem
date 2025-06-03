@@ -1,0 +1,245 @@
+﻿@model CourseFormViewModel
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
+@functions {
+    public string GetAntiXsrfRequestToken()
+    {
+        return Xsrf.GetAndStoreTokens(Context).RequestToken;
+    }
+}
+@{
+    ViewData["Title"] = "إنشاء دورة تدريبية جديدة مع تفاصيلها";
+}
+
+<div class="container mt-4">
+    <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white">
+            <h3 class="mb-0">@ViewData["Title"]</h3>
+        </div>
+        <div class="card-body">
+            <form asp-action="Create" method="post" id="createCourseForm">
+                @Html.AntiForgeryToken()
+
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+                @* قسم معلومات الدورة الأساسية *@
+                <fieldset class="mb-4 p-3 border rounded">
+                    <legend class="w-auto px-2 h5">معلومات الدورة الأساسية</legend>
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label asp-for="Code" class="form-label">رمز الدورة</label>
+                            <input asp-for="Code" class="form-control" placeholder="مثال: CS101" />
+                            <span asp-validation-for="Code" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-8 mb-3">
+                            <label asp-for="Name" class="form-label">اسم الدورة<span class="text-danger">*</span></label>
+                            <input asp-for="Name" class="form-control" placeholder="مثال: مقدمة في البرمجة" />
+                            <span asp-validation-for="Name" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Description" class="form-label">وصف الدورة</label>
+                        <textarea asp-for="Description" class="form-control" rows="3" placeholder="أدخل وصفاً موجزاً للدورة..."></textarea>
+                        <span asp-validation-for="Description" class="text-danger"></span>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label asp-for="CourseClassificationId" class="form-label">تصنيف الدورة<span class="text-danger">*</span></label>
+                            <select asp-for="CourseClassificationId" class="form-select" asp-items="Model.CourseClassifications">
+                                <option value="">-- اختر تصنيف الدورة --</option>
+                            </select>
+                            <span asp-validation-for="CourseClassificationId" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label asp-for="LevelId" class="form-label">مستوى الدورة<span class="text-danger">*</span></label>
+                            <select asp-for="LevelId" class="form-select" asp-items="Model.Levels">
+                                <option value="">-- اختر مستوى الدورة --</option>
+                            </select>
+                            <span asp-validation-for="LevelId" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label asp-for="CourseParentId" class="form-label">الدورة المرجعية (اختياري)</label>
+                            <select asp-for="CourseParentId" class="form-select" asp-items="Model.CourseParents">
+                                <option value="">-- لا يوجد --</option>
+                            </select>
+                            <span asp-validation-for="CourseParentId" class="text-danger"></span>
+                        </div>
+
+
+
+
+
+                    </div>
+                </fieldset>
+
+                @* قسم اختيار المدربين *@
+                <fieldset class="mb-4 p-3 border rounded">
+                    <legend class="w-auto px-2 h5">المدربون</legend>
+                    @if (Model.AvailableTrainers != null && Model.AvailableTrainers.Any())
+                    {
+                        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-2">
+                            @for (int i = 0; i < Model.AvailableTrainers.Count; i++)
+                            {
+                                <div class="col">
+                                    <div class="form-check border rounded p-2 h-100">
+                                        <input type="checkbox"
+                                               name="SelectedTrainerIds"
+                                               value="@Model.AvailableTrainers[i].Id"
+                                               id="trainer_@Model.AvailableTrainers[i].Id"
+                                               class="form-check-input"
+                                               @(Model.AvailableTrainers[i].IsSelected ? "checked" : "") />
+                                        <label class="form-check-label" for="trainer_@Model.AvailableTrainers[i].Id">
+                                            @Model.AvailableTrainers[i].Name
+                                        </label>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                        <span asp-validation-for="SelectedTrainerIds" class="text-danger d-block mt-2"></span>
+                    }
+                    else
+                    {
+                        <p class="text-muted">لا يوجد مدربون متاحون حالياً. يرجى <a asp-controller="Trainers" asp-action="Create">إضافة مدربين</a> أولاً.</p>
+                    }
+                </fieldset>
+
+                @* قسم تفاصيل تنفيذ الدورة (CourseDetails) *@
+                <fieldset class="mb-4 p-3 border rounded">
+                    <legend class="w-auto px-2 h5">تفاصيل تنفيذ الدورة</legend>
+                    <div id="courseDetailsContainer">
+                        @if (Model.CourseDetailsEntries != null)
+                        {
+                            for (int i = 0; i < Model.CourseDetailsEntries.Count; i++)
+                            {
+                                @Html.Partial("_CourseDetailFormEntry", Model.CourseDetailsEntries[i],
+                                new ViewDataDictionary(ViewData) {
+                                                { "index", i },
+                                                { "ParentViewModel", Model },
+                                                { "ParentListSize", Model.CourseDetailsEntries }
+                                                })
+                                                }
+                                                }
+                    </div>
+                    <button type="button" id="addCourseDetailButton" class="btn btn-outline-success btn-sm mt-2">
+                        <i class="fas fa-plus"></i> إضافة تفاصيل تنفيذ أخرى
+                    </button>
+                    <span asp-validation-for="CourseDetailsEntries" class="text-danger d-block mt-2"></span>
+                </fieldset>
+
+                <hr />
+                <div class="d-flex justify-content-end">
+                    <a asp-action="Index" class="btn btn-outline-secondary me-2">
+                        <i class="fas fa-times"></i> إلغاء والعودة للقائمة
+                    </a>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> إنشاء الدورة وحفظ التفاصيل
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+        $(document).ready(function () {
+            // Function to re-evaluate visibility of remove buttons
+            function updateRemoveButtonsVisibility() {
+                var entries = $("#courseDetailsContainer .course-detail-entry");
+                if (entries.length <= 1) {
+                    entries.find(".remove-course-detail").addClass("d-none");
+                } else {
+                    entries.find(".remove-course-detail").removeClass("d-none");
+                }
+            }
+
+            // Function to re-index entries (optional, but good for consistency if needed)
+            // The model binder can handle gaps, but this can keep things clean.
+            function reindexCourseDetails() {
+                $("#courseDetailsContainer .course-detail-entry").each(function(newIndex, entryElement) {
+                    $(entryElement).attr('data-entry-index', newIndex);
+                    $(entryElement).find('h5:first').html(`تفصيل تنفيذ دورة #$ {newIndex + 1} <button type="button" class="btn btn-sm btn-outline-danger float-end remove-course-detail" title="إزالة هذا التفصيل"><i class="fas fa-trash-alt"></i> إزالة</button>`);
+
+                    $(entryElement).find('input, select, textarea').each(function() {
+                        var currentName = $(this).attr('name');
+                        if (currentName) {
+                            var newName = currentName.replace(/CourseDetailsEntries\[\d+\]/, `CourseDetailsEntries[${newIndex}]`);
+                            $(this).attr('name', newName);
+                        }
+                        var currentId = $(this).attr('id');
+                         if (currentId) {
+                            var newId = currentId.replace(/CourseDetailsEntries_\d+__/, `CourseDetailsEntries_${newIndex}__`)
+                                               .replace(/_[^_]+$/, `_${currentId.split('_').pop()}`); // keep original suffix
+                            $(this).attr('id', newId);
+                        }
+                    });
+                    // Update validation message targets
+                    $(entryElement).find('span[data-valmsg-for]').each(function() {
+                        var currentFor = $(this).data('valmsg-for');
+                        if (currentFor) {
+                           var newFor = currentFor.replace(/CourseDetailsEntries\[\d+\]/, `CourseDetailsEntries[${newIndex}]`);
+                           $(this).attr('data-valmsg-for', newFor);
+                        }
+                    });
+                });
+            }
+
+
+            $("#addCourseDetailButton").click(function () {
+                var currentIndex = $("#courseDetailsContainer .course-detail-entry").length;
+                var antiForgeryToken = "@GetAntiXsrfRequestToken()"; // Get token
+
+                $.ajax({
+                    url: '@Url.Action("GetCourseDetailEntryPartial", "Courses")',
+                    type: 'GET',
+                    data: { index: currentIndex },
+                    // headers: { // Include AntiForgeryToken if your GET action requires it (usually not for GET)
+                    //    "RequestVerificationToken": antiForgeryToken
+                    // },
+                    success: function (result) {
+                        $("#courseDetailsContainer").append(result);
+
+                        // Re-parse the form for client-side validation
+                        var form = $("#createCourseForm");
+                        form.removeData("validator");
+                        form.removeData("unobtrusiveValidation");
+                        $.validator.unobtrusive.parse(form);
+
+                        updateRemoveButtonsVisibility();
+                        // reindexCourseDetails(); // Call re-indexing if implemented
+                    },
+                    error: function (xhr, status, error) {
+                        console.error("Error adding course detail entry:", status, error, xhr.responseText);
+                        alert("حدث خطأ أثناء إضافة تفصيل الدورة. يرجى مراجعة الكونسول لمزيد من التفاصيل.");
+                    }
+                });
+            });
+
+            $("#courseDetailsContainer").on("click", ".remove-course-detail", function (e) {
+                e.preventDefault();
+                if ($("#courseDetailsContainer .course-detail-entry").length > 1) {
+                    $(this).closest(".course-detail-entry").remove();
+                    updateRemoveButtonsVisibility();
+                   // reindexCourseDetails(); // Call re-indexing if implemented
+                } else {
+                    // Optionally, you can prevent removal of the last item or just hide the button
+                    // alert("يجب أن يكون هناك تفصيل واحد على الأقل للدورة.");
+                    $(this).addClass("d-none"); // Hide if it's the last one (should be handled by updateRemoveButtonsVisibility)
+                }
+            });
+
+            // Initial check for remove button visibility
+            updateRemoveButtonsVisibility();
+
+            // Add at least one detail entry if none exist on page load (and model is empty)
+            if ('@Model.CourseDetailsEntries?.Count ?? 0' === '0') {
+                 $("#addCourseDetailButton").click(); // Simulate click to add the first entry
+            }
+        });
+    </script>
+}

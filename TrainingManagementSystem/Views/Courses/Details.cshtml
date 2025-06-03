@@ -1,0 +1,160 @@
+﻿@model CourseDetailsDisplayViewModel
+@{
+    ViewData["Title"] = $"تفاصيل الدورة المنفذة: {Model.CourseName}";
+    // افترض أن لديك رابط للعودة إلى صفحة تفاصيل الكورس الرئيسي
+    var parentCourseDetailsUrl = Url.Action("Details", "Courses", new { id = Model.ParentCourseId });
+}
+
+<div class="container mt-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a asp-controller="Courses" asp-action="Index">قائمة الدورات</a></li>
+            @if (parentCourseDetailsUrl != null)
+            {
+                <li class="breadcrumb-item"><a href="@parentCourseDetailsUrl">@Model.CourseName</a></li>
+            }
+            else
+            {
+                <li class="breadcrumb-item active" aria-current="page">@Model.CourseName</li>
+            }
+            <li class="breadcrumb-item active" aria-current="page">تفاصيل التنفيذ</li>
+        </ol>
+    </nav>
+
+    @* عرض رسائل النجاح أو الخطأ *@
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0">@ViewData["Title"]</h4>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <dl class="row">
+                        <dt class="col-sm-5">اسم الدورة الرئيسية:</dt>
+                        <dd class="col-sm-7">@Model.CourseName</dd>
+
+                        <dt class="col-sm-5">تاريخ البدء:</dt>
+                        <dd class="col-sm-7">@Model.StartDate.ToString("dd MMMM yyyy")</dd>
+
+                        <dt class="col-sm-5">تاريخ الانتهاء:</dt>
+                        <dd class="col-sm-7">@(Model.EndDate?.ToString("dd MMMM yyyy") ?? "غير محدد")</dd>
+
+                        <dt class="col-sm-5">المدة (ساعات):</dt>
+                        <dd class="col-sm-7">@Model.DurationHours ساعة</dd>
+                    </dl>
+                </div>
+                <div class="col-md-6">
+                    <dl class="row">
+                        <dt class="col-sm-5">الموقع:</dt>
+                        <dd class="col-sm-7">@Model.LocationName</dd>
+
+                        <dt class="col-sm-5">نوع الدورة:</dt>
+                        <dd class="col-sm-7">@Model.CourseTypeName</dd>
+
+                        <dt class="col-sm-5">الحالة:</dt>
+                        <dd class="col-sm-7"><span class="badge bg-info p-2">@Model.StatusName</span></dd>
+                    </dl>
+                </div>
+            </div>
+            <div class="mt-2">
+                <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-sm btn-outline-secondary">
+                    <i class="fas fa-edit"></i> تعديل بيانات هذا التنفيذ
+                </a>
+            </div>
+        </div>
+    </div>
+
+    @* قسم المتدربين المسجلين *@
+    <div class="card shadow-sm">
+        <div class="card-header bg-light d-flex justify-content-between align-items-center">
+            <h5 class="mb-0"><i class="fas fa-users me-2"></i>المتدربون المسجلون (@Model.EnrolledTrainees.Count)</h5>
+           
+            <a  asp-action="EnrollTrainee" asp-route-courseDetailsId="@Model.Id" class="btn btn-success btn-sm">
+                <i class="fas fa-user-plus me-1"></i> تسجيل متدرب جديد
+            </a>
+
+
+        </div>
+        <div class="card-body p-0">
+            @* p-0 لإزالة padding الجدول الافتراضي *@
+            @if (!Model.EnrolledTrainees.Any())
+            {
+                <div class="alert alert-info m-3 text-center">
+                    لا يوجد متدربون مسجلون في هذه الدورة بعد.
+                </div>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover table-striped mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>اسم المتدرب</th>
+                                <th>البريد الإلكتروني</th>
+                                <th class="text-center">الحضور (%)</th>
+                                <th class="text-center">الدرجة</th>
+                                <th>رقم الشهادة</th>
+                                <th>تاريخ الإصدار</th>
+                                <th>إجراءات</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var trainee in Model.EnrolledTrainees)
+                            {
+                                <tr>
+                                    <td>
+                                        <a asp-controller="Trainees" asp-action="Details" asp-route-id="@trainee.TraineeId" title="عرض تفاصيل المتدرب">
+                                            @trainee.TraineeName
+                                        </a>
+                                    </td>
+                                    <td>@trainee.TraineeEmail</td>
+                                    <td class="text-center">@(trainee.AttendancePercentage?.ToString("N1") ?? "-")</td>
+                                    <td class="text-center">@(trainee.Grade?.ToString("N1") ?? "-")</td>
+                                    <td>@(trainee.CertificateNumber ?? "-")</td>
+                                    <td>@(trainee.CertificateIssueDate?.ToString("dd-MM-yyyy") ?? "-")</td>
+                                    <td>
+                                        <div class="btn-group btn-group-sm" role="group">
+                                            <a asp-action="EditEnrollment" asp-route-courseTraineeId="@trainee.CourseTraineeId" class="btn btn-outline-primary" title="تعديل بيانات التسجيل">
+                                                <i class="fas fa-pen"></i>
+                                            </a>
+                                            @* زر الحذف يحتاج إلى فورم لتمرير AntiForgeryToken *@
+                                            <button type="button" class="btn btn-outline-danger" title="إلغاء تسجيل المتدرب"
+                                                    onclick="confirmRemoveEnrollment('@trainee.CourseTraineeId', '@trainee.TraineeName')">
+                                                <i class="fas fa-user-times"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@* فورم مخفي لحذف تسجيل المتدرب *@
+<form id="removeEnrollmentForm" asp-action="RemoveEnrollment" method="post" class="d-none">
+    @Html.AntiForgeryToken()
+    <input type="hidden" id="courseTraineeIdToRemove" name="courseTraineeId" />
+</form>
+
+@section Scripts {
+    <script>
+        function confirmRemoveEnrollment(courseTraineeId, traineeName) {
+            if (confirm(`هل أنت متأكد أنك تريد إلغاء تسجيل المتدرب "${traineeName}" من هذه الدورة؟`)) {
+                $("#courseTraineeIdToRemove").val(courseTraineeId);
+                $("#removeEnrollmentForm").submit();
+            }
+        }
+    </script>
+}
