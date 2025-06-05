@@ -1,12 +1,16 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using System;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
+using TrainingManagementSystem.Classes;
 using TrainingManagementSystem.Models.Entities;
 using TrainingManagementSystem.Models.Interfaces;
 
 namespace TrainingManagementSystem.Controllers
 {
+    [ViewLayout("_LayoutDashboard")]
+    [Authorize(Roles = "Admin,Prog")]
     public class LevelController : BaseController
     {
         private readonly IUnitOfWork<Level> _levelRepository;

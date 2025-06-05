@@ -105,21 +105,26 @@ namespace TrainingManagementSystem.Controllers
         {
             if (id == null) return NotFound();
 
-            var trainee = await _traineeUoW.Entity
+            var trainee = await _context.Trainees
+                .Include(t => t.Qualification)
+                .Include(t => t.Specialization)
                 .Include(t => t.Organizition)
                 .Include(t => t.Department)
-                .Include(t => t.Specialization)
-                .Include(t => t.Qualification)
-                .Include(t => t.ApplicationUser)
-                .Include(t => t.CourseTrainees) // لجلب الدورات المسجل بها
-                .AsNoTracking()
+                .Include(t => t.ApplicationUser) // إذا كنت تريد عرض معلومات الحساب
+                .Include(t => t.CourseTrainees)
+                    .ThenInclude(ct => ct.CourseDetails)
+                        .ThenInclude(cd => cd.Course) // الكورس الرئيسي
+                .Include(t => t.CourseTrainees)
+                    .ThenInclude(ct => ct.CourseDetails)
+                        .ThenInclude(cd => cd.Status) // حالة تفصيل الدورة
+                .Include(t => t.CourseTrainees)
+                    .ThenInclude(ct => ct.CourseDetails)
+                        .ThenInclude(cd => cd.Location) // موقع تفصيل الدورة
                 .FirstOrDefaultAsync(m => m.Id == id);
 
             if (trainee == null) return NotFound();
-
-            return View(trainee); // يفضل استخدام ViewModel هنا أيضًا لعرض البيانات بشكل أفضل
+            return View(trainee);
         }
-
 
         private async Task PopulateDropdownsForViewModel(TraineeVM viewModel, bool isCreate = false)
         {

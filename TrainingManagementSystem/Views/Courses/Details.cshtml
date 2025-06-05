@@ -1,206 +1,105 @@
-﻿@model CourseDetailsDisplayViewModel
+﻿@model Course
+
 @{
-    ViewData["Title"] = $"تفاصيل الدورة المنفذة: {Model.CourseName}";
-    var parentCourseDetailsUrl = Url.Action("Details", "Courses", new { id = Model.ParentCourseId });
+    ViewData["Title"] = $"تفاصيل الدورة: {Model.Name}";
 }
 
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">@Model.Name (@Model.Code)</h4>
+                </div>
+                <div class="card-body">
+                    <dl class="row">
+                        <dt class="col-sm-3">الوصف:</dt>
+                        <dd class="col-sm-9">@Html.DisplayFor(model => model.Description)</dd>
 
-<div class="card shadow-sm mb-4 bg-light border-primary">
-    <div class="card-header bg-primary text-white">
-        <h5 class="mb-0"><i class="fas fa-book-reader me-2"></i>معلومات الدورة الرئيسية</h5>
-    </div>
-    <div class="card-body">
-        <div class="row">
-            <div class="col-md-8">
-                <h4>@Model.CourseName <small class="text-muted">(@Model.Course.Name)</small></h4>
-                @if (!string.IsNullOrEmpty(Model.Course.Description))
-                {
-                    <p class="text-muted"><em>@Model.Course.Description</em></p>
-                }
-            </div>
-            <div class="col-md-4 text-md-end">
-                <p class="mb-1"><strong>التصنيف:</strong> @Model.Course.CourseClassification.Name</p>
-                <p class="mb-0"><strong>المستوى:</strong> @Model.Course.Level.Name</p>
-            </div>
+                        <dt class="col-sm-3">@Html.DisplayNameFor(model => model.CourseClassification):</dt>
+                        <dd class="col-sm-9">@Html.DisplayFor(model => model.CourseClassification.Name)</dd>
 
-            @* ... (في مكان مناسب، مثلاً بجانب زر تعديل بيانات التنفيذ) ... *@
-            <a asp-action="CourseDetailsPdfView" asp-route-id="@Model.Course.Id" class="btn btn-info btn-sm" target="_blank">
-                <i class="fas fa-print me-1"></i> طباعة تقرير (PDF)
-            </a>
+                        <dt class="col-sm-3">@Html.DisplayNameFor(model => model.Level):</dt>
+                        <dd class="col-sm-9">@Html.DisplayFor(model => model.Level.Name)</dd>
+
+                        <dt class="col-sm-3">@Html.DisplayNameFor(model => model.CourseParent):</dt>
+                        <dd class="col-sm-9">@(Model.CourseParent != null ? Html.DisplayFor(model => model.CourseParent.Name) : "لا يوجد")</dd>
+
+                        <dt class="col-sm-3">@Html.DisplayNameFor(model => model.Created):</dt>
+                        <dd class="col-sm-9">@Model.Created.ToString("yyyy/MM/dd")</dd>
+
+                        @if (Model.Modified.HasValue)
+                        {
+                            <dt class="col-sm-3">@Html.DisplayNameFor(model => model.Modified):</dt>
+                            <dd class="col-sm-9">@Model.Modified.Value.ToString("yyyy/MM/dd")</dd>
+                        }
+                    </dl>
+                </div>
+                <div class="card-footer text-end">
+                    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">تعديل الدورة الرئيسية</a>
+                    <a asp-action="Index" class="btn btn-outline-secondary">العودة إلى القائمة</a>
+                </div>
+            </div>
         </div>
-
-
     </div>
-</div>
-<div class="container mt-4 mb-5">
-    @* إضافة mb-5 لترك مسافة سفلية *@
-    <nav aria-label="breadcrumb" class="mb-4">
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a asp-controller="Courses" asp-action="Index">قائمة الدورات</a></li>
-            @if (parentCourseDetailsUrl != null)
-            {
-                <li class="breadcrumb-item"><a href="@parentCourseDetailsUrl">@Model.CourseName</a></li>
-            }
-            else
-            {
-                <li class="breadcrumb-item active" aria-current="page">@Model.CourseName</li>
-            }
-            <li class="breadcrumb-item active" aria-current="page">تفاصيل التنفيذ</li>
-        </ol>
-    </nav>
 
-    @* عرض رسائل النجاح أو الخطأ *@
-    @if (TempData["SuccessMessage"] != null)
+
+    @if (Model.CourseDetails != null && Model.CourseDetails.Any())
     {
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
-            @TempData["SuccessMessage"]
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+
+        <h5 class="mt-4 mb-3">جلسات/تفاصيل الدورة</h5>
+                    <a asp-controller="CourseDetails" asp-route-id="@Model.Id"  asp-action="Create" class="btn btn-outline-secondary">انشاء دورة تدريبية</a>
+
+        <div class="row">
+            @foreach (var detail in Model.CourseDetails)
+            {
+                <div class="col-md-6 col-lg-4 mb-4">
+                    <div class="card h-100 shadow-sm">
+                        <div class="card-header">
+                            تاريخ البدء: <strong>@detail.StartDate.ToString("yyyy/MM/dd")</strong>
+                        </div>
+                        <div class="card-body">
+                            <ul class="list-unstyled">
+                                <li><strong>المدة:</strong> @detail.DurationHours ساعة</li>
+                                <li><strong>الحالة:</strong> <span class="badge bg-@(detail.Status?.Name == "مكتملة" ? "success" : (detail.Status?.Name == "قادمة" ? "info" : "secondary"))">@(detail.Status?.Name ?? "غير محددة")</span></li>
+                                <li><strong>المكان:</strong> @(string.IsNullOrWhiteSpace(detail.Location.Name) ? "غير محدد" : detail.Location.Name)</li>
+                                <li><strong>العدد المسجل:</strong> @(detail.CourseTrainees?.Count() ?? 0)</li>
+                            </ul>
+                        </div>
+                        <div class="card-footer text-center">
+                            <a asp-action="Details" asp-controller="CourseDetails" asp-route-id="@detail.Id" class="btn btn-sm btn-outline-primary w-100">
+                                تفاصيل الدورة
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            }
         </div>
     }
+    else
+    {
+        <div class="alert alert-info mt-4">لا توجد تفاصيل إضافية (دورات) لهذه الدورة حالياً.</div>
+    }
 
-    <div class="card shadow-sm mb-4">
-        <div class="card-header bg-light d-flex justify-content-between align-items-center py-3">
-            <h4 class="mb-0 text-primary"><i class="fas fa-info-circle me-2"></i>@ViewData["Title"]</h4>
-            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-outline-primary btn-sm">
-                <i class="fas fa-edit me-1"></i> تعديل بيانات التنفيذ
-            </a>
-        </div>
-        <div class="card-body">
-            <div class="row g-3">
-                @* إضافة g-3 لـ gutters بين الأعمدة *@
-                <div class="col-lg-6">
-                    <h5 class="text-muted mb-3"><i class="fas fa-calendar-alt me-2"></i>الجدول الزمني</h5>
-                    <dl class="row mb-0">
-                        <dt class="col-sm-4 col-md-3"><i class="fas fa-book-open fa-fw me-1 text-secondary"></i>الدورة الرئيسية:</dt>
-                        <dd class="col-sm-8 col-md-9">@Model.CourseName</dd>
-
-                        <dt class="col-sm-4 col-md-3"><i class="fas fa-play-circle fa-fw me-1 text-secondary"></i>تاريخ البدء:</dt>
-                        <dd class="col-sm-8 col-md-9">@Model.StartDate.ToString("dd MMMM yyyy")</dd>
-
-                        <dt class="col-sm-4 col-md-3"><i class="fas fa-stop-circle fa-fw me-1 text-secondary"></i>تاريخ الانتهاء:</dt>
-                        <dd class="col-sm-8 col-md-9">@(Model.EndDate?.ToString("dd MMMM yyyy") ?? "غير محدد")</dd>
-
-                        <dt class="col-sm-4 col-md-3"><i class="fas fa-clock fa-fw me-1 text-secondary"></i>المدة:</dt>
-                        <dd class="col-sm-8 col-md-9">@Model.DurationHours ساعة</dd>
-                    </dl>
-                </div>
-                <div class="col-lg-6">
-                    <h5 class="text-muted mb-3"><i class="fas fa-cog me-2"></i>معلومات إضافية</h5>
-                    <dl class="row mb-0">
-                        <dt class="col-sm-4 col-md-3"><i class="fas fa-map-marker-alt fa-fw me-1 text-secondary"></i>الموقع:</dt>
-                        <dd class="col-sm-8 col-md-9">@Model.LocationName</dd>
-
-                        <dt class="col-sm-4 col-md-3"><i class="fas fa-chalkboard fa-fw me-1 text-secondary"></i>نوع الدورة:</dt>
-                        <dd class="col-sm-8 col-md-9">@Model.CourseTypeName</dd>
-
-                        <dt class="col-sm-4 col-md-3"><i class="fas fa-check-circle fa-fw me-1 text-secondary"></i>الحالة:</dt>
-                        <dd class="col-sm-8 col-md-9">
-                            @{
-                                string statusBadgeClass = "bg-secondary"; // Default
-                                if (Model.StatusName?.ToLower().Contains("مكتملة") == true) { statusBadgeClass = "bg-success"; }
-                                else if (Model.StatusName?.ToLower().Contains("جارية") == true) { statusBadgeClass = "bg-primary"; }
-                                else if (Model.StatusName?.ToLower().Contains("مجدولة") == true) { statusBadgeClass = "bg-info"; }
-                                else if (Model.StatusName?.ToLower().Contains("ملغاة") == true) { statusBadgeClass = "bg-danger"; }
-                            }
-                            <span class="badge @statusBadgeClass p-2 fs-6">@Model.StatusName</span>
-                        </dd>
-                    </dl>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    @* قسم المتدربين المسجلين *@
-    <div class="card shadow-sm">
-        <div class="card-header bg-light d-flex justify-content-between align-items-center py-3">
-            <h5 class="mb-0 text-success"><i class="fas fa-users me-2"></i>المتدربون المسجلون (@Model.EnrolledTrainees.Count)</h5>
-            <a asp-action="EnrollTrainee" asp-route-courseDetailsId="@Model.Id" class="btn btn-success btn-sm">
-                <i class="fas fa-user-plus me-1"></i> تسجيل متدرب
-            </a>
-        </div>
-        <div class="card-body p-0">
-            @if (!Model.EnrolledTrainees.Any())
+    @if (Model.CourseTrainers != null && Model.CourseTrainers.Any())
+    {
+        <h5 class="mt-5 mb-3">المدربين</h5>
+        <div class="list-group shadow-sm">
+            @foreach (var ct in Model.CourseTrainers)
             {
-                <div class="alert alert-light m-3 text-center border">
-                    @* تغيير لـ alert-light مع border *@
-                    <i class="fas fa-info-circle fa-2x text-primary mb-2"></i>
-                    <p class="mb-0">لا يوجد متدربون مسجلون في هذه الدورة بعد.</p>
-                </div>
-            }
-            else
-            {
-                <div class="table-responsive">
-                    <table class="table table-hover table-striped mb-0 align-middle">
-                        @* إضافة align-middle لمحاذاة رأسية أفضل *@
-                        <thead class="table-light">
-                            <tr>
-                                <th><i class="fas fa-user me-1 text-muted"></i>اسم المتدرب</th>
-                                <th><i class="fas fa-envelope me-1 text-muted"></i>البريد الإلكتروني</th>
-                                <th class="text-center"><i class="fas fa-clipboard-check me-1 text-muted"></i>الحضور (%)</th>
-                                <th class="text-center"><i class="fas fa-star me-1 text-muted"></i>الدرجة</th>
-                                <th><i class="fas fa-id-card me-1 text-muted"></i>رقم الشهادة</th>
-                                <th><i class="fas fa-calendar-check me-1 text-muted"></i>تاريخ الإصدار</th>
-                                <th class="text-center">إجراءات</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach (var trainee in Model.EnrolledTrainees)
-                            {
-                                <tr>
-                                    <td>
-                                        <a asp-controller="Trainees" asp-action="Details" asp-route-id="@trainee.TraineeId" title="عرض تفاصيل المتدرب" class="fw-bold">
-                                            @trainee.TraineeName
-                                        </a>
-                                    </td>
-                                    <td>@trainee.TraineeEmail</td>
-                                    <td class="text-center">@(trainee.AttendancePercentage?.ToString("N1") ?? "-")</td>
-                                    <td class="text-center">@(trainee.Grade?.ToString("N1") ?? "-")</td>
-                                    <td>@(trainee.CertificateNumber ?? "-")</td>
-                                    <td>@(trainee.CertificateIssueDate?.ToString("dd-MM-yyyy") ?? "-")</td>
-                                    <td class="text-center">
-                                        <div class="btn-group btn-group-sm" role="group">
-                                            <a asp-action="EditEnrollment" asp-route-courseTraineeId="@trainee.CourseTraineeId" class="btn btn-outline-primary" title="تعديل بيانات التسجيل والشهادة">
-                                                <i class=""></i> <span class="d-none d-md-inline">تعديل/إصدار</span>
-                                            </a>
-                                            <a asp-action="PrintCertificate" asp-route-id="@trainee.CourseTraineeId" class="btn btn-outline-info" title="طباعة شهادة" target="_blank">
-                                                <i class=""></i> <span class="d-none d-md-inline">طباعة</span>
-                                            </a>
-                                            <button type="button" class="btn btn-outline-danger" title="إلغاء تسجيل المتدرب"
-                                                    onclick="confirmRemoveEnrollment('@trainee.CourseTraineeId', '@trainee.TraineeName')">
-                                                <i class="fas fa-user-times"></i> <span class="d-none d-md-inline">إلغاء تسجيل</span>
-                                            </button>
-                                        </div>
-                                    </td>
-                                </tr>
-                            }
-                        </tbody>
-                    </table>
+                <div class="list-group-item">
+                    <i class="fas fa-chalkboard-teacher me-2"></i> @(ct.Trainer?.ArName ?? "مدرب غير محدد")
+                    @* You can add more trainer details here if needed, e.g., ct.Trainer.Specialization *@
                 </div>
             }
         </div>
-        @if (Model.EnrolledTrainees.Any())
-        {
-            <div class="card-footer bg-light text-muted small">
-                إجمالي المتدربين: @Model.EnrolledTrainees.Count
-            </div>
-        }
-    </div>
+    }
+    else
+    {
+        <div class="alert alert-info mt-4">لم يتم تحديد مدربين لهذه الدورة بعد.</div>
+    }
 </div>
 
-@* فورم مخفي لحذف تسجيل المتدرب *@
-<form id="removeEnrollmentForm" asp-action="RemoveEnrollment" method="post" class="d-none">
-    @Html.AntiForgeryToken()
-    <input type="hidden" id="courseTraineeIdToRemove" name="courseTraineeId" />
-</form>
-
-@section Scripts {
-    <script>
-        function confirmRemoveEnrollment(courseTraineeId, traineeName) {
-            // استخدام مكتبة تأكيد أجمل إذا كانت متوفرة، مثل SweetAlert
-            if (confirm(`هل أنت متأكد أنك تريد إلغاء تسجيل المتدرب "${traineeName}" من هذه الدورة؟ هذا الإجراء لا يمكن التراجع عنه.`)) {
-                $("#courseTraineeIdToRemove").val(courseTraineeId);
-                $("#removeEnrollmentForm").submit();
-            }
-        }
-    </script>
-}
+<div class="mt-4 mb-5 text-center">
+    <a asp-action="Index" class="btn btn-secondary"><i class="fas fa-arrow-left me-2"></i> العودة إلى قائمة الدورات</a>
+</div>

@@ -1,0 +1,35 @@
+﻿@model TrainingManagementSystem.Models.Entities.Course
+
+@{
+    ViewData["Title"] = "حذف الدورة";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+<h3>هل أنت متأكد أنك تريد حذف هذه الدورة؟</h3>
+<div>
+    <h4>@Model.Name</h4>
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-3">@Html.DisplayNameFor(model => model.Name)</dt>
+        <dd class="col-sm-9">@Html.DisplayFor(model => model.Name)</dd>
+
+        <dt class="col-sm-3">@Html.DisplayNameFor(model => model.Code)</dt>
+        <dd class="col-sm-9">@Html.DisplayFor(model => model.Code)</dd>
+
+        <dt class="col-sm-3">@Html.DisplayNameFor(model => model.CourseClassification)</dt>
+        <dd class="col-sm-9">@Html.DisplayFor(model => model.CourseClassification.Name)</dd>
+
+        <dt class="col-sm-3">@Html.DisplayNameFor(model => model.Level)</dt>
+        <dd class="col-sm-9">@Html.DisplayFor(model => model.Level.Name)</dd>
+
+        <dt class="col-sm-3">@Html.DisplayNameFor(model => model.CourseParent)</dt>
+        <dd class="col-sm-9">@(Model.CourseParent != null ? Html.DisplayFor(model => model.CourseParent.Name) : "لا يوجد")</dd>
+    </dl>
+
+    <form asp-action="Delete">
+        <input type="hidden" asp-for="Id" />
+        <input type="submit" value="حذف" class="btn btn-danger" /> |
+        <a asp-action="Index" class="btn btn-secondary">العودة إلى القائمة</a>
+    </form>
+</div>

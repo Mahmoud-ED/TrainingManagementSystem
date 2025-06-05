@@ -1,0 +1,129 @@
+﻿@model TrainingManagementSystem.Models.Entities.Course
+
+@{
+    ViewData["Title"] = "تعديل الدورة";
+}
+
+@section Styles {
+    <style>
+        .form-control, .form-select {
+            /* You can add custom styling for form controls if needed */
+        }
+
+        .page-header h1 i {
+            margin-right: 10px; /* Or margin-left for LTR */
+            color: #007bff; /* Primary color for icon */
+        }
+
+        .card-header h5 i {
+            margin-right: 8px;
+        }
+
+        .btn i {
+            margin-right: 5px; /* Space for icon in button (RTL) */
+        }
+        /* Ensure labels are a bit more prominent */
+        .form-label {
+            font-weight: 500;
+        }
+    </style>
+}
+
+<div class="container mt-4 mb-5">
+    <div class="page-header mb-4">
+        <div class="d-flex justify-content-between align-items-center">
+            <h1 class="mb-0"><i class="icofont-edit"></i> @ViewData["Title"]</h1>
+        </div>
+        <hr />
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-8 col-md-10">
+            <div class="card shadow-sm">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0"><i class="icofont-notebook"></i> تفاصيل الدورة: @Model.Name</h5>
+                </div>
+                <div class="card-body p-4">
+                    <form asp-action="Edit">
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger alert-dismissible fade show" role="alert">
+                            <strong>الرجاء تصحيح الأخطاء التالية:</strong>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                        <input type="hidden" asp-for="Id" />
+                        <input type="hidden" asp-for="Created" />
+
+                        <div class="row g-3">
+                            <div class="col-md-12">
+                                <label asp-for="Name" class="form-label"></label>
+                                <input asp-for="Name" class="form-control" placeholder="مثال: مقدمة في البرمجة" />
+                                <span asp-validation-for="Name" class="text-danger d-block mt-1"></span>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label asp-for="Code" class="form-label"></label>
+                                <input asp-for="Code" class="form-control" placeholder="مثال: PROG101" />
+                                <span asp-validation-for="Code" class="text-danger d-block mt-1"></span>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label asp-for="CourseClassificationId" class="form-label"></label>
+                                <select asp-for="CourseClassificationId" class="form-select" asp-items="ViewBag.CourseClassificationId">
+                                    <option value="">-- اختر تصنيف --</option>
+                                </select>
+                                <span asp-validation-for="CourseClassificationId" class="text-danger d-block mt-1"></span>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label asp-for="LevelId" class="form-label"></label>
+                                <select asp-for="LevelId" class="form-select" asp-items="ViewBag.LevelId">
+                                    <option value="">-- اختر مستوى --</option>
+                                </select>
+                                <span asp-validation-for="LevelId" class="text-danger d-block mt-1"></span>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label asp-for="CourseParentId" class="form-label"></label>
+                                <select asp-for="CourseParentId" class="form-select" asp-items="ViewBag.CourseParentId">
+                                    <option value="">-- لا يوجد مرجع (اختياري) --</option>
+                                </select>
+                                <span asp-validation-for="CourseParentId" class="text-danger d-block mt-1"></span>
+                            </div>
+
+                            <div class="col-md-12">
+                                <label asp-for="Description" class="form-label"></label>
+                                <textarea asp-for="Description" class="form-control" rows="4" placeholder="ادخل وصفاً موجزاً للدورة..."></textarea>
+                                <span asp-validation-for="Description" class="text-danger d-block mt-1"></span>
+                            </div>
+                        </div>
+
+                        <div class="mt-4 pt-3 border-top">
+                            <div class="d-flex justify-content-end gap-2">
+                                <a asp-action="Index" class="btn btn-outline-secondary">
+                                    <i class="icofont-arrow-left"></i> العودة إلى القائمة
+                                </a>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="icofont-save"></i> حفظ التعديلات
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script>
+        // Optional: Initialize Select2 if you use it
+        // $(document).ready(function() {
+        //     $('.form-select').select2({
+        //         theme: "bootstrap-5",
+        //         dir: "rtl"
+        //     });
+        // });
+    </script>
+}

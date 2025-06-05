@@ -1,4 +1,4 @@
-﻿@model TrainingManagementSystem.Models.Entities.Trainee // أو TraineeVM إذا جهزته للتفاصيل
+﻿@model Trainee // أو TraineeVM إذا جهزته للتفاصيل
 
 @{
     ViewData["Title"] = "تفاصيل المتدرب";
@@ -7,9 +7,9 @@
 
 @section Styles {
     <style>
-        .profile-image-lg {
-            width: 150px;
-            height: 150px;
+        .profile-image-md { /* تعديل الحجم ليتناسب مع التصميم الأفقي */
+            width: 120px;
+            height: 120px;
             border-radius: 50%;
             object-fit: cover;
             border: 3px solid #eee;
@@ -17,25 +17,61 @@
         }
 
         .detail-label {
-            font-weight: bold;
-            color: #555;
+            font-weight: 600; /* زيادة طفيفة في الوزن */
+            color: #495057; /* لون أغمق قليلاً */
+            margin-bottom: 0.3rem;
+            font-size: 0.9rem;
         }
 
         .detail-value {
-            color: #333;
+            color: #212529;
+            font-size: 0.95rem;
+            margin-bottom: 0.8rem; /* مسافة بين كل معلومة */
         }
 
-        .course-list-item {
-            background-color: #f9f9f9;
-            border: 1px solid #eee;
-            padding: 10px;
-            border-radius: 5px;
-            margin-bottom: 8px;
+        .info-section .row > div {
+            padding-bottom: 0.5rem; /* مسافة بين الصفوف الداخلية للمعلومات */
         }
+
+        .courses-section {
+            background-color: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 8px;
+            border: 1px solid #e9ecef;
+            min-height: 400px; /* ارتفاع مبدئي لقسم الدورات */
+        }
+
+        .course-card-item {
+            background-color: #fff;
+            border: 1px solid #dee2e6;
+            border-radius: 0.375rem; /* Bootstrap's default border-radius */
+            margin-bottom: 1rem;
+            padding: 1rem;
+            transition: box-shadow .15s ease-in-out;
+        }
+
+            .course-card-item:hover {
+                box-shadow: 0 .5rem 1rem rgba(0,0,0,.075);
+            }
+
+            .course-card-item h6 {
+                margin-bottom: 0.25rem;
+                font-weight: 600;
+            }
+
+            .course-card-item p {
+                font-size: 0.85rem;
+                color: #6c757d;
+                margin-bottom: 0.3rem;
+            }
+
+            .course-card-item .badge {
+                font-size: 0.75rem;
+            }
     </style>
 }
 
-<!-- Breadcrumbs -->
+<!-- Breadcrumbs (كما هي) -->
 <div class="breadcrumbs overlay">
     <div class="container">
         <div class="bread-inner">
@@ -55,114 +91,201 @@
     </div>
 </div>
 
-<section class="appointment single-page section">
+<section class="section py-5">
+    @* تعديل الـ padding للـ section *@
     <div class="container">
-        <div class="row">
-            <div class="col-lg-10 col-md-12 col-12 mx-auto">
-                <div class="appointment-inner p-4">
-                    <div class="title text-center mb-4">
-                        <img src="@profileImageUrl" alt="صورة المتدرب @Model.ArName" class="profile-image-lg d-block mx-auto"
-                             onerror="this.onerror=null; this.src='@Url.Content("~/img/OIP.jpeg")';" />
-                        <h3><i class="icofont-user-alt-4"></i> @Model.ArName</h3>
-                        @if (!string.IsNullOrEmpty(Model.EnName))
-                        {
-                            <p class="text-muted">@Model.EnName</p>
-                        }
-                    </div>
-                    <hr>
-
-                    <dl class="row mt-4">
-                        <dt class="col-sm-3 detail-label">رقم الهاتف:</dt>
-                        <dd class="col-sm-9 detail-value">@Model.PhoneNo</dd>
-
-                        <dt class="col-sm-3 detail-label">البريد الإلكتروني:</dt>
-                        <dd class="col-sm-9 detail-value">@Model.Email</dd>
-
-                        @if (!string.IsNullOrEmpty(Model.NationalNo))
-                        {
-                            <dt class="col-sm-3 detail-label">الرقم الوطني:</dt>
-                            <dd class="col-sm-9 detail-value">@Model.NationalNo</dd>
-                        }
-
-                        @if (!string.IsNullOrEmpty(Model.Address))
-                        {
-                            <dt class="col-sm-3 detail-label">العنوان:</dt>
-                            <dd class="col-sm-9 detail-value">@Model.Address</dd>
-                        }
-                        <hr class="my-3">
-                        <dt class="col-sm-3 detail-label">المؤهل العلمي:</dt>
-                        <dd class="col-sm-9 detail-value">@(Model.Qualification?.Name ?? "غير محدد")</dd>
-
-                        <dt class="col-sm-3 detail-label">التخصص:</dt>
-                        <dd class="col-sm-9 detail-value">@(Model.Specialization?.Name ?? "غير محدد")</dd>
-
-                        @if (Model.Organizition != null)
-                        {
-                            <dt class="col-sm-3 detail-label">المؤسسة:</dt>
-                            <dd class="col-sm-9 detail-value">@Model.Organizition.Name</dd>
-                        }
-
-                        @if (Model.Department != null)
-                        {
-                            <dt class="col-sm-3 detail-label">القسم:</dt>
-                            <dd class="col-sm-9 detail-value">@Model.Department.Name</dd>
-                        }
-                        @if (Model.ApplicationUser != null)
-                        {
-                            <hr class="my-3">
-                            <dt class="col-sm-3 detail-label">اسم المستخدم (الحساب):</dt>
-                            <dd class="col-sm-9 detail-value">@Model.ApplicationUser.UserName</dd>
-                            <dt class="col-sm-3 detail-label">بريد المستخدم (الحساب):</dt>
-                            <dd class="col-sm-9 detail-value">@Model.ApplicationUser.Email</dd>
-                        }
-                        <hr class="my-3">
-                        <dt class="col-sm-3 detail-label">تاريخ الإنشاء:</dt>
-                        <dd class="col-sm-9 detail-value">@Model.Created.ToLocalTime().ToString("dd/MM/yyyy hh:mm tt")</dd>
-
-                        @if (Model.Modified.HasValue)
-                        {
-                            <dt class="col-sm-3 detail-label">آخر تعديل:</dt>
-                            <dd class="col-sm-9 detail-value">@Model.Modified.Value.ToLocalTime().ToString("dd/MM/yyyy hh:mm tt")</dd>
-                        }
-                    </dl>
-
-                    @if (Model.CourseTrainees != null && Model.CourseTrainees.Any())
+        <div class="card shadow-sm">
+            <div class="card-header bg-light py-3">
+                <h4 class="mb-0">
+                    <i class="icofont-user-alt-4 me-2"></i>@Model.ArName
+                    @if (!string.IsNullOrEmpty(Model.EnName))
                     {
-                        <h5 class="mt-4 mb-3">الدورات المسجل بها</h5>
-                        <div class="list-group">
-                            @foreach (var courseReg in Model.CourseTrainees)
+                        <small class="text-muted">/ @Model.EnName</small>
+                    }
+                </h4>
+            </div>
+            <div class="card-body p-4">
+                <div class="row">
+                    <!-- عمود المعلومات الشخصية -->
+                    <div class="col-lg-5 col-md-6 mb-4 mb-md-0 info-section">
+                        <div class="text-center mb-4">
+                            <img src="@profileImageUrl" alt="صورة المتدرب @Model.ArName" class="profile-image-md"
+                                 onerror="this.onerror=null; this.src='@Url.Content("~/img/OIP.jpeg")';" />
+                        </div>
+
+                        <h5 class="mb-3 border-bottom pb-2">المعلومات الأساسية</h5>
+                        <div class="row">
+                            <div class="col-sm-5 detail-label">رقم الهاتف:</div>
+                            <div class="col-sm-7 detail-value">@Model.PhoneNo</div>
+
+                            <div class="col-sm-5 detail-label">البريد الإلكتروني:</div>
+                            <div class="col-sm-7 detail-value">@Model.Email</div>
+
+                            @if (!string.IsNullOrEmpty(Model.NationalNo))
                             {
-                                if (courseReg.CourseDetails != null)
-                                {
-                                    <div class="list-group-item course-list-item">
-                                        <a asp-controller="Course" asp-action="Details" asp-route-id="@courseReg.CourseDetails.CourseId" class="text-decoration-none">
-                                            <strong>@courseReg.CourseDetails.Course.Name</strong>
-                                        </a>
-                                        <span class="badge bg-secondary float-end">تاريخ التسجيل: @courseReg.Created.ToShortDateString()</span>
-                                        @* يمكنك عرض تفاصيل أخرى من CourseTrainee مثل الحالة أو الدرجة *@
-                                    </div>
-                                }
+                                <div class="col-sm-5 detail-label">الرقم الوطني:</div>
+                                <div class="col-sm-7 detail-value">@Model.NationalNo</div>
+                            }
+                            @if (!string.IsNullOrEmpty(Model.Address))
+                            {
+                                <div class="col-sm-5 detail-label">العنوان:</div>
+                                <div class="col-sm-7 detail-value">@Model.Address</div>
                             }
                         </div>
-                    }
-                    else
-                    {
-                        <p class="text-muted mt-3">المتدرب غير مسجل في أي دورات حاليًا.</p>
-                    }
 
+                        <h5 class="mt-4 mb-3 border-bottom pb-2">المؤهلات والمؤسسة</h5>
+                        <div class="row">
+                            <div class="col-sm-5 detail-label">المؤهل العلمي:</div>
+                            <div class="col-sm-7 detail-value">@(Model.Qualification?.Name ?? "غير محدد")</div>
 
-                    <div class="row mt-5">
-                        <div class="col-12 text-center">
-                            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary btn-lg" style="background-color: #1DC792; border-color: #1DC792;">
-                                <i class="icofont-edit"></i> تعديل بيانات المتدرب
-                            </a>
-                            <a asp-action="Index" class="btn btn-outline-secondary btn-lg ms-2">
-                                <i class="icofont-arrow-left"></i> العودة إلى القائمة
-                            </a>
+                            <div class="col-sm-5 detail-label">التخصص:</div>
+                            <div class="col-sm-7 detail-value">@(Model.Specialization?.Name ?? "غير محدد")</div>
+
+                            @if (Model.Organizition != null)
+                            {
+                                <div class="col-sm-5 detail-label">المؤسسة:</div>
+                                <div class="col-sm-7 detail-value">@Model.Organizition.Name</div>
+                            }
+                            @if (Model.Department != null)
+                            {
+                                <div class="col-sm-5 detail-label">القسم:</div>
+                                <div class="col-sm-7 detail-value">@Model.Department.Name</div>
+                            }
                         </div>
+
+                        @if (Model.ApplicationUser != null)
+                        {
+                            <h5 class="mt-4 mb-3 border-bottom pb-2">معلومات الحساب</h5>
+                            <div class="row">
+                                <div class="col-sm-5 detail-label">اسم المستخدم:</div>
+                                <div class="col-sm-7 detail-value">@Model.ApplicationUser.UserName</div>
+                                <div class="col-sm-5 detail-label">بريد الحساب:</div>
+                                <div class="col-sm-7 detail-value">@Model.ApplicationUser.Email</div>
+                            </div>
+                        }
+
+                        <h5 class="mt-4 mb-3 border-bottom pb-2">سجل النظام</h5>
+                        <div class="row">
+                            <div class="col-sm-5 detail-label">تاريخ الإنشاء:</div>
+                            <div class="col-sm-7 detail-value">@Model.Created.ToLocalTime().ToString("dd/MM/yyyy hh:mm tt")</div>
+
+                            @if (Model.Modified.HasValue)
+                            {
+                                <div class="col-sm-5 detail-label">آخر تعديل:</div>
+                                <div class="col-sm-7 detail-value">@Model.Modified.Value.ToLocalTime().ToString("dd/MM/yyyy hh:mm tt")</div>
+                            }
+                        </div>
+                    </div>
+
+                    <!-- عمود الدورات المسجل بها -->
+                    <div class="col-lg-7 col-md-6 courses-section">
+                        <h5 class="mb-3"><i class="icofont-learn me-2"></i>الدورات المسجل بها المتدرب</h5>
+                        @if (Model.CourseTrainees != null && Model.CourseTrainees.Any())
+                        {
+                            <div>
+                                @* استخدام div بدلاً من list-group لتصميم مرن أكثر *@
+                                @foreach (var courseReg in Model.CourseTrainees.OrderByDescending(ct => ct.Created)) // ترتيب حسب الأحدث
+                                {
+                                    if (courseReg.CourseDetails?.Course != null) // التأكد من وجود تفاصيل الدورة والكورس الرئيسي
+                                    {
+                                        <div class="course-card-item">
+                                            <h6>
+                                                <a asp-controller="Courses" asp-action="Details" asp-route-id="@courseReg.CourseDetails.CourseId" class="text-decoration-none text-primary">
+                                                    <i class="icofont-certificate-alt-1 me-1"></i> @courseReg.CourseDetails.Course.Name
+                                                </a>
+                                            </h6>
+                                            <p>
+                                                <i class="icofont-calendar me-1"></i> تاريخ البدء: @courseReg.CourseDetails.StartDate.ToString("dd/MM/yyyy")
+                                                @if (courseReg.CourseDetails.EndDate.HasValue)
+                                                {
+                                                    <span>   تاريخ الانتهاء :  @courseReg.CourseDetails.EndDate</span>
+                                                                     
+                                                }
+                                            </p>
+                                            <p>
+                                                <i class="icofont-clock-time me-1"></i> المدة: @courseReg.CourseDetails.DurationHours ساعة
+                                                <span class="mx-1">|</span> <i class="icofont-location-pin me-1"></i> الموقع: @(courseReg.CourseDetails.Location?.Name ?? "غير محدد")
+                                            </p>
+                                            <p>
+                                                <i class="icofont-info-square me-1"></i> الحالة:
+                                                <span class="badge bg-@(GetStatusBadgeClass(courseReg.CourseDetails.Status?.Name))">
+                                                    @(courseReg.CourseDetails.Status?.Name ?? "غير محدد")
+                                                </span>
+                                                <span class="ms-2"><i class="icofont-ui-user me-1"></i> تسجيل في: @courseReg.Created.ToLocalTime().ToString("dd/MM/yyyy")</span>
+                                            </p>
+                                            @if (courseReg.Grade.HasValue || !string.IsNullOrEmpty(courseReg.CertificateNumber))
+                                            {
+                                                <hr class="my-2">
+                                                <p>
+                                                    @if (courseReg.Grade.HasValue)
+                                                    {
+                                                        <span><i class="icofont-star me-1"></i> الدرجة: @courseReg.Grade</span>
+                                                    }
+                                                    @if (!string.IsNullOrEmpty(courseReg.CertificateNumber))
+                                                    {
+                                                        <span class="ms-3"><i class="icofont-id me-1"></i> رقم الشهادة: @courseReg.CertificateNumber</span>
+                                                    }
+                                                </p>
+                                            }
+                                            <div class="mt-2 text-end">
+                                                <a asp-controller="CourseDetails" asp-action="EditEnrollment" asp-route-courseTraineeId="@courseReg.Id" class="btn btn-sm btn-outline-success">
+                                                    <i class="icofont-edit-alt"></i> تعديل التسجيل
+                                                </a>
+
+                                                <a asp-controller="CourseDetails" asp-action="PrintCertificate" asp-route-id="@courseReg.Id" class="btn btn-sm btn-outline-success">
+                                                    <i class="icofont-edit-alt"></i> اصدار شهادة
+                                                </a>
+                                            </div>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <div class="alert alert-warning course-card-item">
+                                            بيانات دورة غير مكتملة (معرف التسجيل: @courseReg.Id).
+                                        </div>
+                                    }
+                                }
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="text-center py-5">
+                                <i class="icofont-ban icofont-3x text-muted mb-3"></i>
+                                <p class="text-muted">المتدرب غير مسجل في أي دورات حاليًا.</p>
+                            </div>
+                        }
+                    </div>
+                </div>
+
+                <!-- أزرار الإجراءات -->
+                <div class="row mt-4 pt-3 border-top">
+                    <div class="col-12 text-center">
+                        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary btn-lg" style="background-color: #1DC792; border-color: #1DC792;">
+                            <i class="icofont-edit"></i> تعديل بيانات المتدرب
+                        </a>
+                        <a asp-action="Index" class="btn btn-outline-secondary btn-lg ms-2">
+                            <i class="icofont-arrow-left"></i> العودة إلى القائمة
+                        </a>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </section>
+
+@functions {
+    // نفس دالة GetStatusBadgeClass من صفحة قائمة تفاصيل الدورات
+    string GetStatusBadgeClass(string statusName)
+    {
+        if (string.IsNullOrEmpty(statusName)) return "secondary";
+        switch (statusName.ToLower())
+        {
+            case "مكتملة": case "completed": return "success";
+            case "قادمة": case "upcoming": return "primary";
+            case "جارية": case "active": case "ongoing": return "info";
+            case "ملغاة": case "cancelled": return "danger";
+            case "مؤجلة": case "postponed": return "warning";
+            default: return "secondary";
+        }
+    }
+}

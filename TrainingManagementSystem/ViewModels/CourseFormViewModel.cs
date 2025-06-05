@@ -4,6 +4,7 @@
 using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System.ComponentModel.DataAnnotations;
+using TrainingManagementSystem.Models.Entities;
 using TrainingManagementSystem.ViewModels; 
 public class CourseDetailFormEntryViewModel
 {
@@ -65,6 +66,8 @@ public class CourseFormViewModel // (نفس الـ ViewModel السابق مع �
     [Required(ErrorMessage = "CourseClassification is required")]
     [Display(Name = "تصنيف الدورة")]
     public Guid CourseClassificationId { get; set; }
+    public Course Course { get; set; }
+    public List<Course> CourseList { get; set; }
 
     [Required(ErrorMessage = "Level is required")]
     [Display(Name = "المستوى")]

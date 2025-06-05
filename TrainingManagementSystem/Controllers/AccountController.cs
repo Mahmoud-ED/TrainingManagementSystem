@@ -264,11 +264,11 @@ namespace TrainingManagementSystem.Controllers
                             {
                                 if (await CheckProgClaims(user, loginVM))
                                 {
-                                    return RedirectToAction("Index", "Admin");
+                                    return RedirectToAction("Chart", "Report");
                                 }
                             }
 
-                            return RedirectToAction("Index", "Admin");
+                            return RedirectToAction("Chart", "Report");
                         }
                         //----------------------------------------------------------------
                     }

@@ -1,0 +1,195 @@
+﻿@model IEnumerable<TrainingManagementSystem.Models.Entities.CourseDetails>
+
+@{
+    ViewData["Title"] = "جدول ومواعيد الدورات";
+
+    // 1. Group items by Status Name
+    var groupedByStatus = Model
+        .GroupBy(cd => cd.Status?.Name ?? "غير محددة") // Group by status name, handle null status
+        .Select(g => new { StatusName = g.Key, Items = g.ToList() })
+        .ToList();
+
+    // 2. Define the desired order of statuses
+    var statusOrder = new List<string> { "جارية", "قادمة", "مكتملة", "مؤجلة", "ملغاة", "غير محددة" };
+    // You can add more specific English fallbacks if needed, e.g., "Active", "Upcoming", etc.
+    // Or make GetStatusOrderValue more robust to handle both Arabic and English
+
+    // 3. Sort the groups according to the defined order
+    var sortedGroups = groupedByStatus
+        .OrderBy(g => GetStatusOrderValue(g.StatusName, statusOrder))
+        .ToList();
+
+    // Helper function to get a sortable value for status names
+    int GetStatusOrderValue(string statusName, List<string> order)
+    {
+        int index = order.IndexOf(statusName);
+        return index == -1 ? order.Count : index; // Items not in the list go to the end
+    }
+}
+
+@functions { // Moved here to be accessible by the sorting logic above
+    string GetStatusBadgeClass(string statusName)
+    {
+        if (string.IsNullOrEmpty(statusName)) return "secondary";
+        // Normalize to lower for broader matching if statuses might come in different cases
+        switch (statusName.ToLower())
+        {
+            case "مكتملة": case "completed": return "success";
+            case "قادمة": case "upcoming": return "primary"; // Often considered "Open"
+            case "جارية": case "active": case "ongoing": return "info"; // Often considered "Open"
+            case "ملغاة": case "cancelled": return "danger";
+            case "مؤجلة": case "postponed": return "warning";
+            default: return "secondary"; // For "غير محددة" or other statuses
+        }
+    }
+}
+
+<div class="container-fluid mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom">
+        <h1 class="h3"><i class="fas fa-calendar-alt me-2"></i>@ViewData["Title"]</h1>
+        <a asp-action="Create" class="btn btn-primary">
+            <i class="fas fa-plus me-2"></i> إضافة موعد جديد
+        </a>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info text-center" role="alert">
+            <h4 class="alert-heading">لا توجد مواعيد!</h4>
+            <p>لم يتم إضافة أي مواعيد أو تفاصيل دورات حتى الآن.</p>
+            <hr>
+            <p class="mb-0">يمكنك <a asp-action="Create" class="alert-link">إضافة موعد جديد</a> للبدء.</p>
+        </div>
+    }
+    else
+    {
+        foreach (var group in sortedGroups)
+        {
+            // Skip rendering a table if a group has no items (should not happen with GroupBy logic but good practice)
+            if (!group.Items.Any()) continue;
+
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <span class="badge bg-@(GetStatusBadgeClass(group.StatusName)) me-2 p-2">@group.StatusName</span>
+                        (@group.Items.Count())
+                    </h5>
+                    @* Optional: Add group-specific actions here *@
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover table-striped mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th scope="col">@Html.DisplayNameFor(model => model.FirstOrDefault().Course.Name)</th>
+                                    <th scope="col">@Html.DisplayNameFor(model => model.FirstOrDefault().DurationHours)</th>
+                                    <th scope="col">@Html.DisplayNameFor(model => model.FirstOrDefault().StartDate)</th>
+                                    <th scope="col">@Html.DisplayNameFor(model => model.FirstOrDefault().EndDate)</th>
+                                    <th scope="col">@Html.DisplayNameFor(model => model.FirstOrDefault().Location.Name)</th>
+                                    <th scope="col">@Html.DisplayNameFor(model => model.FirstOrDefault().CourseType.Name)</th>
+                                    @* Status column might be redundant now as it's in the table header, but can be kept for clarity *@
+                                    @* <th scope="col">@Html.DisplayNameFor(model => model.FirstOrDefault().Status.Name)</th> *@
+                                    <th scope="col" class="text-center">المسجلون</th>
+                                    <th scope="col" class="text-center" style="">الإجراءات</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in group.Items)
+                                {
+                                    <tr>
+                                        <td>
+                                            @if (item.Course != null)
+                                            {
+                                                <a asp-controller="Courses" asp-action="Details" asp-route-id="@item.CourseId" title="@item.Course.Name">
+                                                    @item.Course.Name
+                                                </a>
+                                            }
+                                            else
+                                            {
+                                                <span>معرف الدورة: @item.CourseId</span>
+                                            }
+                                        </td>
+                                        <td>@Html.DisplayFor(modelItem => item.DurationHours) ساعة</td>
+                                        <td>@item.StartDate.ToString("yyyy/MM/dd hh:mm tt")</td>
+                                        <td>
+                                            @if (item.EndDate.HasValue)
+                                            {
+                                                @item.EndDate.Value.ToString("yyyy/MM/dd hh:mm tt")
+                                            }
+                                            else
+                                            {
+                                                <span class="text-muted">لم يحدد</span>
+                                            }
+                                        </td>
+                                        <td>@(item.Location?.Name ?? "غير محدد")</td>
+                                        <td>@(item.CourseType?.Name ?? "غير محدد")</td>
+                                        @* <td>
+                                            <span class="badge bg-@(GetStatusBadgeClass(item.Status?.Name)) p-2">
+                                                @(item.Status?.Name ?? "غير محدد")
+                                            </span>
+                                        </td> *@
+                                        <td class="text-center">
+                                            @if (item.CourseTrainees != null)
+                                            {
+                                                <span class="badge bg-info rounded-pill" title="عدد المسجلين">@item.CourseTrainees.Count</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-secondary rounded-pill" title="لا يوجد مسجلين">0</span>
+                                            }
+                                        </td>
+                                        <td class="text-center">
+                                            <div class="btn-group btn-group-sm" role="group">
+                                                <a asp-action="Details" asp-controller="CourseDetails" asp-route-id="@item.Id" class="btn btn-outline-info" title="تفاصيل"><i class="fas fa-eye"></i>عرض</a>
+                                                <a asp-action="Edit" asp-controller="CourseDetails" asp-route-id="@item.Id" class="btn btn-outline-primary" title="تعديل"><i class="fas fa-edit"></i>تعديل</a>
+                                                <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-outline-danger delete-item" title="حذف"><i class="fas fa-trash-alt"></i>حذف</a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                @*<div class="card-footer text-muted">
+                    إجمالي المواعيد لهذه الحالة: @group.Items.Count()
+                </div>*@
+            </div>
+        }
+    }
+</div>
+
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script>
+        $(document).ready(function () {
+            $('.delete-item').on('click', function (e) {
+                // Simplified delete confirmation, assuming your delete action handles POST or you adjust accordingly
+                e.preventDefault();
+                var deleteUrl = $(this).attr('href');
+                var itemName = $(this).closest('tr').find('td:first a').text().trim() || $(this).closest('tr').find('td:first').text().trim();
+
+                if (confirm('هل أنت متأكد أنك تريد حذف هذا الموعد؟\n' + itemName)) {
+                    // If your delete is a GET request (not recommended for delete actions)
+                    window.location.href = deleteUrl;
+
+                    // If your delete is a POST request and requires AntiForgeryToken:
+                    /*
+                    var form = $('<form></form>');
+                    form.attr("method", "post");
+                    form.attr("action", deleteUrl);
+                    var token = $('input[name="__RequestVerificationToken"]').val();
+                    if(token){
+                        form.append($('<input type="hidden" name="__RequestVerificationToken" />').val(token));
+                    }
+                    $('body').append(form);
+                    form.submit();
+                    */
+                }
+            });
+        });
+    </script>
+}

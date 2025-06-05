@@ -209,12 +209,12 @@
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script>
         // نفس كود JavaScript من Create.cshtml لـ Select2, AJAX, previewImage, clearImagePreview
-        $(document).ready(function () {
-            $('.select2-basic').select2({
-                theme: "bootstrap-5",
-                placeholder: function(){ $(this).data('placeholder'); }, // Placeholder from data attribute or option
-                allowClear: true
-            });
+        // $(document).ready(function () {
+        //     $('.select2-basic').select2({
+        //         theme: "bootstrap-5",
+        //         placeholder: function(){ $(this).data('placeholder'); }, // Placeholder from data attribute or option
+        //         allowClear: true
+        //     });
 
             // AJAX لتحديث الأقسام (نفس كود Create)
             $('#organizationSelect').on('change', function () {

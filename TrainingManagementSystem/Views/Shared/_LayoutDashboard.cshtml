@@ -17,7 +17,7 @@
 
     <!-- Google Fonts: Cairo -->
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700&display=swap" rel="stylesheet" />
-
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
     <!-- CSS Files -->
     <link rel="stylesheet" href="~/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/nice-select.css" />
@@ -126,10 +126,10 @@
             }
         /* لإظهار القائمة المنسدلة عند المرور (اختياري، Bootstrap يتطلب نقرة افتراضياً) */
         /*
-                .main-menu .nav.menu li.dropdown:hover > .dropdown-menu {
-                    display: block;
-                }
-                */
+                        .main-menu .nav.menu li.dropdown:hover > .dropdown-menu {
+                            display: block;
+                        }
+                        */
 
     </style>
     @RenderSection("Styles", required: false)
@@ -156,47 +156,69 @@
                 <div class="inner">
                     <div class="row align-items-center">
                         <div class="col-lg-3 col-md-3 col-12">
-                            <div class="logo">
+                            <div class="logo" style="max-height: 150px;">
                                 <a href="/">
-                                    <img src="@(ViewBag.LogoUrl ?? "~/img/oo.png")" alt="Logo @ViewBag.SiteName" style="max-height: 50px;" /> @* استخدام الشعار من ViewBag وتحجيمه *@
+                                    <img src="~/img/oo.png" alt="Logo @ViewBag.SiteName" style="max-height: 50px;" />
                                 </a>
                             </div>
                         </div>
-                        <div class="col-lg-9 col-md-9 col-12">
-                            <div class="main-menu">
-                                <nav class="navigation">
-                                    <ul class="nav menu">
-                                        <li><a asp-controller="Home" asp-action="Index">الرئيسية</a></li>
+                        <div style="max-height: 150px;" class="col-lg-9 col-md-9 col-12">
+                            <div style="max-height: 150px;" class="main-menu">
+                                <nav style="max-height: 150px;" class="navbar navbar-expand-lg navbar-light bg-light rounded shadow-sm">
+                                    <div style="max-height: 150px;" class="container-fluid">
+                                        @* زر التبديل للشاشات الصغيرة (Hamburger Menu) *@
+                                        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbarSupportedContent" aria-controls="mainNavbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                                            <span class="navbar-toggler-icon"></span>
+                                        </button>
 
-                                        @* قائمة التحكم *@
-                                        <li class="nav-item dropdown">
-                                            <a class="nav-link dropdown-toggle" href="#" id="controlDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                                <i class="fas fa-cogs me-1"></i> التحكم
-                                            </a>
-                                            <ul class="dropdown-menu" aria-labelledby="controlDropdown">
-                                                <li><a class="dropdown-item" asp-controller="Courses" asp-action="Index">الكورسات</a></li>
-                                                <li><a class="dropdown-item" asp-controller="Trainer" asp-action="Index">المدربين</a></li>
-                                                <li><a class="dropdown-item" asp-controller="Trainee" asp-action="Index">المتدربين</a></li>
+                                        <div style="max-height: 150px;" class="collapse navbar-collapse" id="mainNavbarSupportedContent">
+                                            @* تم تغيير me-auto إلى mx-auto *@
+                                            <ul class="navbar-nav mx-auto mb-2 mb-lg-0">
+                                                <li class="nav-item">
+                                                    <a class="nav-link" aria-current="page" asp-controller="Report" asp-action="Chart">
+                                                        <i class="fas fa-home me-1"></i> الرئيسية
+                                                    </a>
+                                                </li>
+
+                                                @* قائمة التحكم *@
+                                                <li class="nav-item dropdown">
+                                                    <a class="nav-link  dropdown-toggle" href="#" id="controlDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                                        <i class="fas fa-cogs me-1"></i> التحكم
+                                                    </a>
+                                                    <ul class="dropdown-menu" aria-labelledby="controlDropdown">
+                                                        <li><a class="dropdown-item" asp-controller="Courses" asp-action="Index"><i class="fas fa-graduation-cap fa-fw me-2"></i>الكورسات</a></li>
+                                                        <li><a class="dropdown-item" asp-controller="CourseDetails" asp-action="Index"><i class="fas fa-chalkboard-teacher fa-fw me-2"></i>إنشاء دورة تدريبية</a></li>
+                                                        <li><a class="dropdown-item" asp-controller="Trainer" asp-action="Index"><i class="fas fa-user-tie fa-fw me-2"></i>المدربين</a></li>
+                                                        <li><a class="dropdown-item" asp-controller="Trainee" asp-action="Index"><i class="fas fa-users fa-fw me-2"></i>المتدربين</a></li>
+                                                    </ul>
+                                                </li>
+
+                                                @* قائمة الإعدادات *@
+                                                <li class="nav-item dropdown">
+                                                    <a class="nav-link dropdown-toggle" href="#" id="settingsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                                        <i class="fas fa-tools me-1"></i> الإعدادات
+                                                    </a>
+                                                    <ul class="dropdown-menu" aria-labelledby="settingsDropdown">
+                                                        <li><a class="dropdown-item" asp-controller="Department" asp-action="Index"><i class="fas fa-building fa-fw me-2"></i>الأقسام</a></li>
+                                                        <li><a class="dropdown-item" asp-controller="Qualification" asp-action="Index"><i class="fas fa-certificate fa-fw me-2"></i>المؤهلات</a></li>
+                                                        <li><a class="dropdown-item" asp-controller="Specialization" asp-action="Index"><i class="fas fa-atom fa-fw me-2"></i>التخصصات</a></li>
+                                                        <li><hr class="dropdown-divider"></li>
+                                                        <li><a class="dropdown-item" asp-controller="CourseClassification" asp-action="Index"><i class="fas fa-tags fa-fw me-2"></i>تصنيفات الدورات</a></li>
+                                                        <li><a class="dropdown-item" asp-controller="Level" asp-action="Index"><i class="fas fa-layer-group fa-fw me-2"></i>المستويات (Level)</a></li>
+                                                    </ul>
+                                                </li>
                                             </ul>
-                                        </li>
 
-                                        @* قائمة الإعدادات *@
-                                        <li class="nav-item dropdown">
-                                            <a class="nav-link dropdown-toggle" href="#" id="settingsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                                <i class="fas fa-tools me-1"></i> الإعدادات
-                                            </a>
-                                            <ul class="dropdown-menu" aria-labelledby="settingsDropdown">
-                                                <li><a class="dropdown-item" asp-controller="Department" asp-action="Index">الأقسام</a></li>
-                                                <li><a class="dropdown-item" asp-controller="Qualification" asp-action="Index">المؤهلات</a></li>
-                                                <li><a class="dropdown-item" asp-controller="Specialization" asp-action="Index">التخصصات</a></li>
-                                                <li><hr class="dropdown-divider"></li>
-                                                <li><a class="dropdown-item" asp-controller="CourseClassification" asp-action="Index">تصنيفات الدورات</a></li>
-                                                <li><a class="dropdown-item" asp-controller="Level" asp-action="Index">المستويات (Level)</a></li>
-                                            </ul>
-                                        </li>
-
-                                        @* يمكنك إضافة المزيد من العناصر هنا إذا لزم الأمر *@
-                                    </ul>
+                                            @* إذا كان لديك عناصر أخرى تريدها على اليمين (مثل زر تسجيل الدخول)، ستحتاج إلى هيكل مختلف قليلاً أو استخدام navbar-nav مرتين *@
+                                            @* مثال:
+                    <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">تسجيل الدخول</a>
+                        </li>
+                    </ul>
+                    *@
+                                        </div>
+                                    </div>
                                 </nav>
                             </div>
                         </div>
@@ -213,15 +235,9 @@
                     <div class="col-12">
                         <h2>@ViewData["Title"]</h2>
                         <ul class="bread-list">
-                            <li><a asp-controller="Home" asp-action="Index"> <i class="fas fa-tachometer-alt"></i> لوحة التحكم</a></li>
+                            <li> <i class="fas fa-tachometer-alt"></i> لوحة التحكم</a></li>
                             <li><i class="icofont-simple-left"></i></li>
                             <li class="active">@BreadcrumbHelper.GetControllerDisplayName(ViewContext)</li>
-                            @if (BreadcrumbHelper.GetActionDisplayName(ViewContext) != "Index" &&
-                                                        BreadcrumbHelper.GetActionDisplayName(ViewContext) != BreadcrumbHelper.GetControllerDisplayName(ViewContext)) // لتجنب التكرار
-                            {
-                                <li><i class="icofont-simple-left"></i></li>
-                                <li class="active">@BreadcrumbHelper.GetActionDisplayName(ViewContext)</li>
-                            }
                         </ul>
                     </div>
                 </div>
@@ -229,7 +245,7 @@
         </div>
     </div>
 
-    <div class="container mb-md-5 pt-5">
+    <div class="container ">
         @RenderBody()
     </div>
 
@@ -260,6 +276,95 @@
 
     @* main.js يجب أن يكون من بين آخر السكربتات لأنه قد يقوم بتهيئة الإضافات المذكورة أعلاه *@
     <script src="~/js/main.js" asp-append-version="true"></script>
+
+
+    @section Styles {
+        <style>
+            .navbar {
+                padding-top: 0.8rem;
+                padding-bottom: 0.8rem;
+            }
+
+                .navbar .nav-link {
+                    font-weight: 500;
+                    color: #495057; /* لون نص داكن قليلاً */
+                    padding-right: 1rem;
+                    padding-left: 1rem;
+                }
+
+                    .navbar .nav-link:hover,
+                    .navbar .nav-link.active {
+                        color: #007bff; /* لون أساسي للتحويم والعنصر النشط */
+                    }
+
+                    .navbar .nav-link.dropdown-toggle::after {
+                        margin-left: .255em; /* لـ RTL، يجب أن يكون السهم على اليسار */
+                        margin-right: 0;
+                    }
+
+
+            .dropdown-menu {
+                border: none;
+                box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+                border-radius: 0.3rem;
+            }
+
+            .dropdown-item {
+                padding: 0.5rem 1.2rem;
+                font-weight: 400;
+            }
+
+                .dropdown-item:hover {
+                    background-color: #f8f9fa;
+                    color: #0056b3;
+                }
+
+                .dropdown-item i.fa-fw {
+                    width: 1.5em; /* لضمان محاذاة النص بعد الأيقونات ذات العرض الثابت */
+                    text-align: center;
+                }
+
+            .navbar-toggler {
+                border-color: rgba(0,0,0,.1);
+            }
+
+            .navbar-toggler-icon {
+                background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%280, 0, 0, 0.55%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+            }
+
+            /* إذا كنت تريد تغيير لون الناف بار إلى لون أغمق مثلاً */
+            /*
+                            .navbar-custom {
+                                background-color: #343a40 !important;
+                            }
+                            .navbar-custom .nav-link {
+                                color: rgba(255,255,255,.75);
+                            }
+                            .navbar-custom .nav-link:hover,
+                            .navbar-custom .nav-link.active {
+                                color: #fff;
+                            }
+                            .navbar-custom .navbar-toggler-icon {
+                                background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%28255, 255, 255, 0.75%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+                            }
+                            .navbar-custom .dropdown-menu {
+                                background-color: #343a40;
+                            }
+                            .navbar-custom .dropdown-item {
+                                color: rgba(255,255,255,.75);
+                            }
+                            .navbar-custom .dropdown-item:hover {
+                                background-color: #495057;
+                                color: #fff;
+                            }
+                            .navbar-custom .dropdown-divider {
+                                border-top: 1px solid rgba(255,255,255,.15);
+                            }
+                            */
+            /* لاستخدام الثيم المخصص أعلاه، غير الكلاس في <nav> إلى navbar-custom بدلاً من navbar-light bg-light */
+
+        </style>
+    }
 
     @RenderSection("Scripts", required: false)
 </body>

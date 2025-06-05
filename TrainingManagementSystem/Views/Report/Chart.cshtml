@@ -1,0 +1,381 @@
+﻿@model ReportChartViewModel
+
+@{
+    ViewData["Title"] = "لوحة تحكم التقارير";
+}
+
+@section Styles {
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" />
+    <style>
+        .chart-container {
+            position: relative;
+            margin: auto;
+            height: 350px; /* تعديل الارتفاع حسب الحاجة */
+            width: 100%;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            margin-bottom: 2rem;
+        }
+
+        .filter-section {
+            background-color: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: .5rem;
+            margin-bottom: 2rem;
+            border: 1px solid #dee2e6;
+        }
+
+        .select2-container--bootstrap-5 .select2-selection {
+            min-height: calc(1.5em + .75rem + 2px);
+            padding: .375rem .75rem;
+            font-size: 1rem;
+            font-weight: 400;
+            line-height: 1.5;
+        }
+
+        .loading-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(255, 255, 255, 0.7);
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px; /* ليتناسب مع حاوية المخطط */
+        }
+    </style>
+}
+
+<div class="container-fluid mt-4 mb-5">
+    <div class="page-header mb-4 d-flex justify-content-between align-items-center">
+        <h1 class="h3"><i class="fas fa-chart-line me-2"></i>@ViewData["Title"]</h1>
+        <button id="refreshChartsBtn" class="btn btn-outline-primary">
+            <i class="fas fa-sync-alt me-1"></i> تحديث الآن
+        </button>
+    </div>
+
+    <!-- قسم الفلاتر -->
+    <div class="filter-section shadow-sm">
+        <h5 class="mb-3"><i class="fas fa-filter me-2"></i>خيارات الفلترة</h5>
+        <form id="filterForm" method="get" asp-action="Chart">
+            <div class="row g-3">
+                <div class="col-md-3">
+                    <label asp-for="StartDateFilter" class="form-label"></label>
+                    <input asp-for="StartDateFilter" type="date" class="form-control form-control-sm" />
+                </div>
+                <div class="col-md-3">
+                    <label asp-for="EndDateFilter" class="form-label"></label>
+                    <input asp-for="EndDateFilter" type="date" class="form-control form-control-sm" />
+                </div>
+                <div class="col-md-3">
+                    <label asp-for="CourseClassificationIdFilter" class="form-label"></label>
+                    <select asp-for="CourseClassificationIdFilter" asp-items="Model.CourseClassifications" class="form-select form-select-sm select2-filter">
+                        <option value="">-- كل التصنيفات --</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label asp-for="StatusIdFilter" class="form-label"></label>
+                    <select asp-for="StatusIdFilter" asp-items="Model.Statuses" class="form-select form-select-sm select2-filter">
+                        <option value="">-- كل الحالات --</option>
+                    </select>
+                </div>
+                <div class="col-md-12 text-end mt-3">
+                    <button type="submit" class="btn btn-primary btn-sm">
+                        <i class="fas fa-check me-1"></i> تطبيق الفلاتر
+                    </button>
+                    <a asp-action="Chart" class="btn btn-outline-secondary btn-sm">
+                        <i class="fas fa-eraser me-1"></i> مسح الفلاتر
+                    </a>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- قسم المخططات -->
+    <div class="row mt-4">
+        <div class="col-lg-6">
+            <div class="chart-container" id="traineesPerStatusContainer">
+                <div class="loading-overlay" style="display:none;"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div></div>
+                <h5 class="text-center mb-3">عدد المتدربين حسب حالة الدورة</h5>
+                <canvas id="traineesPerStatusChart"></canvas>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="chart-container" id="coursesPerClassificationContainer">
+                <div class="loading-overlay" style="display:none;"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div></div>
+                <h5 class="text-center mb-3">عدد الدورات حسب التصنيف</h5>
+                <canvas id="coursesPerClassificationChart"></canvas>
+            </div>
+        </div>
+        <div class="col-lg-12">
+            @* يمكن جعله أعرض *@
+            <div class="chart-container" id="averageGradePerCourseContainer">
+                <div class="loading-overlay" style="display:none;"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div></div>
+                <h5 class="text-center mb-3">متوسط الدرجات لكل دورة (أعلى 10)</h5>
+                <canvas id="averageGradePerCourseChart"></canvas>
+            </div>
+        </div>
+        @* أضف المزيد من حاويات المخططات هنا *@
+
+
+        <div class="col-lg-12">
+            <div class="chart-container" id="traineesPerCourseDetailContainer">
+                <div class="loading-overlay" style="display:none;"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div></div>
+                <h5 class="text-center mb-3">عدد المتدربين في كل دورة (أعلى 15)</h5>
+                <canvas id="traineesPerCourseDetailChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    @* يمكنك إضافة Moment.js هنا إذا كنت بحاجة لتنسيقات تواريخ متقدمة في الـ tooltips
+    <script src="https://cdn.jsdelivr.net/npm/moment@2.29.4/moment.min.js"></script>
+    *@
+
+    <script>
+        // استخدام كائن لتخزين جميع كائنات المخططات
+        const charts = {};
+        let autoRefreshTimerId; // لتخزين ID المؤقت لـ setTimeout
+        const autoRefreshInterval = 30000; // 30 ثانية للتحديث التلقائي
+
+        // دالة لتوليد الألوان
+        function generateColors(count, forSingleDataset = false) {
+            const baseColors = [ // لوحة ألوان أساسية ومحسنة قليلاً
+                'rgba(54, 162, 235, 0.8)', 'rgba(255, 99, 132, 0.8)', 'rgba(255, 206, 86, 0.8)',
+                'rgba(75, 192, 192, 0.8)', 'rgba(153, 102, 255, 0.8)', 'rgba(255, 159, 64, 0.8)',
+                'rgba(199, 199, 199, 0.8)', 'rgba(83, 102, 255, 0.8)', 'rgba(40, 159, 64, 0.8)',
+                'rgba(255, 102, 0, 0.8)', 'rgba(50, 205, 50, 0.8)', 'rgba(138, 43, 226, 0.8)'
+            ];
+            if (forSingleDataset && count > 0) { // لون واحد لمجموعة بيانات واحدة في مخطط شريطي/خطي
+                return [baseColors[0]]; // استخدام أول لون كافتراضي للمخططات الشريطية
+            }
+            const colors = [];
+            for (let i = 0; i < count; i++) {
+                colors.push(baseColors[i % baseColors.length]); // تدوير الألوان
+            }
+            return colors;
+        }
+
+        function showLoading(containerId) {
+            $('#' + containerId + ' .loading-overlay').stop().fadeIn(200);
+        }
+        function hideLoading(containerId) {
+            $('#' + containerId + ' .loading-overlay').stop().fadeOut(200);
+        }
+
+        // دالة عامة لتحديث المخططات
+        function updateChart(chartKey, chartId, chartType, chartDataFromServer, defaultLabel) {
+            const ctx = document.getElementById(chartId).getContext('2d');
+            if (charts[chartKey]) {
+                charts[chartKey].destroy();
+            }
+
+            const isPieOrDoughnut = chartType === 'pie' || chartType === 'doughnut';
+            // تحديد إذا كان المخطط يجب أن يكون أفقيًا (خاصة للمخططات الشريطية ذات التسميات الطويلة)
+            let currentXAxis = 'x';
+            let currentYAxis = 'y';
+            let indexAxisOption = 'x';
+
+            // اجعل المخططات الشريطية التي قد تحتوي على تسميات طويلة أفقية
+            if (chartType === 'bar' && (chartId === 'averageGradePerCourseChart' || chartId === 'traineesPerCourseDetailChart')) {
+                 indexAxisOption = 'y';
+            }
+
+            const backgroundColors = generateColors(chartDataFromServer.labels.length, !isPieOrDoughnut);
+            const borderColors = backgroundColors.map(c => c.replace('0.8', '1'));
+
+            charts[chartKey] = new Chart(ctx, {
+                type: chartType,
+                data: {
+                    labels: chartDataFromServer.labels,
+                    datasets: [{
+                        label: chartDataFromServer.label || defaultLabel,
+                        data: chartDataFromServer.data,
+                        backgroundColor: backgroundColors, // ستكون مصفوفة ألوان لـ pie/doughnut, أو لون واحد لـ bar/line
+                        borderColor: borderColors,
+                        borderWidth: 1,
+                        // يمكنك إضافة تخصيصات هنا مثل barThickness للمخططات الشريطية
+                        // barThickness: chartType === 'bar' ? 25 : undefined,
+                    }]
+                },
+                options: {
+                    indexAxis: indexAxisOption, // مهم للمخططات الشريطية الأفقية
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: (chartType === 'bar' || chartType === 'line') ? {
+                        // تحديد المحاور بناءً على indexAxis
+                        [indexAxisOption === 'x' ? 'y' : 'x']: { // هذا هو محور القيم
+                            beginAtZero: true,
+                            ticks: {
+                                precision: 0,
+                                // callback: function(value) { return Number.isInteger(value) ? value : null; } // لإخفاء العلامات غير الصحيحة
+                            }
+                        },
+                        [indexAxisOption === 'x' ? 'x' : 'y']: { // هذا هو محور الفئات/التسميات
+                            ticks: {
+                                autoSkip: chartId === 'averageGradePerCourseChart' || chartId === 'traineesPerCourseDetailChart' ? false : true, // لا تتخطى التسميات إذا كانت أفقية
+                                maxRotation: indexAxisOption === 'x' ? 45 : 0, // تدوير التسميات إذا كانت عمودية وطويلة
+                                minRotation: indexAxisOption === 'x' ? 45 : 0
+                            }
+                        }
+                    } : {},
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            display: isPieOrDoughnut, // عرضها فقط للمخططات الدائرية بشكل افتراضي
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(0,0,0,0.85)',
+                            titleColor: '#fff',
+                            bodyColor: '#fff',
+                            titleFont: { size: 14, weight: 'bold' },
+                            bodyFont: { size: 12 },
+                            padding: 10,
+                            cornerRadius: 4,
+                            callbacks: {
+                                title: function (tooltipItems) {
+                                    // يعرض الـ label من المحور مباشرة
+                                    return tooltipItems[0].label;
+                                },
+                                label: function (context) {
+                                    let val = context.formattedValue;
+                                    let datasetLabel = context.dataset.label || '';
+                                    if (isPieOrDoughnut) {
+                                        // لـ Pie/Doughnut، الـ context.label هو التسمية من البيانات
+                                        return `${context.label}: ${val}`;
+                                    }
+                                    // لـ Bar/Line، اسم مجموعة البيانات ثم القيمة
+                                    return `${datasetLabel}: ${val}`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function loadAndRenderCharts() {
+            const startDate = $('#StartDateFilter').val();
+            const endDate = $('#EndDateFilter').val();
+            const classificationId = $('#CourseClassificationIdFilter').val();
+            const statusId = $('#StatusIdFilter').val();
+
+            const activeChartContainers = [
+                'traineesPerStatusContainer',
+                'coursesPerClassificationContainer',
+                'averageGradePerCourseContainer',
+                'traineesPerCourseDetailContainer' // إضافة الحاوية الجديدة
+            ];
+            activeChartContainers.forEach(id => showLoading(id));
+
+            // إلغاء المؤقت القديم إذا كان موجودًا قبل بدء طلب جديد
+            if (autoRefreshTimerId) clearTimeout(autoRefreshTimerId);
+
+            $.ajax({
+                url: '@Url.Action("GetChartData", "Report")',
+                type: 'GET',
+                data: {
+                    startDateFilter: startDate,
+                    endDateFilter: endDate,
+                    courseClassificationIdFilter: classificationId,
+                    statusIdFilter: statusId
+                },
+                success: function (response) {
+                    if (response) {
+                        // تحديث المخطط الأول: عدد المتدربين حسب حالة الدورة
+                        updateChart('traineesPerStatus', 'traineesPerStatusChart', 'doughnut', response.traineesPerCourseStatusData, 'عدد المتدربين حسب الحالة');
+
+                        // تحديث المخطط الثاني: عدد الدورات حسب التصنيف
+                        updateChart('coursesPerClassification', 'coursesPerClassificationChart', 'pie', response.coursesCountPerClassificationData, 'عدد الدورات حسب التصنيف');
+
+                        // تحديث المخطط الثالث: متوسط الدرجات لكل دورة
+                        updateChart('averageGradePerCourse', 'averageGradePerCourseChart', 'bar', response.averageGradePerCourseData, 'متوسط الدرجات لكل دورة');
+
+                        // تحديث المخطط الرابع (الجديد): عدد المتدربين في كل دورة
+                        if (response.traineesPerCourseDetailData) { // تحقق من وجود البيانات
+                             updateChart('traineesPerCourseDetail', 'traineesPerCourseDetailChart', 'bar', response.traineesPerCourseDetailData, 'عدد المتدربين في كل دورة');
+                        } else {
+                            console.warn("traineesPerCourseDetailData is missing in the response.");
+                            // يمكنك إخفاء حاوية المخطط أو عرض رسالة "لا توجد بيانات"
+                            $('#traineesPerCourseDetailContainer canvas').hide();
+                            $('#traineesPerCourseDetailContainer').append('<p class="text-center text-muted mt-5">لا توجد بيانات لهذا المخطط حاليًا.</p>');
+                        }
+
+                    } else {
+                         console.warn("AJAX response was empty or invalid.");
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.error("Error fetching chart data:", status, error, xhr.responseText);
+                    // استخدام نظام إشعارات أكثر احترافية (مثل Toastr) بدلاً من alert
+                    // مثال بسيط:
+                    $('#page-alerts').html('<div class="alert alert-danger alert-dismissible fade show" role="alert">حدث خطأ أثناء تحميل بيانات المخططات. يرجى المحاولة مرة أخرى.<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>');
+                },
+                complete: function() {
+                    activeChartContainers.forEach(id => hideLoading(id));
+                    // إعادة جدولة التحديث التلقائي
+                    scheduleAutoRefresh();
+                }
+            });
+        }
+
+        function scheduleAutoRefresh() {
+            if (autoRefreshInterval > 0 && document.visibilityState === 'visible') {
+                if (autoRefreshTimerId) clearTimeout(autoRefreshTimerId);
+                autoRefreshTimerId = setTimeout(loadAndRenderCharts, autoRefreshInterval);
+                console.log(`Auto-refresh scheduled in ${autoRefreshInterval/1000} seconds.`);
+            } else {
+                 console.log("Auto-refresh paused (page not visible or interval is 0).");
+            }
+        }
+
+        $(document).ready(function () {
+            // تهيئة Select2
+            $('.select2-filter').each(function () {
+                // $(this).select2({
+                //     // theme: "bootstrap-5",
+                //     // placeholder: $(this).find("option[value='']").text() || "-- اختر --",
+                //     // allowClear: true,
+                //     // dir: "rtl"
+                // });
+            });
+
+            // تحميل المخططات عند تحميل الصفحة
+            loadAndRenderCharts();
+
+            // زر التحديث اليدوي
+            $('#refreshChartsBtn').on('click', function () {
+                if (autoRefreshTimerId) clearTimeout(autoRefreshTimerId); // إلغاء التحديث المجدول
+                console.log("Manual refresh triggered.");
+                loadAndRenderCharts();
+            });
+
+            // مراقبة حالة ظهور الصفحة للتحديث التلقائي
+            document.addEventListener('visibilitychange', function() {
+                if (document.visibilityState === 'visible') {
+                    console.log("Page is visible, attempting to resume auto-refresh.");
+                    // قد ترغب في تحميل البيانات فورًا إذا كانت الصفحة مخفية لفترة طويلة
+                    // أو الاعتماد على scheduleAutoRefresh ليعمل في الدورة التالية
+                    loadAndRenderCharts(); // تحميل فوري عند العودة للرؤية
+                } else {
+                    console.log("Page is hidden, pausing auto-refresh.");
+                    if (autoRefreshTimerId) clearTimeout(autoRefreshTimerId);
+                }
+            });
+
+            // لإضافة حاوية رسائل الأخطاء في أعلى الصفحة إذا أردت
+            if ($('#page-alerts').length === 0) {
+                $('.page-header').after('<div id="page-alerts" class="mb-3"></div>');
+            }
+        });
+    </script>
+}

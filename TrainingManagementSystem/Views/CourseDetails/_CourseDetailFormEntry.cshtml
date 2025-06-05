@@ -21,7 +21,6 @@
 }
 
 <div class="course-detail-entry border p-3 mb-3 bg-light rounded shadow-sm" data-entry-index="@index">
-    @* ***** الحقل المساعد للمفهرس - مهم جداً ***** *@
     <input type="hidden" name="CourseDetailsEntries.Index" value="@index" />
 
     <div class="d-flex justify-content-between align-items-center mb-2">
@@ -68,4 +67,4 @@
             <span asp-validation-for="StatusId" data-valmsg-for="@($"CourseDetailsEntries[{index}].StatusId")" class="text-danger"></span>
         </div>
     </div>
-</div>
+</div> 
