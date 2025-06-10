@@ -1,215 +1,99 @@
-﻿@model CourseFormViewModel 
+﻿@model TrainingManagementSystem.Models.Entities.CourseDetails
 
 @{
-    ViewData["Title"] = $"تعديل الدورة: {Model.Name}";
+    ViewData["Title"] = "تعديل تفاصيل الدورة";
 }
 
 <div class="container mt-4">
-    <div class="card shadow-sm">
-        <div class="card-header bg-warning text-dark"> @* لون مختلف للتعديل *@
-            <h3 class="mb-0"><i class="fas fa-edit me-2"></i>@ViewData["Title"]</h3>
+    <div class="card shadow border-0">
+        <div class="card-header bg-primary bg-gradient text-white">
+            <h3 class="mb-0">
+                <i class="fas fa-edit me-2"></i>@ViewData["Title"]
+            </h3>
         </div>
-        <form asp-action="Edit" method="post">
-            @Html.AntiForgeryToken()
-            <input type="hidden" asp-for="Id" /> @* مهم جداً لتمرير الـ ID *@
+        <form asp-action="Edit" novalidate>
+            <div class="card-body p-4">
 
-            <div class="card-body">
-                <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
-                @if (TempData["SuccessMessage"] != null)
-                {
-                    <div class="alert alert-success">@TempData["SuccessMessage"]</div>
-                }
+                @* لإظهار أخطاء التحقق العامة *@
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
 
-                <h5 class="mb-3 text-primary"><i class="fas fa-info-circle me-2"></i>البيانات الأساسية للدورة</h5>
-                <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <label asp-for="Name" class="form-label"></label>
-                        <input asp-for="Name" class="form-control" />
-                        <span asp-validation-for="Name" class="text-danger"></span>
+                @* حقل مخفي لحفظ الـ ID *@
+                <input type="hidden" asp-for="Id" />
+              
+                <input type="hidden" asp-for="CourseId" />
+
+                <div class="row g-4">
+                    <!-- ========== العمود الأول ========== -->
+                    <div class="col-md-6">
+                        <h5 class="mb-3 text-secondary">البيانات الأساسية</h5>
+
+                       
+
+                        <div class="form-floating mb-3">
+                            <input asp-for="DurationHours" class="form-control"  />
+                            <label asp-for="DurationHours"></label>
+                            <span asp-validation-for="DurationHours" class="text-danger small"></span>
+                        </div>
+
+                        <div class="form-floating mb-3">
+                            <input asp-for="StartDate" class="form-control" placeholder="تاريخ البدء" />
+                            <label asp-for="StartDate"></label>
+                            <span asp-validation-for="StartDate" class="text-danger small"></span>
+                        </div>
+
+                        <div class="form-floating mb-3">
+                            <input asp-for="EndDate" class="form-control" placeholder="تاريخ الانتهاء" />
+                            <label asp-for="EndDate"></label>
+                            <span asp-validation-for="EndDate" class="text-danger small"></span>
+                        </div>
                     </div>
-                    <div class="col-md-6 mb-3">
-                        <label asp-for="Code" class="form-label"></label>
-                        <input asp-for="Code" class="form-control" />
-                        <span asp-validation-for="Code" class="text-danger"></span>
+
+                    <!-- ========== العمود الثاني ========== -->
+                    <div class="col-md-6">
+                        <h5 class="mb-3 text-secondary">التصنيف والتفاصيل</h5>
+
+                        <div class="form-floating mb-3">
+                            <select asp-for="LocationId" class="form-select" asp-items="ViewBag.LocationId">
+                                <option value="" disabled>-- اختر الموقع --</option>
+                            </select>
+                            <label asp-for="LocationId"></label>
+                            <span asp-validation-for="LocationId" class="text-danger small"></span>
+                        </div>
+
+                        <div class="form-floating mb-3">
+                            <select asp-for="CourseTypeId" class="form-select" asp-items="ViewBag.CourseTypeId">
+                                <option value="" disabled>-- اختر نوع الدورة --</option>
+                            </select>
+                            <label asp-for="CourseTypeId"></label>
+                            <span asp-validation-for="CourseTypeId" class="text-danger small"></span>
+                        </div>
+
+                        <div class="form-floating mb-3">
+                            <select asp-for="StatusId" class="form-select" asp-items="ViewBag.StatusId">
+                                <option value="" disabled>-- اختر الحالة --</option>
+                            </select>
+                            <label asp-for="StatusId"></label>
+                            <span asp-validation-for="StatusId" class="text-danger small"></span>
+                        </div>
+
                     </div>
                 </div>
-
-                <div class="mb-3">
-                    <label asp-for="Description" class="form-label"></label>
-                    <textarea asp-for="Description" class="form-control" rows="3"></textarea>
-                    <span asp-validation-for="Description" class="text-danger"></span>
-                </div>
-
-                <div class="row">
-                    <div class="col-md-4 mb-3">
-                        <label asp-for="CourseClassificationId" class="form-label"></label>
-                        <select asp-for="CourseClassificationId" class="form-select" asp-items="Model.CourseClassifications">
-                            @* الخيار الافتراضي يتم إضافته من الكنترولر *@
-                        </select>
-                        <span asp-validation-for="CourseClassificationId" class="text-danger"></span>
-                    </div>
-                    <div class="col-md-4 mb-3">
-                        <label asp-for="LevelId" class="form-label"></label>
-                        <select asp-for="LevelId" class="form-select" asp-items="Model.Levels">
-                            @* الخيار الافتراضي يتم إضافته من الكنترولر *@
-                        </select>
-                        <span asp-validation-for="LevelId" class="text-danger"></span>
-                    </div>
-                    <div class="col-md-4 mb-3">
-                        <label asp-for="CourseParentId" class="form-label"></label>
-                        <select asp-for="CourseParentId" class="form-select" asp-items="Model.CourseParents">
-                            @* الخيار الافتراضي يتم إضافته من الكنترولر *@
-                        </select>
-                        <span asp-validation-for="CourseParentId" class="text-danger"></span>
-                    </div>
-                </div>
-
-                <hr class="my-4">
-
-                <h5 class="mb-3 text-primary"><i class="fas fa-chalkboard-teacher me-2"></i>تحديد المدربين</h5>
-                @if (Model.AvailableTrainers != null && Model.AvailableTrainers.Any())
-                {
-                    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-3 mb-3 p-3 border rounded bg-light-subtle">
-                        @for (int i = 0; i < Model.AvailableTrainers.Count; i++)
-                        {
-                            <div class="col">
-                                <div class="form-check">
-                                    <input type="hidden" asp-for="AvailableTrainers[i].Id" />
-                                    <input type="hidden" asp-for="AvailableTrainers[i].Name" />
-                                    <input class="form-check-input" type="checkbox" asp-for="AvailableTrainers[i].IsSelected" id="trainer_@Model.AvailableTrainers[i].Id" />
-                                    <label class="form-check-label" for="trainer_@Model.AvailableTrainers[i].Id">
-                                        @Model.AvailableTrainers[i].Name
-                                    </label>
-                                    @* تمرير IDs المدربين المختارين بشكل منفصل، لأن AvailableTrainers[i].IsSelected قد لا يتم ربطها بشكل صحيح *@
-                                    @* الكنترولر يتعامل مع SelectedTrainerIds بشكل مباشر *@
-                                    @if (Model.AvailableTrainers[i].IsSelected)
-                                    {
-                                        <input type="hidden" name="SelectedTrainerIds" value="@Model.AvailableTrainers[i].Id" />
-                                    }
-                                </div>
-                            </div>
-                        }
-                    </div>
-                    @* طريقة بديلة وأكثر موثوقية لإرسال SelectedTrainerIds إذا كانت مربعات الاختيار لا تعمل بشكل صحيح للربط *@
-                    <div class="d-none"> @* هذا القسم مخفي، يستخدم فقط لضمان إرسال القيم المختارة *@
-                         @foreach(var trainerId in Model.SelectedTrainerIds ?? new List<Guid>())
-                         {
-                             <input type="checkbox" name="SelectedTrainerIds" value="@trainerId" checked="checked" />
-                         }
-                    </div>
-                    <span asp-validation-for="SelectedTrainerIds" class="text-danger"></span>
-
-                }
-                else
-                {
-                    <div class="alert alert-warning">لا يوجد مدربون متاحون حاليًا.</div>
-                }
-
-
-                @* هنا يمكنك إضافة قسم تعديل تفاصيل الدورة (CourseDetails) إذا كان مطلوبًا في نفس الصفحة *@
-                @* سيتطلب ذلك منطقًا مشابهًا لصفحة الإنشاء لإضافة/حذف/تعديل التفاصيل ديناميكيًا *@
-                @* على سبيل المثال: *@
-                @*
-                <hr class="my-4">
-                <h5 class="mb-3 text-primary"><i class="fas fa-calendar-alt me-2"></i>تعديل مواعيد تنفيذ الدورة</h5>
-                <div id="courseDetailsContainer">
-                    @if (Model.CourseDetailsEntries != null) // افترض وجود CourseDetailsEntries في ViewModel
-                    {
-                        for (int i = 0; i < Model.CourseDetailsEntries.Count; i++)
-                        {
-                            // تأكد من أن _CourseDetailFormEntry.cshtml مهيأ للعمل مع تعديل
-                            // وقد تحتاج لتمرير بيانات إضافية مثل Id الخاص بالـ CourseDetail
-                            @Html.Partial("_CourseDetailFormEntry", Model.CourseDetailsEntries[i],
-                                new ViewDataDictionary(ViewData) {
-                                    { "index", i },
-                                    { "Statuses", Model.Statuses },
-                                    { "Locations", Model.Locations },
-                                    { "CourseTypes", Model.CourseTypes }
-                                })
-                        }
-                    }
-                </div>
-                <button type="button" id="addCourseDetailButton" class="btn btn-outline-success btn-sm mt-2">
-                    <i class="fas fa-plus"></i> إضافة موعد تنفيذ آخر
-                </button>
-                *@
-
-
             </div>
-
-            <div class="card-footer bg-light">
-                <div class="d-flex justify-content-end">
-                    <a asp-action="Index" class="btn btn-outline-secondary me-2">
-                        <i class="fas fa-times me-1"></i> إلغاء
-                    </a>
-                    <button type="submit" class="btn btn-warning"> @* لون مختلف للتعديل *@
-                        <i class="fas fa-save me-1"></i> حفظ التعديلات
-                    </button>
-                </div>
+            <div class="card-footer bg-light text-end border-0 pt-3 pb-3">
+                <button type="submit" class="btn btn-primary px-4">
+                    <i class="fas fa-save me-2"></i>حفظ التعديلات
+                </button>
+                <a asp-action="Index" class="btn btn-outline-secondary px-4">
+                    <i class="fas fa-times me-2"></i>إلغاء
+                </a>
             </div>
         </form>
     </div>
 </div>
 
+
 @section Scripts {
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
-    <script>
-        $(document).ready(function () {
-            // JavaScript الخاص بتحديث قائمة SelectedTrainerIds عند تغيير حالة checkbox
-            // هذا يضمن أن القائمة المخفية `SelectedTrainerIds` يتم تحديثها بشكل صحيح
-            // وهو أكثر موثوقية من الاعتماد على ربط IsSelected مباشرة في الكنترولر لـ List<Guid>
-            var selectedTrainersContainer = $('<div>').addClass('d-none').attr('id', 'hiddenSelectedTrainersContainer').appendTo('form');
-
-            function updateHiddenSelectedTrainers() {
-                selectedTrainersContainer.empty(); // مسح القيم القديمة
-                $('input.form-check-input[id^="trainer_"]:checked').each(function() {
-                    var trainerId = $(this).attr('id').replace('trainer_', '');
-                    selectedTrainersContainer.append($('<input type="hidden" name="SelectedTrainerIds">').val(trainerId));
-                });
-            }
-
-            // تحديث عند التحميل الأولي (لضمان أن القيم المحملة من الموديل موجودة)
-            updateHiddenSelectedTrainers();
-
-            // تحديث عند تغيير أي checkbox
-            $('input.form-check-input[id^="trainer_"]').on('change', function() {
-                updateHiddenSelectedTrainers();
-            });
-
-
-            // إذا كنت ستضيف قسم تفاصيل الدورة الديناميكي، يمكنك وضع JavaScript الخاص به هنا
-            // مشابه لما هو موجود في صفحة الإنشاء. ستحتاج لتكييفه للتعامل مع:
-            // 1. تحميل البيانات الموجودة مسبقًا.
-            // 2. تمرير Id الخاص بكل CourseDetail لتحديثه بدلاً من إنشاء جديد دائمًا.
-            // 3. التعامل مع حذف CourseDetail موجود.
-
-            // مثال مبسط لكود إضافة تفاصيل الدورة (يجب تكييفه بشكل كامل):
-            // $("#addCourseDetailButton").click(function () {
-            //     var currentIndex = $("#courseDetailsContainer .course-detail-entry").length;
-            //     $.ajax({
-            //         url: '@Url.Action("GetCourseDetailEntryPartial", "Courses")', // أو كنترولر آخر
-            //         type: 'GET',
-            //         data: { index: currentIndex /* , existingDetailId: null (for new ones) */ },
-            //         success: function (result) {
-            //             $("#courseDetailsContainer").append(result);
-            //             var form = $("form"); // أو ID الفورم
-            //             form.removeData("validator").removeData("unobtrusiveValidation");
-            //             $.validator.unobtrusive.parse(form);
-            //             // updateRemoveButtonsVisibility(); // إذا كان لديك هذا المنطق
-            //         },
-            //         error: function () { alert("حدث خطأ."); }
-            //     });
-            // });
-
-            // $("#courseDetailsContainer").on("click", ".remove-course-detail", function (e) {
-            //     e.preventDefault();
-            //     // منطق الحذف، قد يتضمن إخفاء العنصر ووضع علامة لحذفه من الخادم
-            //     // أو إزالته مباشرة إذا كان عنصرًا جديدًا لم يحفظ بعد.
-            //     $(this).closest(".course-detail-entry").remove();
-            //     // updateRemoveButtonsVisibility();
-            // });
-        });
-    </script>
 }

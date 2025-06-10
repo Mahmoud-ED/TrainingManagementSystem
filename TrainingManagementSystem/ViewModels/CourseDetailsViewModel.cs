@@ -31,12 +31,28 @@ public class EnrolledTraineeViewModel // لتمثيل كل متدرب مسجل �
     public Guid CourseId { get; set; } // ID لـ CourseId (مهم للتعديل/الحذف)
     public Guid TraineeId { get; set; }
     public string TraineeName { get; set; }
+    public string ProfileImgeUrl { get; set; }
     public string? TraineeEmail { get; set; } // أو أي معلومات أخرى للمتدرب
     public decimal? AttendancePercentage { get; set; }
     public decimal? Grade { get; set; }
     public string? CertificateNumber { get; set; }
     public DateTime? CertificateIssueDate { get; set; }
     // يمكنك إضافة رابط الشهادة والملاحظات إذا أردت عرضها مباشرة في القائمة
+}
+
+public class CourseDetailsIndexViewModel
+{
+    // 1. القائمة الأصلية لعرضها في الجداول
+    public IEnumerable<CourseDetails> CourseDetailsList { get; set; }
+
+    // 2. بطاقات الإحصائيات (التقرير)
+    public CourseDetails NextUpcomingCourse { get; set; }
+    public int ActiveCoursesCount { get; set; }
+    public int CompletedCoursesCount { get; set; }
+    public int UpcomingCoursesCount { get; set; }
+    public int TotalRegisteredTrainees { get; set; }
+    public int PostponedCoursesCount { get; set; }
+    public int CancelledCoursesCount { get; set; }
 }
 
 // --- ViewModel لفورم تسجيل متدرب جديد في CourseDetails ---

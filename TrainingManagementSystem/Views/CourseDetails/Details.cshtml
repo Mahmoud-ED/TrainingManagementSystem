@@ -115,7 +115,7 @@
         </div>
     </div>
 
-    @* قسم المتدربين المسجلين *@
+@* قسم المتدربين المسجلين (تصميم محدث مع صور) *@
     <div class="card shadow-sm">
         <div class="card-header bg-light d-flex justify-content-between align-items-center py-3">
             <h5 class="mb-0 text-success"><i class="fas fa-users me-2"></i>المتدربون المسجلون (@Model.EnrolledTrainees.Count)</h5>
@@ -127,7 +127,6 @@
             @if (!Model.EnrolledTrainees.Any())
             {
                 <div class="alert alert-light m-3 text-center border">
-                    @* تغيير لـ alert-light مع border *@
                     <i class="fas fa-info-circle fa-2x text-primary mb-2"></i>
                     <p class="mb-0">لا يوجد متدربون مسجلون في هذه الدورة بعد.</p>
                 </div>
@@ -135,44 +134,57 @@
             else
             {
                 <div class="table-responsive">
-                    <table class="table table-hover table-striped mb-0 align-middle">
-                        @* إضافة align-middle لمحاذاة رأسية أفضل *@
+                    <table class="table table-hover mb-0 align-middle">
                         <thead class="table-light">
                             <tr>
-                                <th><i class="fas fa-user me-1 text-muted"></i>اسم المتدرب</th>
-                                <th><i class="fas fa-envelope me-1 text-muted"></i>البريد الإلكتروني</th>
-                                <th class="text-center"><i class="fas fa-clipboard-check me-1 text-muted"></i>الحضور (%)</th>
-                                <th class="text-center"><i class="fas fa-star me-1 text-muted"></i>الدرجة</th>
-                                <th><i class="fas fa-id-card me-1 text-muted"></i>رقم الشهادة</th>
-                                <th><i class="fas fa-calendar-check me-1 text-muted"></i>تاريخ الإصدار</th>
+                                <th style="width: 25%;">اسم المتدرب</th>
+                                <th>البريد الإلكتروني</th>
+                                <th class="text-center">الحضور (%)</th>
+                                <th class="text-center">الدرجة</th>
+                                <th>رقم الشهادة</th>
                                 <th class="text-center">إجراءات</th>
                             </tr>
                         </thead>
                         <tbody>
                             @foreach (var trainee in Model.EnrolledTrainees)
                             {
+                                // --- تحديد مسار الصورة مع صورة افتراضية ---
+                                var imageUrl = !string.IsNullOrEmpty(trainee.ProfileImgeUrl)
+                                ? Url.Content($"~/pictures/traineesprofiles/{trainee.ProfileImgeUrl}")
+                                : Url.Content("~/img/oo.png");
+
                                 <tr>
                                     <td>
-                                        <a asp-controller="Trainees" asp-action="Details" asp-route-id="@trainee.TraineeId" title="عرض تفاصيل المتدرب" class="fw-bold">
-                                            @trainee.TraineeName
-                                        </a>
+                                        <div class="d-flex align-items-center">
+                                            <img src="@imageUrl" alt="صورة المتدرب" class="rounded-circle me-3" style="width: 45px; height: 45px; object-fit: cover;">
+                                            <div>
+                                                <a asp-controller="Trainees" asp-action="Details" asp-route-id="@trainee.TraineeId" title="عرض تفاصيل المتدرب" class="fw-bold text-dark text-decoration-none">
+                                                    @trainee.TraineeName
+                                                </a>
+                                                @* يمكنك إضافة معلومات إضافية تحت الاسم هنا إن أردت *@
+                                                @* <div class="text-muted small">@trainee.TraineeId</div> *@
+                                            </div>
+                                        </div>
                                     </td>
                                     <td>@trainee.TraineeEmail</td>
-                                    <td class="text-center">@(trainee.AttendancePercentage?.ToString("N1") ?? "-")</td>
-                                    <td class="text-center">@(trainee.Grade?.ToString("N1") ?? "-")</td>
+                                    <td class="text-center">
+                                        <span class="badge bg-light text-dark">@(trainee.AttendancePercentage?.ToString("N1") ?? "-")</span>
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="badge bg-light text-dark">@(trainee.Grade?.ToString("N1") ?? "-")</span>
+                                    </td>
                                     <td>@(trainee.CertificateNumber ?? "-")</td>
-                                    <td>@(trainee.CertificateIssueDate?.ToString("dd-MM-yyyy") ?? "-")</td>
                                     <td class="text-center">
                                         <div class="btn-group btn-group-sm" role="group">
                                             <a asp-action="EditEnrollment" asp-route-courseTraineeId="@trainee.CourseTraineeId" class="btn btn-outline-primary" title="تعديل بيانات التسجيل والشهادة">
-                                                <i class=""></i> <span class="d-none d-md-inline">تعديل/إصدار</span>
+                                                <i class="fas fa-edit"></i> <span class="d-none d-md-inline">تعديل</span>
                                             </a>
                                             <a asp-action="PrintCertificate" asp-route-id="@trainee.CourseTraineeId" class="btn btn-outline-info" title="طباعة شهادة" target="_blank">
-                                                <i class=""></i> <span class="d-none d-md-inline">طباعة</span>
+                                                <i class="fas fa-print"></i> <span class="d-none d-md-inline">طباعة</span>
                                             </a>
                                             <button type="button" class="btn btn-outline-danger" title="إلغاء تسجيل المتدرب"
                                                     onclick="confirmRemoveEnrollment('@trainee.CourseTraineeId', '@trainee.TraineeName')">
-                                                <i class="fas fa-user-times"></i> <span class="d-none d-md-inline">إلغاء تسجيل</span>
+                                                <i class="fas fa-user-times"></i> <span class="d-none d-md-inline">إلغاء</span>
                                             </button>
                                         </div>
                                     </td>
@@ -190,7 +202,6 @@
             </div>
         }
     </div>
-</div>
 
 @* فورم مخفي لحذف تسجيل المتدرب *@
 <form id="removeEnrollmentForm" asp-action="RemoveEnrollment" method="post" class="d-none">

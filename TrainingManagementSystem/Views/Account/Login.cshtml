@@ -72,20 +72,20 @@
                             <!-- مثال: <img src="~/img/your-login-graphic.svg" alt="نظام إدارة التدريب" style="max-width: 80%;" /> -->
                             @* <img src="~/img/user.png" /> *@
 
-                            <img src="~/img/ee.png" />
+                            @* <img src="~/img/ee.png" /> *@
                          @* <img src="~/img/character-using-cyber-security-services-protect-private-personal-data-user-account-password_773844-395.jpg" /> *@
 
-                           @*  <h3 style="color: #555; text-align:center; padding:20px;">مرحباً بك في<br />نظام إدارة التدريب</h3> *@
+                            <h3 style="color: #555; text-align:center; padding:20px;">مرحباً بك في<br />نظام إدارة التدريب</h3> 
                         </div>
                     </div>
                     <div class="col-lg-6 login-form-wrapper">
                         <!-- Wrapper for better control if only form is shown -->
                         <div class="login-form">
                             <h2>تسجيل الدخول</h2>
-                            <p>
+                          @*   <p>
                                 ليس لديك حساب بعد؟
                                 <a asp-controller="Account" asp-action="Register">سجل هنا</a>
-                            </p>
+                            </p> *@
                             <!-- Form -->
                             <form class="form" method="post">
                                 @Html.AntiForgeryToken()
