@@ -58,7 +58,44 @@ namespace TrainingManagementSystem.Controllers
         }
 
 
-        // GET: Courses/Create
+        public async Task<IActionResult> AnnualPlan()
+        {
+            // 1. تحديد السنة الحالية
+            int year = DateTime.Today.Year;
+
+            // 2. جلب جميع تفاصيل الدورات للسنة المحددة
+            var allCourseDetails = await _context.CourseDetails
+                                        .Include(cd => cd.Course)
+                                        .Include(cd => cd.Location)
+                                        .Include(cd => cd.Status)
+                                        .Where(cd => cd.StartDate.Year == year) // فلترة حسب السنة الحالية
+                                        .OrderBy(cd => cd.StartDate) // ترتيب حسب تاريخ البدء
+                                        .ToListAsync();
+
+            // 3. إنشاء ViewModel وتعبئته
+            var viewModel = new AnnualPlanViewModel
+            {
+                Year = year,
+                TotalCoursesInYear = allCourseDetails.Count
+            };
+
+            // 4. توزيع الدورات على الأرباع
+            foreach (var course in allCourseDetails)
+            {
+                // صيغة بسيطة لتحديد الربع من الشهر: (Month-1)/3 + 1
+                int quarter = (course.StartDate.Month - 1) / 3 + 1;
+
+                if (viewModel.CoursesByQuarter.ContainsKey(quarter))
+                {
+                    viewModel.CoursesByQuarter[quarter].Add(course);
+                }
+            }
+
+            // 5. إرسال الـ ViewModel إلى الـ View الجديد
+            return View("AnnualPlan", viewModel); // تأكد من أن اسم الـ View هو AnnualPlan
+        }
+
+        // GET: CoursesDetalis/Create
         public async Task<IActionResult> Create( Guid? id)
         {
 
@@ -89,6 +126,8 @@ namespace TrainingManagementSystem.Controllers
                 .ThenInclude(cd => cd.CourseTrainees)
             .Include(c => c.CourseTrainers)
                 .ThenInclude(ct => ct.Trainer).ToListAsync();
+         
+            
             var viewModel = new CourseFormViewModel
             {
                Course=course1,

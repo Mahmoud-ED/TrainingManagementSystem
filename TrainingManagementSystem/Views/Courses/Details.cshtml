@@ -47,7 +47,7 @@
     @if (Model.CourseDetails != null && Model.CourseDetails.Any())
     {
 
-        <h5 class="mt-4 mb-3">جلسات/تفاصيل الدورة</h5>
+        <h5 class="mt-4 mb-3">/تفاصيل الدورة</h5>
                     <a asp-controller="CourseDetails" asp-route-id="@Model.Id"  asp-action="Create" class="btn btn-outline-secondary">انشاء دورة تدريبية</a>
 
         <div class="row">
@@ -79,6 +79,8 @@
     else
     {
         <div class="alert alert-info mt-4">لا توجد تفاصيل إضافية (دورات) لهذه الدورة حالياً.</div>
+      <a asp-controller="CourseDetails" asp-route-id="@Model.Id"  asp-action="Create" class="btn btn-outline-secondary">انشاء دورة تدريبية</a>
+
     }
 
     @if (Model.CourseTrainers != null && Model.CourseTrainers.Any())

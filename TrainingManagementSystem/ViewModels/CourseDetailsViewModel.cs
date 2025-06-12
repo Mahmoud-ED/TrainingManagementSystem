@@ -40,6 +40,40 @@ public class EnrolledTraineeViewModel // لتمثيل كل متدرب مسجل �
     // يمكنك إضافة رابط الشهادة والملاحظات إذا أردت عرضها مباشرة في القائمة
 }
 
+
+public class AnnualPlanViewModel
+{
+    /// <summary>
+    /// السنة التي يتم عرض الخطة لها.
+    /// </summary>
+    public int Year { get; set; }
+
+    /// <summary>
+    /// القاموس الذي يحتوي على الدورات مقسمة حسب رقم الربع.
+    /// Key: رقم الربع (1, 2, 3, 4)
+    /// Value: قائمة الدورات في هذا الربع
+    /// </summary>
+    public Dictionary<int, List<CourseDetails>> CoursesByQuarter { get; set; }
+
+    /// <summary>
+    /// إجمالي عدد الدورات المخطط لها في السنة.
+    /// </summary>
+    public int TotalCoursesInYear { get; set; }
+
+    public AnnualPlanViewModel()
+    {
+        // نهيئ القاموس ليكون جاهزاً للاستخدام
+        CoursesByQuarter = new Dictionary<int, List<CourseDetails>>
+            {
+                { 1, new List<CourseDetails>() }, // الربع الأول
+                { 2, new List<CourseDetails>() }, // الربع الثاني
+                { 3, new List<CourseDetails>() }, // الربع الثالث
+                { 4, new List<CourseDetails>() }  // الربع الرابع
+            };
+    }
+}
+
+
 public class CourseDetailsIndexViewModel
 {
     // 1. القائمة الأصلية لعرضها في الجداول

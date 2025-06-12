@@ -9,7 +9,7 @@ namespace TrainingManagementSystem.Models.Entities
         [ValidateNever]
         public CourseClassification CourseClassification { get; set; } // مفرد
         [Required(ErrorMessage = "CourseClassification is required")]
-        [Display(Name = "تصنيف الدورة")]
+        [Display(Name = "تصنيف الكورس")]
         public Guid CourseClassificationId { get; set; }
 
         //---------------------------------------------------------------
