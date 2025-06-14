@@ -1,7 +1,7 @@
 ﻿@model IEnumerable<CourseClassification>
 
 @{
-    ViewData["Title"] = "قائمة تصنيفات الدورات التدريبية";
+    ViewData["Title"] = "قائمة محاور الدورات التدريبية";
 }
 
 <section class="doctor-calendar-area section">
@@ -25,7 +25,7 @@
                             <thead>
                                 <tr>
                                     <th>ت</th>
-                                    <th>التصنيف</th>
+                                    <th>المحور</th>
                                     <th>الدورات التدريبية</th>
                                     <th>تاريخ الانشاء</th>
                                     <th>تاريخ التعديل</th>
@@ -56,7 +56,7 @@
                     else
                     {
                         <div class="alert alert-light text-center mt-3" role="alert">
-                            <i class="icofont-info-square"></i> لا توجد تصنيفات لعرضها حاليًا. يمكنك <a asp-action="Create" class="alert-link">إضافة تصنيف جديد</a>.
+                            <i class="icofont-info-square"></i> لا توجد محاور لعرضها حاليًا. يمكنك <a asp-action="Create" class="alert-link">إضافة محور جديد</a>.
                         </div>
                     }
                 </div>

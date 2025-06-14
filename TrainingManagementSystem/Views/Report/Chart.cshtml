@@ -109,7 +109,7 @@
         <div class="col-lg-6">
             <div class="chart-container" id="coursesPerClassificationContainer">
                 <div class="loading-overlay" style="display:none;"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div></div>
-                <h5 class="text-center mb-3">عدد الدورات حسب التصنيف</h5>
+                <h5 class="text-center mb-3">عدد الدورات حسب المحور</h5>
                 <canvas id="coursesPerClassificationChart"></canvas>
             </div>
         </div>
@@ -294,8 +294,8 @@
                         // تحديث المخطط الأول: عدد المتدربين حسب حالة الدورة
                         updateChart('traineesPerStatus', 'traineesPerStatusChart', 'doughnut', response.traineesPerCourseStatusData, 'عدد المتدربين حسب الحالة');
 
-                        // تحديث المخطط الثاني: عدد الدورات حسب التصنيف
-                        updateChart('coursesPerClassification', 'coursesPerClassificationChart', 'pie', response.coursesCountPerClassificationData, 'عدد الدورات حسب التصنيف');
+                        // تحديث المخطط الثاني: عدد الدورات حسب المحور
+                        updateChart('coursesPerClassification', 'coursesPerClassificationChart', 'pie', response.coursesCountPerClassificationData, 'عدد الدورات حسب المحور');
 
                         // تحديث المخطط الثالث: متوسط الدرجات لكل دورة
                         updateChart('averageGradePerCourse', 'averageGradePerCourseChart', 'bar', response.averageGradePerCourseData, 'متوسط الدرجات لكل دورة');

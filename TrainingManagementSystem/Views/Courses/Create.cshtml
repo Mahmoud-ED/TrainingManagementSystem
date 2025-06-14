@@ -1,12 +1,12 @@
 ﻿@model TrainingManagementSystem.Models.Entities.Course
 
 @{
-    ViewData["Title"] = "إنشاء دورة جديدة";
+    ViewData["Title"] = "إنشاء تصنيف جديد";
 }
 
 <h1>@ViewData["Title"]</h1>
 
-<h4>دورة تدريبية</h4>
+@* <h4>دورة تدريبية</h4> *@
 <hr />
 <div class="row">
     <div class="col-md-6">
@@ -31,7 +31,7 @@
             <div class="form-group mb-3">
                 <label asp-for="CourseClassificationId" class="control-label"></label>
                 <select asp-for="CourseClassificationId" class="form-control" asp-items="ViewBag.CourseClassificationId">
-                    <option value="">-- اختر تصنيف --</option>
+                    <option value="">-- اختر محور --</option>
                 </select>
                 <span asp-validation-for="CourseClassificationId" class="text-danger"></span>
             </div>

@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 using TrainingManagementSystem.Classes;
@@ -11,6 +12,8 @@ namespace TrainingManagementSystem.Controllers
 {
     [ViewLayout("_LayoutDashboard")]
     [Authorize(Roles = "Admin,Prog")]
+    [Display(Name = "المستويات")] // ✅ Controller title
+
     public class LevelController : BaseController
     {
         private readonly IUnitOfWork<Level> _levelRepository;

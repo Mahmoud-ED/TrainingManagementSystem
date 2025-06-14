@@ -16,7 +16,7 @@ namespace TrainingManagementSystem.Controllers
 {
     [ViewLayout("_LayoutDashboard")]
     [Authorize(Roles = "Admin,Prog")]
-    [Display(Name = "تصنيفات البرامج التدريبية")] // ✅ Controller title
+    [Display(Name = "تصنيفات المحاور التدريبية")] // ✅ Controller title
     public class CourseClassificationController : BaseController
     {
         private readonly ApplicationDbContext _context;
@@ -37,14 +37,14 @@ namespace TrainingManagementSystem.Controllers
             return View(CourseClassification);
         }
 
-        [Display(Name = "تفاصيل التصنيف")] // ✅ Action title
+        [Display(Name = "تفاصيل المحور")] // ✅ Action title
         public async Task<IActionResult> Details(Guid? id)
         {
             var courseClassification = await _courseClassification.Entity.GetByIdAsync(id);
             return View(courseClassification);
         }
 
-        [Display(Name = "إضافة تصنيف جديد")] // ✅ Action title
+        [Display(Name = "إضافة محور جديد")] // ✅ Action title
         public ActionResult Create()
         {
             return View();
@@ -52,7 +52,7 @@ namespace TrainingManagementSystem.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [Display(Name = "حفظ التصنيف الجديد")] // ✅ Action title
+        [Display(Name = "حفظ محور جديد")] // ✅ Action title
         public async Task<IActionResult> Create([Bind("Name")] CourseClassification courseClassification)
         {
             if (ModelState.IsValid)
@@ -94,11 +94,11 @@ namespace TrainingManagementSystem.Controllers
             }
             else
             {
-                return Json($"التصنيف '{exists.Name}' مستخدم مسبقاَ");
+                return Json($"المحور '{exists.Name}' مستخدم مسبقاَ");
             }
         }
 
-        [Display(Name = "تعديل التصنيف")] // ✅ Action title
+        [Display(Name = "تعديل المحور")] // ✅ Action title
         public async Task<IActionResult> Edit(Guid? id)
         {
             if (id == null)
@@ -110,7 +110,7 @@ namespace TrainingManagementSystem.Controllers
 
             if (courseClassification == null)
             {
-                ViewBag.Message = "التصنيف ليس موجود";
+                ViewBag.Message = "المحور ليس موجود";
                 return View("NotFound");
             }
             return View(courseClassification);
@@ -118,7 +118,7 @@ namespace TrainingManagementSystem.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [Display(Name = "تحديث التصنيف")] // ✅ Action title
+        [Display(Name = "تحديث المحور")] // ✅ Action title
         public async Task<IActionResult> Edit(Guid id, [Bind("Name,Id,Created,Modified")] CourseClassification courseClassification)
         {
             if (id != courseClassification.Id)
@@ -166,7 +166,7 @@ namespace TrainingManagementSystem.Controllers
             return (_courseClassification.Entity.GetAll()?.Any(e => e.Id == id)).GetValueOrDefault();
         }
 
-        [Display(Name = "عرض حذف التصنيف")] // ✅ Action title
+        [Display(Name = "عرض حذف المحور")] // ✅ Action title
         public ActionResult Delete(int id)
         {
             return View();
@@ -174,7 +174,7 @@ namespace TrainingManagementSystem.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [Display(Name = "تأكيد حذف التصنيف")] // ✅ Action title
+        [Display(Name = "تأكيد حذف المحور")] // ✅ Action title
         public async Task<IActionResult> Delete(Guid? id)
         {
             if (id == null)

@@ -1,7 +1,7 @@
 ﻿@model IEnumerable<TrainingManagementSystem.Models.Entities.Course>
 
 @{
-    ViewData["Title"] = "الدورات التدريبية";
+    ViewData["Title"] = "تصنيفات البرامج التدريبية";
 }
 
 @section Styles {
@@ -97,7 +97,7 @@
     <div class="page-header mb-4 d-flex justify-content-between align-items-center pb-2 border-bottom">
         <h1><i class="icofont-certificate-alt-1"></i> @ViewData["Title"]</h1>
         <a asp-action="Create" class="btn btn-primary">
-            <i class="icofont-plus"></i> إنشاء دورة جديدة
+            <i class="icofont-plus"></i> إنشاء تصنيف جديد
         </a>
     </div>
 
@@ -160,7 +160,7 @@
                             <div class="course-card-actions">
                                 <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-info" title="تفاصيل"><i class="icofont-eye-alt"></i> تفاصيل</a>
                                 <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary" title="تعديل"><i class="icofont-edit"></i> تعديل</a>
-                                <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-outline-danger" title="حذف" onclick="return confirm('هل أنت متأكد من حذف هذه الدورة؟');"><i class="icofont-trash"></i> حذف</a>
+                                <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-outline-danger" title="حذف" onclick="return confirm('هل أنت متأكد من حذف هذا التصنيف؟');"><i class="icofont-trash"></i> حذف</a>
                             </div>
                         </div>
                     </div>
@@ -172,7 +172,7 @@
     {
         <div class="no-courses-message mt-4 py-5">
             <i class="icofont-ban icofont-5x text-muted mb-3"></i>
-            <h5 class="text-secondary mt-3 mb-2">لا توجد دورات تدريبية لعرضها حاليًا.</h5>
+            <h5 class="text-secondary mt-3 mb-2">لا توجد تصنيفات دورات تدريبية لعرضها حاليًا.</h5>
             <p class="text-muted">يمكنك <a asp-action="Create" class="text-primary fw-bold">البدء بإنشاء دورة جديدة</a>.</p>
         </div>
     }

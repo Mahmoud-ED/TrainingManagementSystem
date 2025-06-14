@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations;
 using TrainingManagementSystem.Classes;
 using TrainingManagementSystem.Models.Entities;
 using TrainingManagementSystem.Models.Interfaces;
@@ -9,6 +10,8 @@ using TrainingManagementSystem.Models.Interfaces;
 namespace TrainingManagementSystem.Controllers
 {
     [ViewLayout("_LayoutDashboard")]
+    [Display(Name = "التخصصات")] // ✅ Controller title
+
     public class SpecializationController : BaseController
     {
         private readonly UserManager<ApplicationUser> _userManager;

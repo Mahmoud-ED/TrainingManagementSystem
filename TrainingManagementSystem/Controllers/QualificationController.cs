@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations;
 using System.Data;
 using TrainingManagementSystem.Classes;
 using TrainingManagementSystem.Models;
@@ -10,6 +11,8 @@ using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 namespace TrainingManagementSystem.Controllers
 {
     [ViewLayout("_LayoutDashboard")]
+    [Display(Name = "المؤهلات")] // ✅ Controller title
+
     public class QualificationController : BaseController
     {
         private readonly ApplicationDbContext _context;

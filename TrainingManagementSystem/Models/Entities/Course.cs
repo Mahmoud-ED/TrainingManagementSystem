@@ -8,26 +8,29 @@ namespace TrainingManagementSystem.Models.Entities
     {
         [ValidateNever]
         public CourseClassification CourseClassification { get; set; } // مفرد
-        [Required(ErrorMessage = "CourseClassification is required")]
-        [Display(Name = "تصنيف الكورس")]
+        [Required(ErrorMessage = "تصنيف الدورة مطلوب")]
+        [Display(Name = "محور التصنيف")]
         public Guid CourseClassificationId { get; set; }
 
         //---------------------------------------------------------------
         [ValidateNever]
         public Level Level { get; set; } // مفرد
-        [Required(ErrorMessage = "Level is required")] // تم تصحيح رسالة الخطأ
+        [Required(ErrorMessage = "المستوى مطلوب")] // تم تصحيح رسالة الخطأ
         [Display(Name = "المستوى")]
         public Guid LevelId { get; set; }
 
         //---------------------------------------------------------------
         [StringLength(100)]
         [Required]
+        [Display(Name = "الاسم")]
         public string Name { get; set; }
 
         [StringLength(50)]
+        [Display(Name = "الرمز")]
         public string Code { get; set; }
 
         [StringLength(500)]
+        [Display(Name = "الوصف")]
         public string Description { get; set; }
 
         //---------------------------------------------------------------

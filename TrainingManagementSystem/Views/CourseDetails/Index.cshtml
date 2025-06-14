@@ -1,7 +1,7 @@
 ﻿@model CourseDetailsIndexViewModel
 
 @{
-    ViewData["Title"] = "جدول ومواعيد الدورات";
+    ViewData["Title"] = "البرامج التدريبية";
 
     // --- لم نعد بحاجة لهذه الحسابات هنا، تم نقلها للكونترولر ---
     // تم الإبقاء على الدوال المساعدة فقط
@@ -156,15 +156,15 @@
     <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom">
         <h1 class="h3"><i class="fas fa-calendar-alt me-2"></i>@ViewData["Title"]</h1>
         <a asp-action="Create" class="btn btn-primary">
-            <i class="fas fa-plus me-2"></i> إضافة موعد جديد
+            <i class="fas fa-plus me-2"></i> إضافة برنامج تدريبي
         </a>
-    </div>
+   
 
     @if (!Model.CourseDetailsList.Any())
     {
         <div class="alert alert-info text-center" role="alert">
-            <h4 class="alert-heading">لا توجد مواعيد!</h4>
-            <p>يمكنك <a asp-action="Create" class="alert-link">إضافة دورة جديدة</a> للبدء.</p>
+            <h4 class="alert-heading">لا توجد برامج تدريبية!</h4>
+            <p>يمكنك <a asp-action="Create" class="alert-link">إضافة برنامج تدريبي</a> للبدء.</p>
         </div>
     }
     else

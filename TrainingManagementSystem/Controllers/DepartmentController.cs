@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations;
 using TrainingManagementSystem.Classes;
 using TrainingManagementSystem.Models;
 using TrainingManagementSystem.Models.Entities;
@@ -8,6 +9,8 @@ using TrainingManagementSystem.Models.Interfaces;
 namespace TrainingManagementSystem.Controllers
 {
     [ViewLayout("_LayoutDashboard")]
+    [Display(Name = "الأقسام")] // ✅ Controller title
+
     public class DepartmentController : BaseController
     {
         private readonly ApplicationDbContext _context;

@@ -15,8 +15,8 @@
             <div class="col-lg-6 col-md-8 col-12 mx-auto">
                 <div class="appointment-inner">
                     <div class="title text-center mb-4">
-                        <h3><i class="icofont-edit"></i> تعديل بيانات التصنيف</h3>
-                        <p>يرجى تحديث اسم التصنيف.</p>
+                        <h3><i class="icofont-edit"></i> تعديل بيانات المحور</h3>
+                        <p>يرجى تحديث اسم المحور.</p>
                     </div>
 
                     <form asp-action="Edit" class="form">
@@ -27,7 +27,7 @@
 
                         <div class="form-group mb-3">
                             <label asp-for="Name" class="form-label"></label>
-                            <input asp-for="Name" class="form-control" placeholder="اسم التصنيف" />
+                            <input asp-for="Name" class="form-control" placeholder="اسم المحور" />
                             <span asp-validation-for="Name" class="text-danger d-block mt-1 small"></span>
                         </div>
                         <input type="hidden" asp-for="Created" />

@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using System;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 using TrainingManagementSystem.Classes;
@@ -13,6 +14,8 @@ namespace TrainingManagementSystem.Controllers
 {
     [ViewLayout("_LayoutDashboard")]
     [Authorize(Roles = "Admin,Prog")]
+    [Display(Name = "تصنيفات البرامج التدريبية")] // ✅ Controller title
+
     public class CoursesController : Controller
     {
         private readonly ApplicationDbContext _context;

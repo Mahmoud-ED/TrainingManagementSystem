@@ -7,8 +7,8 @@ namespace TrainingManagementSystem.Models.Entities
     {
         [StringLength(100)]
 
-        [Display(Name = "اسم التصنيف")]
-        [Required(ErrorMessage = "اسم التصنيف مطلوب")]
+        [Display(Name = "اسم المحور")]
+        [Required(ErrorMessage = "اسم المحور مطلوب")]
         public string Name { get; set; }
 
         public List<Course> Courses { get; set; } = new List<Course>();

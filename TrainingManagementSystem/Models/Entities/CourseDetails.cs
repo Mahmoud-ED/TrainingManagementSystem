@@ -9,13 +9,13 @@ namespace TrainingManagementSystem.Models.Entities
     {
         [ValidateNever]
         public Course Course { get; set; }
-        [Required(ErrorMessage = "Course is required")]
-        [Display(Name = "Course")]
+        [Required(ErrorMessage = "الدورة التدريبية مطلوبة")]
+        [Display(Name = "الدورة التدريبية")]
         public Guid CourseId { get; set; }
         //------------------------------------------------
 
-        [Display(Name = "Duration (Hours)")]
-        [Range(1, 1000, ErrorMessage = "Duration must be between 1 and 1000 hours.")] // مثال على التحقق
+        [Display(Name = "المدة بالساعات")]
+        [Range(1, 1000, ErrorMessage = "المدة بالساعات يجب أن تكون بين 1 و 1000")] // مثال على التحقق
         public int DurationHours { get; set; } // تم تغييره إلى int
 
         [DisplayFormat(DataFormatString = "{0:dd-MM-yyyy}")]
@@ -29,21 +29,21 @@ namespace TrainingManagementSystem.Models.Entities
         //----------------------------------------------------
         [ValidateNever]
         public Location Location { get; set; }
-        [Required(ErrorMessage = "Location is required")]
+        [Required(ErrorMessage = "الموقع مطلوب")]
         [Display(Name = "Location")]
         public Guid LocationId { get; set; }
 
         //----------------------------------------------------
         [ValidateNever]
         public CourseType CourseType { get; set; }
-        [Required(ErrorMessage = "CourseType is required")]
+        [Required(ErrorMessage = "النوع مطلوب")]
         [Display(Name = "Course Type")]
         public Guid CourseTypeId { get; set; }
 
         //----------------------------------------------------
         [ValidateNever]
         public Status Status { get; set; }
-        [Required(ErrorMessage = "Status is required")]
+        [Required(ErrorMessage = "الحالة مطلوبة")]
         [Display(Name = "Status")]
         public Guid StatusId { get; set; }
 

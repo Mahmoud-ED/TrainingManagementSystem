@@ -34,7 +34,7 @@ public class ReportChartViewModel
 
     // بيانات المخططات (يمكنك إضافة المزيد حسب الحاجة)
     public ChartData TraineesPerCourseStatusData { get; set; } // عدد المتدربين حسب حالة الدورة
-    public ChartData CoursesCountPerClassificationData { get; set; } // عدد الدورات حسب التصنيف
+    public ChartData CoursesCountPerClassificationData { get; set; } // عدد الدورات حسب المحور
     public ChartData AverageGradePerCourseData { get; set; } // متوسط الدرجات لكل دورة (مثال)
 
     public ReportChartViewModel()
@@ -54,6 +54,8 @@ public class ChartData
 }
 
 [ViewLayout("_LayoutDashboard")]
+[Display(Name = "التقارير")] // ✅ Controller title
+
 // Controllers/ReportController.cs
 // ... (باقي using statements و class ReportChartViewModel و ChartData كما هي) ...
 
@@ -118,7 +120,7 @@ public class ReportController : Controller
             .OrderBy(x => x.StatusName);
         var traineesPerCourseStatusData = new ChartData { Label = "عدد المتدربين", Labels = traineesPerStatus.Select(x => x.StatusName).ToList(), Data = traineesPerStatus.Select(x => x.TraineeCount).ToList() };
 
-        // 2. مخطط عدد الدورات حسب التصنيف (كما هو)
+        // 2. مخطط عدد الدورات حسب المحور (كما هو)
         var coursesPerClassification = filteredCourseDetails
             .Where(cd => cd.Course?.CourseClassification != null)
             .GroupBy(cd => cd.Course.CourseClassification.Name)

@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations;
 using TrainingManagementSystem.Classes;
 using TrainingManagementSystem.Models;
 using TrainingManagementSystem.Models.Entities;
@@ -11,6 +12,8 @@ namespace TrainingManagementSystem.Controllers
 {
     [ViewLayout("_LayoutDashboard")]
     [Authorize(Roles = "Admin,Prog")]
+    [Display(Name = "البرامج التدريبية")] // ✅ Controller title
+
     public class CourseDetailsController : Controller
     {
         private readonly ApplicationDbContext _context; // استبدل ApplicationDbContext باسم الـ DbContext الخاص بك

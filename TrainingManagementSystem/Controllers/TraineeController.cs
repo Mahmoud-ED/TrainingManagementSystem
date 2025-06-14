@@ -13,11 +13,14 @@ using TrainingManagementSystem.Models; // ApplicationDbContext
 using TrainingManagementSystem.Models.Entities;
 using TrainingManagementSystem.Models.Interfaces;
 using TrainingManagementSystem.ViewModels;
-using System.IO; // For Path
+using System.IO;
+using System.ComponentModel.DataAnnotations; // For Path
 
 namespace TrainingManagementSystem.Controllers
 {
     [ViewLayout("_LayoutDashboard")]
+    [Display(Name = "المتدربون")] // ✅ Controller title
+
     public class TraineeController : BaseController
     {
         private readonly ApplicationDbContext _context; // للوصول المباشر إذا لزم الأمر
