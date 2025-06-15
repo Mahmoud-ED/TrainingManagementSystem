@@ -151,16 +151,14 @@
         </div>
 
     </div>
-
+    <h1 class="h3"><i class="fas fa-calendar-alt me-2"></i>@ViewData["Title"]</h1>
+    <a asp-action="Create" class="btn btn-primary">
+        <i class="fas fa-plus me-2"></i> إضافة برنامج تدريبي
+    </a>
     <!-- ======================= قسم الجداول ======================= -->
-    <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom">
-        <h1 class="h3"><i class="fas fa-calendar-alt me-2"></i>@ViewData["Title"]</h1>
-        <a asp-action="Create" class="btn btn-primary">
-            <i class="fas fa-plus me-2"></i> إضافة برنامج تدريبي
-        </a>
-   
+    <div class="d-flex  border-bottom">
 
-    @if (!Model.CourseDetailsList.Any())
+        @if (!Model.CourseDetailsList.Any())
     {
         <div class="alert alert-info text-center" role="alert">
             <h4 class="alert-heading">لا توجد برامج تدريبية!</h4>
@@ -181,7 +179,7 @@
         {
             if (!group.Items.Any()) continue;
 
-            <div class="card shadow-sm mb-4">
+            <div class="card shadow-sm mb-4 mb-5">
                 <div class="card-header bg-light d-flex justify-content-between align-items-center">
                     <h5 class="mb-0">
                         <span class="badge bg-@(GetStatusBadgeClass(group.StatusName)) me-2 p-2">@group.StatusName</span>
@@ -223,7 +221,7 @@
                                         <td>@(item.Location?.Name ?? "N/A")</td>
                                         <td>@(item.CourseType?.Name ?? "N/A")</td>
                                         <td class="text-center">
-                                            <span class="badge bg-dark rounded-pill" title="عدد المسجلين">@(item.CourseTrainees?.Count ?? 0)</span>
+                                            <span class="badge bg-dark rounded-pill" title="عدد المسجلين">@(item.CourseTrainees?.Count ?? 0) / @item.Numberoftargets </span>
                                         </td>
                                         <td class="text-center">
                                             <div class="btn-group btn-group-sm" role="group">
@@ -242,6 +240,7 @@
         }
         }
     }
+</div>
 </div>
 
 

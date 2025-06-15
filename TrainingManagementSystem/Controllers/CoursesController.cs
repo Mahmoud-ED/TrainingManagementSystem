@@ -8,6 +8,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using TrainingManagementSystem.Classes;
 using TrainingManagementSystem.Models;
+using TrainingManagementSystem.ViewModels;
 using TrainingManagementSystem.Models.Entities; // Your DbContext and Entities
 
 namespace TrainingManagementSystem.Controllers
@@ -86,24 +87,90 @@ namespace TrainingManagementSystem.Controllers
 
         public async Task<IActionResult> Create()
         {
-            await PopulateDropdownsAsync();
-            return View();
+            var viewModel = new CreateCourseViewModel();
+            await PopulateDropdownsAsync(viewModel); // مرر الـ ViewModel للدالة
+            return View(viewModel);
+        }
+        private async Task PopulateDropdownsAsync(CreateCourseViewModel viewModel)
+        {
+            // ... (الكود السابق لملء باقي القوائم)
+            viewModel.CourseClassifications = new SelectList(await _context.CourseClassifications.OrderBy(cc => cc.Name).ToListAsync(), "Id", "Name");
+            viewModel.Levels = new SelectList(await _context.Levels.OrderBy(l => l.Name).ToListAsync(), "Id", "Name");
+            viewModel.ParentCourses = new SelectList(await _context.CourseParent.OrderBy(c => c.Name).ToListAsync(), "Id", "Name");
+
+            // --- الإضافة الجديدة: ملء قائمة المدربين ---
+            // لاحظ أن القيمة "Value" هي Guid هنا
+            viewModel.AllTrainers = new SelectList(await _context.Trainers.OrderBy(t => t.ArName).ToListAsync(), "Id", "ArName");
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("CourseClassificationId,LevelId,Name,Code,Description,CourseParentId")] Course course)
+        public async Task<IActionResult> Create(CreateCourseViewModel viewModel)
         {
-            //if (ModelState.IsValid)
-            //{
-                course.Created = DateTime.Now; 
-                _context.Add(course);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            //}
-            //await PopulateDropdownsAsync(course);
-            //return View(course);
+            if (ModelState.IsValid)
+            {
+                // استخدام Transaction لضمان حفظ الدورة ومدربيها معاً أو لا شيء
+                using (var transaction = await _context.Database.BeginTransactionAsync())
+                {
+                    try
+                    {
+                        // الخطوة 1: إنشاء وحفظ الدورة أولاً للحصول على ID
+                        var course = new Course
+                        {
+                            Name = viewModel.Name,
+                            Code = viewModel.Code,
+                            Description = viewModel.Description,
+                            CourseClassificationId = viewModel.CourseClassificationId,
+                            LevelId = viewModel.LevelId,
+                            CourseParentId = viewModel.CourseParentId,
+                            Created = DateTime.Now // أو أي قيمة افتراضية أخرى
+                        };
+
+                        _context.Courses.Add(course);
+                        await _context.SaveChangesAsync(); // الحفظ هنا ضروري لتوليد course.Id
+
+                        // الخطوة 2: إضافة المدربين المختارين إلى جدول الربط
+                        if (viewModel.SelectedTrainerIds != null && viewModel.SelectedTrainerIds.Any())
+                        {
+                            foreach (var trainerId in viewModel.SelectedTrainerIds)
+                            {
+                                var courseTrainer = new CourseTrainer
+                                {
+                                    CourseId = course.Id, // <- استخدام الـ ID الجديد للدورة
+                                    TrainerId = trainerId
+                                };
+                                _context.CourseTrainers.Add(courseTrainer);
+                            }
+                            // حفظ سجلات جدول الربط
+                            await _context.SaveChangesAsync();
+                        }
+
+                        // إذا تم كل شيء بنجاح، قم بتثبيت التغييرات
+                        await transaction.CommitAsync();
+
+                        // يمكنك إضافة رسالة نجاح هنا باستخدام TempData
+                        TempData["SuccessMessage"] = "تم إنشاء الدورة بنجاح!";
+                        return RedirectToAction(nameof(Index));
+                    }
+                    catch (Exception ex)
+                    {
+                        // في حالة حدوث أي خطأ، تراجع عن كل التغييرات
+                        await transaction.RollbackAsync();
+
+                        // سجل الخطأ (مهم جداً لتصحيح الأخطاء لاحقاً)
+                        // _logger.LogError(ex, "An error occurred while creating a course.");
+
+                        // أضف رسالة خطأ للمستخدم
+                        ModelState.AddModelError("", "حدث خطأ غير متوقع أثناء حفظ الدورة. يرجى المحاولة مرة أخرى.");
+                    }
+                }
+            }
+
+            // إذا كان النموذج غير صالح، أعد ملء القوائم وأرجع المستخدم لنفس الصفحة
+            await PopulateDropdownsAsync(viewModel);
+            return View(viewModel);
         }
+
 
         public async Task<IActionResult> Edit(Guid? id)
         {
@@ -129,8 +196,18 @@ namespace TrainingManagementSystem.Controllers
             {
                 return NotFound();
             }
-            await PopulateDropdownsAsync(course);
+            await PopulateDropdownsAsyncEdit(course);
             return View(course);
+        }
+
+
+        private async Task PopulateDropdownsAsyncEdit(Course course = null)
+        {
+            ViewBag.CourseClassificationId = new SelectList(await _context.CourseClassifications.OrderBy(cc => cc.Name).ToListAsync(), "Id", "Name", course?.CourseClassificationId);
+            ViewBag.LevelId = new SelectList(await _context.Levels.OrderBy(l => l.Name).ToListAsync(), "Id", "Name", course?.LevelId);
+            ViewBag.CourseParentId = new SelectList(await _context.CourseParent.OrderBy(l => l.Name).ToListAsync(), "Id", "Name", course?.CourseParentId);
+
+
         }
 
         [HttpPost]
@@ -205,13 +282,6 @@ namespace TrainingManagementSystem.Controllers
             return _context.Courses.Any(e => e.Id == id);
         }
 
-        private async Task PopulateDropdownsAsync(Course course = null)
-        {
-            ViewBag.CourseClassificationId = new SelectList(await _context.CourseClassifications.OrderBy(cc => cc.Name).ToListAsync(), "Id", "Name", course?.CourseClassificationId);
-            ViewBag.LevelId = new SelectList(await _context.Levels.OrderBy(l => l.Name).ToListAsync(), "Id", "Name", course?.LevelId);
-            ViewBag.CourseParentId = new SelectList(await _context.CourseParent.OrderBy(l => l.Name).ToListAsync(), "Id", "Name", course?.CourseParentId);
-
-          
-        }
+  
     }
 }

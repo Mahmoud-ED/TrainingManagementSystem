@@ -46,6 +46,13 @@
             <input asp-for="DurationHours" name="@($"CourseDetailsEntries[{index}].DurationHours")" id="@($"CourseDetailsEntries_{index}__DurationHours")" class="form-control" type="number" min="1" />
             <span asp-validation-for="DurationHours" data-valmsg-for="@($"CourseDetailsEntries[{index}].DurationHours")" class="text-danger"></span>
         </div>
+
+        <div class="col-md-4 mb-3">
+            <label asp-for="Numberoftargets" class="form-label">العدد المستهدف<span class="text-danger">*</span></label>
+            <input asp-for="Numberoftargets" name="@($"CourseDetailsEntries[{index}].Numberoftargets")" id="@($"CourseDetailsEntries_{index}__Numberoftargets")" class="form-control" type="number" min="1" />
+            <span asp-validation-for="Numberoftargets" data-valmsg-for="@($"CourseDetailsEntries[{index}].Numberoftargets")" class="text-danger"></span>
+        </div>
+
     </div>
     <div class="row">
         <div class="col-md-4 mb-3">

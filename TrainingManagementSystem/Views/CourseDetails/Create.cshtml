@@ -127,6 +127,12 @@
                             <input asp-for="Code" class="form-control" />
                             <span asp-validation-for="Code" class="text-danger"></span>
                         </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="Numberoftargets" class="form-label"></label>
+                            <input asp-for="Numberoftargets" class="form-control" />
+                            <span asp-validation-for="Numberoftargets" class="text-danger"></span>
+                        </div>
                     </div>
                     <div class="mb-3">
                         <label asp-for="Description" class="form-label"></label>
@@ -293,7 +299,6 @@
                 $('#hiddenCourseIdInput').val(courseId).trigger('change'); // trigger change إذا كانت هناك أي ارتباطات أخرى
 
                 // تحديث العرض المرئي للاختيار
-                $('#selectedCourseIdDisplayFeedback').text(courseId);
                 $('#selectedCourseNameDisplayFeedback').text(courseName);
                 $('#selectedCourseFeedback').slideDown(); // إظهار بشكل لطيف
 

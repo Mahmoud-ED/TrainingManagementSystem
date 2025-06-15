@@ -1,57 +1,199 @@
-﻿@model TrainingManagementSystem.Models.Entities.Course
-
+﻿@model CreateCourseViewModel
 @{
-    ViewData["Title"] = "إنشاء تصنيف جديد";
+    ViewData["Title"] = "إنشاء دورة تدريبية جديدة";
 }
 
-<h1>@ViewData["Title"]</h1>
+@section Styles {
+    @* --- مكتبات الأنماط الأساسية --- *@
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
 
-@* <h4>دورة تدريبية</h4> *@
-<hr />
-<div class="row">
-    <div class="col-md-6">
-        <form asp-action="Create">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    @* --- أنماط التصميم المخصصة (مستوحاة من مثالك) --- *@
+    <style>
+        :root {
+            --qc-primary-blue: #0d6efd; /* استخدمنا أزرق بوتستراب الأساسي */
+            --qc-secondary-blue: #f8f9fa; /* لون خلفية أفتح قليلاً */
+            --qc-accent-orange: #fd7e14; /* برتقالي بوتستراب */
+            --qc-gray-dark: #343a40;
+            --qc-gray-medium: #6c757d;
+            --qc-white: #ffffff;
+            --qc-border-radius: 0.375rem;
+            --qc-shadow-sm: 0 .125rem .25rem rgba(0, 0, 0, .075);
+            --qc-shadow-md: 0 .5rem 1rem rgba(0, 0, 0, .15);
+        }
 
-            <div class="form-group mb-3">
-                <label asp-for="Name" class="control-label"></label>
-                <input asp-for="Name" class="form-control" />
-                <span asp-validation-for="Name" class="text-danger"></span>
-            </div>
-            <div class="form-group mb-3">
-                <label asp-for="Code" class="control-label"></label>
-                <input asp-for="Code" class="form-control" />
-                <span asp-validation-for="Code" class="text-danger"></span>
-            </div>
-            <div class="form-group mb-3">
-                <label asp-for="Description" class="control-label"></label>
-                <textarea asp-for="Description" class="form-control" rows="3"></textarea>
-                <span asp-validation-for="Description" class="text-danger"></span>
-            </div>
-            <div class="form-group mb-3">
-                <label asp-for="CourseClassificationId" class="control-label"></label>
-                <select asp-for="CourseClassificationId" class="form-control" asp-items="ViewBag.CourseClassificationId">
-                    <option value="">-- اختر محور --</option>
-                </select>
-                <span asp-validation-for="CourseClassificationId" class="text-danger"></span>
-            </div>
-            <div class="form-group mb-3">
-                <label asp-for="LevelId" class="control-label"></label>
-                <select asp-for="LevelId" class="form-control" asp-items="ViewBag.LevelId">
-                    <option value="">-- اختر مستوى --</option>
-                </select>
-                <span asp-validation-for="LevelId" class="text-danger"></span>
-            </div>
-            <div class="form-group mb-3">
-                <label asp-for="CourseParentId" class="control-label"></label>
-                <select asp-for="CourseParentId" class="form-control" asp-items="ViewBag.CourseParentId">
-                    <option value="">-- لا يوجد مرجع (اختياري) --</option>
-                </select>
-                <span asp-validation-for="CourseParentId" class="text-danger"></span>
-            </div>
-            <div class="form-group mt-4">
-                <input type="submit" value="إنشاء" class="btn btn-primary" />
-                <a asp-action="Index" class="btn btn-secondary">العودة إلى القائمة</a>
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: var(--qc-secondary-blue);
+            color: var(--qc-gray-dark);
+        }
+
+        .page-header {
+            background-color: var(--qc-white);
+            padding: 1.5rem 2rem;
+            border-bottom: 1px solid #dee2e6;
+            margin-bottom: 2rem;
+            border-radius: var(--qc-border-radius);
+            box-shadow: var(--qc-shadow-sm);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+            .page-header h1 {
+                font-size: 1.75rem;
+                font-weight: 700;
+                color: var(--qc-primary-blue);
+                margin: 0;
+            }
+
+        .form-panel {
+            background-color: var(--qc-white);
+            padding: 2rem 2.5rem;
+            border-radius: var(--qc-border-radius);
+            box-shadow: var(--qc-shadow-md);
+            border: 1px solid #dee2e6;
+            max-width: 900px; /* زدنا العرض قليلاً ليناسب الأعمدة */
+            margin: 0 auto;
+        }
+
+            .form-panel .form-label {
+                font-weight: 600;
+                color: var(--qc-primary-blue);
+                margin-bottom: 0.5rem;
+                display: block;
+            }
+
+                .form-panel .form-label i {
+                    margin-inline-end: 0.75rem; /* للعمل مع RTL و LTR */
+                    width: 1.2em;
+                    text-align: center;
+                    color: var(--qc-accent-orange);
+                }
+
+            .form-panel .form-control,
+            .form-panel .form-select,
+            .select2-container--bootstrap-5 .select2-selection {
+                border-radius: var(--qc-border-radius);
+                border: 1px solid #ced4da;
+            }
+
+                .form-panel .form-control:focus,
+                .form-panel .form-select:focus,
+                .select2-container--bootstrap-5.select2-container--focus .select2-selection {
+                    border-color: var(--qc-primary-blue);
+                    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+                }
+
+        .btn-submit {
+            background-color: var(--qc-primary-blue);
+            border-color: var(--qc-primary-blue);
+            font-weight: 600;
+            padding: 0.75rem 1.5rem;
+            font-size: 1rem;
+        }
+
+            .btn-submit:hover {
+                background-color: #0b5ed7;
+                border-color: #0a58ca;
+            }
+    </style>
+}
+
+<div class="container-fluid px-lg-4 py-4">
+
+    <div class="page-header">
+        <h1><i class="fas fa-plus-circle"></i> @ViewData["Title"]</h1>
+        <a asp-action="Index" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-2"></i>العودة للقائمة
+        </a>
+    </div>
+
+    <div class="form-panel">
+        <form asp-action="Create" method="post">
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+            <div class="row g-4">
+                <div class="col-md-6">
+                    <label asp-for="Name" class="form-label"><i class="fas fa-signature"></i>اسم الدورة</label>
+                    <input asp-for="Name" class="form-control" placeholder="مثال: مقدمة في البرمجة" required />
+                    <span asp-validation-for="Name" class="text-danger small mt-1"></span>
+                </div>
+
+                <div class="col-md-6">
+                    <label asp-for="Code" class="form-label"><i class="fas fa-hashtag"></i>كود الدورة</label>
+                    <input asp-for="Code" class="form-control" placeholder="مثال: CS101" required />
+                    <span asp-validation-for="Code" class="text-danger small mt-1"></span>
+                </div>
+
+                <div class="col-12">
+                    <label asp-for="Description" class="form-label"><i class="fas fa-align-left"></i>وصف الدورة</label>
+                    <textarea asp-for="Description" class="form-control" rows="4" placeholder="اكتب وصفاً موجزاً عن محتوى الدورة وأهدافها..."></textarea>
+                    <span asp-validation-for="Description" class="text-danger small mt-1"></span>
+                </div>
+
+                <div class="col-md-6">
+                    <label asp-for="CourseClassificationId" class="form-label"><i class="fas fa-sitemap"></i>محور الدورة</label>
+                    <select asp-for="CourseClassificationId" class="form-select" required>
+                        <option></option> <!-- فارغ للـ placeholder -->
+                        @foreach (var item in Model.CourseClassifications)
+                        {
+                            <option value="@item.Value">@item.Text</option>
+                        }
+                    </select>
+                    <span asp-validation-for="CourseClassificationId" class="text-danger small mt-1"></span>
+                </div>
+
+                <div class="col-md-6">
+                    <label asp-for="LevelId" class="form-label"><i class="fas fa-layer-group"></i>مستوى الدورة</label>
+                    <select asp-for="LevelId" class="form-select" required>
+                        <option></option> <!-- فارغ للـ placeholder -->
+                        @foreach (var item in Model.Levels)
+                        {
+                            <option value="@item.Value">@item.Text</option>
+                        }
+                    </select>
+                    <span asp-validation-for="LevelId" class="text-danger small mt-1"></span>
+                </div>
+
+                <div class="col-12">
+                    <label asp-for="CourseParentId" class="form-label"><i class="fas fa-link"></i>الدورة المرجعية (إن وجدت)</label>
+                    <select asp-for="CourseParentId" class="form-select">
+                        <option></option> <!-- فارغ للـ placeholder -->
+                        @foreach (var item in Model.ParentCourses)
+                        {
+                            <option value="@item.Value">@item.Text</option>
+                        }
+                    </select>
+                    <span asp-validation-for="CourseParentId" class="text-danger small mt-1"></span>
+                </div>
+
+             @*    <div class="col-12">
+                    <label asp-for="SelectedTrainerIds" class="form-label"><i class="fas fa-chalkboard-teacher"></i>المدربون</label>
+                    <select asp-for="SelectedTrainerIds" class="form-select" multiple required>
+                        @foreach (var item in Model.AllTrainers)
+                        {
+                            <option value="@item.Value">@item.Text</option>
+                        }
+                    </select>
+                    <span asp-validation-for="SelectedTrainerIds" class="text-danger small mt-1"></span>
+                </div> *@
+
+                <div class="mb-4">
+                    <label asp-for="SelectedTrainerIds" class="form-label"><i class="fas fa-users"></i> Assign Users (Hold Ctrl/Cmd to select multiple)</label>
+                    <select asp-for="SelectedTrainerIds" class="form-select select-multiple" asp-items="Model.AllTrainers" multiple="multiple">
+                        @* Options are populated by asp-items *@
+                    </select>
+                    <span asp-validation-for="SelectedTrainerIds" class="text-danger"></span>
+                </div>
+
+                <div class="col-12 mt-5 text-end">
+                    <button type="submit" class="btn btn-primary btn-submit px-5">
+                        <i class="fas fa-save me-2"></i>إنشاء الدورة
+                    </button>
+                </div>
             </div>
         </form>
     </div>
@@ -61,4 +203,35 @@
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            // التهيئة العامة لكل القوائم المنسدلة
+            function initializeSelect2(selector, placeholderText, allowClear = false) {
+                $(selector).select2({
+                    theme: "bootstrap-5",
+                    placeholder: placeholderText,
+                    allowClear: allowClear,
+                    language: "ar",
+                    dir: "rtl",
+                    width: '100%'
+                });
+            }
+
+            // تهيئة القوائم الفردية
+            initializeSelect2('#CourseClassificationId', 'اختر محور الدورة');
+            initializeSelect2('#LevelId', 'اختر مستوى الدورة');
+            initializeSelect2('#CourseParentId', 'اختر دورة مرجعية (اختياري)', true);
+
+            // تهيئة خاصة بقائمة المدربين (متعددة الاختيارات)
+            $('#SelectedTrainerIds').select2({
+                theme: "bootstrap-5",
+                placeholder: "ابحث واختر المدربين...",
+                closeOnSelect: false,
+                language: "ar",
+                dir: "rtl",
+                width: '100%'
+            });
+        });
+    </script>
 }

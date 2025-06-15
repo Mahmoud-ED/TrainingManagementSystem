@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
-using System.ComponentModel.DataAnnotations;
-using System.Collections.Generic; // For List
 using System; // For DateTime
+using System.Collections.Generic; // For List
+using System.ComponentModel.DataAnnotations;
 
 namespace TrainingManagementSystem.Models.Entities
 {
@@ -25,6 +25,8 @@ namespace TrainingManagementSystem.Models.Entities
         [DisplayFormat(DataFormatString = "{0:dd-MM-yyyy}")]
         [DataType(DataType.Date)]
         public DateTime? EndDate { get; set; }
+
+        public int?  Numberoftargets { get; set; } // عدد الأهداف، يمكن أن يكون null إذا لم يتم تحديده
 
         //----------------------------------------------------
         [ValidateNever]
@@ -54,5 +56,7 @@ namespace TrainingManagementSystem.Models.Entities
         //----------------------------------------------------
         // العلاقة مع المتدربين المسجلين Many-to-Many عبر CourseTrainee
         public List<CourseTrainee> CourseTrainees { get; set; } = new List<CourseTrainee>();
+
+        public List<CoursDetailsTrainer> CoursDetailsTrainer { get; set; }
     }
 }

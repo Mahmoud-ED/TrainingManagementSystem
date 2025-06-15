@@ -18,11 +18,13 @@ public class CourseDetailsDisplayViewModel
     [DisplayFormat(DataFormatString = "{0:dd-MM-yyyy}")]
     public DateTime? EndDate { get; set; }
     public int DurationHours { get; set; }
+    public int? Numberoftargets { get; set; }
     public string LocationName { get; set; }
     public string CourseTypeName { get; set; }
     public string StatusName { get; set; }
 
     public List<EnrolledTraineeViewModel> EnrolledTrainees { get; set; } = new List<EnrolledTraineeViewModel>();
+    public List<Trainer> Trainers { get; set; } = new List<Trainer>();
 }
 
 public class EnrolledTraineeViewModel // لتمثيل كل متدرب مسجل في CourseDetails.Details View

@@ -15,6 +15,7 @@ public class CourseDetailFormEntryViewModel
     [Range(1, 1000, ErrorMessage = "المدة يجب أن تكون بين 1 و 1000 ساعة.")]
     [Required(ErrorMessage = "المدة مطلوبة")]
     public int DurationHours { get; set; }
+    public int Numberoftargets { get; set; }
 
     [Display(Name = "تاريخ البدء")]
     [DataType(DataType.Date)]
@@ -56,7 +57,8 @@ public class CourseFormViewModel // (نفس الـ ViewModel السابق مع �
     [StringLength(100)]
     [Required]
     public string Name { get; set; }
-
+    public int Numberoftargets { get; set; }
+    
     [StringLength(50)]
     public string Code { get; set; }
 

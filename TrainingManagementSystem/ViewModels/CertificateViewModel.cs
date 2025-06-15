@@ -22,6 +22,10 @@ public class CertificateViewModel
     [Display(Name = "مدة الدورة (ساعات)")]
     public int CourseDurationHours { get; set; }
 
+    [Display(Name = "العدد المستهدف")]
+    public int? CourseNumberoftargets { get; set; }
+
+
     [Display(Name = "موقع انعقاد الدورة")]
     public string CourseLocation { get; set; }
 

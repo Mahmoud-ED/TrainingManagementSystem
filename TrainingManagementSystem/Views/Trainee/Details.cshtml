@@ -207,6 +207,9 @@
                                                 <span class="mx-1">|</span> <i class="icofont-location-pin me-1"></i> الموقع: @(courseReg.CourseDetails.Location?.Name ?? "غير محدد")
                                             </p>
                                             <p>
+                                                <i class="icofont-clock-time me-1"></i> العدد المستهدف: @courseReg.CourseDetails.Numberoftargets 
+                                            </p>
+                                            <p>
                                                 <i class="icofont-info-square me-1"></i> الحالة:
                                                 <span class="badge bg-@(GetStatusBadgeClass(courseReg.CourseDetails.Status?.Name))">
                                                     @(courseReg.CourseDetails.Status?.Name ?? "غير محدد")

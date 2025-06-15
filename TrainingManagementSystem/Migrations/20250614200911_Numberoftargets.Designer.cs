@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TrainingManagementSystem.Models;
 
@@ -11,9 +12,11 @@ using TrainingManagementSystem.Models;
 namespace TrainingManagementSystem.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250614200911_Numberoftargets")]
+    partial class Numberoftargets
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -282,9 +285,6 @@ namespace TrainingManagementSystem.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
                     b.Property<DateTime?>("Modified")
                         .HasColumnType("datetime2");
 
@@ -302,9 +302,6 @@ namespace TrainingManagementSystem.Migrations
 
                     b.Property<Guid>("QualificationId")
                         .HasColumnType("uniqueidentifier");
-
-                    b.Property<bool>("State")
-                        .HasColumnType("bit");
 
                     b.Property<string>("UserId")
                         .HasColumnType("nvarchar(450)");
@@ -377,33 +374,6 @@ namespace TrainingManagementSystem.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Contact");
-                });
-
-            modelBuilder.Entity("TrainingManagementSystem.Models.Entities.CoursDetailsTrainer", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("CourseDetailsId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("Created")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime?>("Modified")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid>("TrainerId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CourseDetailsId");
-
-                    b.HasIndex("TrainerId");
-
-                    b.ToTable("CoursDetailsTrainer");
                 });
 
             modelBuilder.Entity("TrainingManagementSystem.Models.Entities.Course", b =>
@@ -1192,25 +1162,6 @@ namespace TrainingManagementSystem.Migrations
                     b.Navigation("Qualification");
                 });
 
-            modelBuilder.Entity("TrainingManagementSystem.Models.Entities.CoursDetailsTrainer", b =>
-                {
-                    b.HasOne("TrainingManagementSystem.Models.Entities.CourseDetails", "CourseDetails")
-                        .WithMany("CoursDetailsTrainer")
-                        .HasForeignKey("CourseDetailsId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Trainer", "Trainer")
-                        .WithMany("CoursDetailsTrainer")
-                        .HasForeignKey("TrainerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("CourseDetails");
-
-                    b.Navigation("Trainer");
-                });
-
             modelBuilder.Entity("TrainingManagementSystem.Models.Entities.Course", b =>
                 {
                     b.HasOne("TrainingManagementSystem.Models.Entities.CourseClassification", "CourseClassification")
@@ -1407,8 +1358,6 @@ namespace TrainingManagementSystem.Migrations
 
             modelBuilder.Entity("Trainer", b =>
                 {
-                    b.Navigation("CoursDetailsTrainer");
-
                     b.Navigation("CourseTrainers");
 
                     b.Navigation("TrainerSpecializations");
@@ -1433,8 +1382,6 @@ namespace TrainingManagementSystem.Migrations
 
             modelBuilder.Entity("TrainingManagementSystem.Models.Entities.CourseDetails", b =>
                 {
-                    b.Navigation("CoursDetailsTrainer");
-
                     b.Navigation("CourseTrainees");
                 });
 

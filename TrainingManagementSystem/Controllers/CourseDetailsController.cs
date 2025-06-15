@@ -33,12 +33,13 @@ namespace TrainingManagementSystem.Controllers
                                         .Include(cd => cd.CourseType)
                                         .Include(cd => cd.Status)
                                         .Include(cd => cd.CourseTrainees)
+                                        .OrderByDescending(cd => cd.Created)
                                         .ToListAsync();
 
             // 2. حساب الإحصائيات المطلوبة
             var upcomingCourses = courseDetailsList
                                     .Where(cd => cd.Status?.Name == "Open" && cd.StartDate >= DateTime.Today)
-                                    .OrderBy(cd => cd.StartDate)
+                                   .OrderByDescending(cd => cd.Created)
                                     .ToList();
 
             var viewModel = new CourseDetailsIndexViewModel
@@ -72,7 +73,7 @@ namespace TrainingManagementSystem.Controllers
                                         .Include(cd => cd.Location)
                                         .Include(cd => cd.Status)
                                         .Where(cd => cd.StartDate.Year == year) // فلترة حسب السنة الحالية
-                                        .OrderBy(cd => cd.StartDate) // ترتيب حسب تاريخ البدء
+                                        .OrderByDescending(cd => cd.Created) // ترتيب حسب تاريخ البدء
                                         .ToListAsync();
 
             // 3. إنشاء ViewModel وتعبئته
@@ -98,6 +99,7 @@ namespace TrainingManagementSystem.Controllers
             return View("AnnualPlan", viewModel); // تأكد من أن اسم الـ View هو AnnualPlan
         }
 
+
         // GET: CoursesDetalis/Create
         public async Task<IActionResult> Create( Guid? id)
         {
@@ -114,6 +116,9 @@ namespace TrainingManagementSystem.Controllers
                   .ThenInclude(cd => cd.CourseTrainees)
               .Include(c => c.CourseTrainers)
                   .ThenInclude(ct => ct.Trainer)
+              .Include(c => c.CourseDetails)     
+                  .ThenInclude(ct => ct.CoursDetailsTrainer)
+                  .ThenInclude(nt => nt.Trainer)
               .FirstOrDefaultAsync(m => m.Id == id);
 
 
@@ -160,7 +165,6 @@ namespace TrainingManagementSystem.Controllers
             return View(viewModel);
         }
 
-
         // POST: Courses/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -191,7 +195,8 @@ namespace TrainingManagementSystem.Controllers
                             LocationId = entryVm.LocationId,
                             CourseTypeId = entryVm.CourseTypeId,
                             StatusId = entryVm.StatusId,
-                            CourseId= viewModel.Id, // ربط الدورة بالتفاصيل
+                            Numberoftargets = entryVm.Numberoftargets, // نقل عدد الأهداف من الفورم الرئيسي
+                            CourseId = viewModel.Id, // ربط الدورة بالتفاصيل
                         };
                         _context.CourseDetails.Add(courseDetail);
                     }
@@ -375,7 +380,7 @@ namespace TrainingManagementSystem.Controllers
         // POST: CourseDetails/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(Guid id, [Bind("Id,CourseId,DurationHours,StartDate,EndDate,LocationId,CourseTypeId,StatusId")] CourseDetails courseDetails)
+        public async Task<IActionResult> Edit(Guid id, [Bind("Id,CourseId,DurationHours,StartDate,EndDate,LocationId,CourseTypeId,StatusId,Numberoftargets")] CourseDetails courseDetails)
         {
             if (id != courseDetails.Id)
             {
@@ -386,6 +391,7 @@ namespace TrainingManagementSystem.Controllers
             {
                 try
                 {
+                    courseDetails.Modified= DateTime.Now; // تعيين تاريخ التعديل
                     _context.Update(courseDetails);
                     await _context.SaveChangesAsync();
                 }
@@ -572,6 +578,8 @@ namespace TrainingManagementSystem.Controllers
                 .Include(cd => cd.Status)
                 .Include(cd => cd.CourseTrainees)
                     .ThenInclude(ct => ct.Trainee)
+                         .Include(cd => cd.CoursDetailsTrainer)
+                    .ThenInclude(ct => ct.Trainer)
                 .Include(cd => cd.Course) // *** جلب الكورس الرئيسي (المنهج) ***
                     .ThenInclude(c => c.CourseClassification) // تصنيف الكورس الرئيسي
                 .Include(cd => cd.Course)
@@ -596,10 +604,18 @@ namespace TrainingManagementSystem.Controllers
                 
                 StartDate = courseDetails.StartDate,
                 EndDate = courseDetails.EndDate,
+                Numberoftargets=courseDetails.Numberoftargets,
                 DurationHours = courseDetails.DurationHours,
                 LocationName = courseDetails.Location?.Name ?? "N/A",
                 CourseTypeName = courseDetails.CourseType?.Name ?? "N/A",
                 StatusName = courseDetails.Status?.Name ?? "N/A",
+                Trainers = courseDetails.CoursDetailsTrainer.Select(ct => new Trainer
+                {
+                    Id = ct.Trainer.Id,
+                    ArName = ct.Trainer.ArName,
+                    State=ct.Trainer.State,
+                    ProfileImageUrl = ct.Trainer.ProfileImageUrl
+                }).ToList(),
 
                 // بيانات Course الرئيسي
                 ParentCourseId = courseDetails.CourseId,
@@ -617,10 +633,17 @@ namespace TrainingManagementSystem.Controllers
                     CertificateNumber = ct.CertificateNumber,
                     CertificateIssueDate = ct.CertificateIssueDate
                 }).OrderBy(t => t.TraineeName).ToList()
+
+
+
+                
             };
 
-            // تعديل عنوان الصفحة ليشمل اسم الكورس الرئيسي إذا كان مختلفاً
-            ViewData["Title"] = $"تفاصيل تنفيذ: {courseDetails.Course?.Name ?? "دورة"} (تبدأ: {courseDetails.StartDate:dd-MM-yyyy})";
+
+          
+
+        // تعديل عنوان الصفحة ليشمل اسم الكورس الرئيسي إذا كان مختلفاً
+        ViewData["Title"] = $"تفاصيل تنفيذ: {courseDetails.Course?.Name ?? "دورة"} (تبدأ: {courseDetails.StartDate:dd-MM-yyyy})";
 
             return View(viewModel);
         }
@@ -858,6 +881,7 @@ namespace TrainingManagementSystem.Controllers
                 CourseStartDate = courseTrainee.CourseDetails.StartDate,
                 CourseEndDate = courseTrainee.CourseDetails.EndDate,
                 CourseDurationHours = courseTrainee.CourseDetails.DurationHours,
+                CourseNumberoftargets = courseTrainee.CourseDetails.Numberoftargets,
                 CourseLocation = courseTrainee.CourseDetails.Location?.Name ?? "غير محدد", // افترض أن Location له Name
                 CertificateNumber = courseTrainee.CertificateNumber,
                 CertificateIssueDate = courseTrainee.CertificateIssueDate ?? DateTime.Now, // تاريخ اليوم كافتراضي إذا لم يحدد
@@ -905,6 +929,7 @@ namespace TrainingManagementSystem.Controllers
                 StartDate = courseDetails.StartDate,
                 EndDate = courseDetails.EndDate,
                 DurationHours = courseDetails.DurationHours,
+                Numberoftargets = courseDetails.Numberoftargets,
                 LocationName = courseDetails.Location?.Name ?? "غير محدد",
                 CourseTypeName = courseDetails.CourseType?.Name ?? "غير محدد",
                 StatusName = courseDetails.Status.Name ?? "غير محدد",

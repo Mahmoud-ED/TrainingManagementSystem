@@ -36,6 +36,7 @@ public class Trainer : BaseEntity
     public List<TrainerSpecialization> TrainerSpecializations { get; set; } = new();
 
     public List<CourseTrainer> CourseTrainers { get; set; } = new();
+    public List<CoursDetailsTrainer> CoursDetailsTrainer { get; set; } = new();
 
     public string? UserId { get; set; }
     [ValidateNever]
@@ -49,5 +50,12 @@ public class Trainer : BaseEntity
 
     [NotMapped]
     public IFormFile? Image { get; set; }
+
+
+    //اضافات جديدة
+    public bool IsActive { get; set; } = true; // Default to true
+    public bool State { get; set; } = true; // True for مدرب, false for مفتش
+
+
 
 }
