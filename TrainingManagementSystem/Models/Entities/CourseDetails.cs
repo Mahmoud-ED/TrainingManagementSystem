@@ -14,6 +14,8 @@ namespace TrainingManagementSystem.Models.Entities
         public Guid CourseId { get; set; }
         //------------------------------------------------
 
+        public string? Name { get; set; } // اسم الدورة، يمكن أن يكون null إذا لم يتم تحديده
+
         [Display(Name = "المدة بالساعات")]
         [Range(1, 1000, ErrorMessage = "المدة بالساعات يجب أن تكون بين 1 و 1000")] // مثال على التحقق
         public int DurationHours { get; set; } // تم تغييره إلى int

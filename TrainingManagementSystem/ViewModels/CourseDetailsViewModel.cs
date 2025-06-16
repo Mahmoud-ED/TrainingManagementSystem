@@ -11,6 +11,7 @@ public class CourseDetailsDisplayViewModel
     public Course Course { get; set; } // الكورس الرئيسي
     public Guid Id { get; set; } // CourseDetailsId
     public string CourseName { get; set; } // اسم الكورس الرئيسي
+    public string Name { get; set; } // اسم الكورس الرئيسي
     public Guid ParentCourseId { get; set; } // ID للكورس الرئيسي
 
     [DisplayFormat(DataFormatString = "{0:dd-MM-yyyy}")]
@@ -22,6 +23,7 @@ public class CourseDetailsDisplayViewModel
     public string LocationName { get; set; }
     public string CourseTypeName { get; set; }
     public string StatusName { get; set; }
+    public string ClasifcationName { get; set; }
 
     public List<EnrolledTraineeViewModel> EnrolledTrainees { get; set; } = new List<EnrolledTraineeViewModel>();
     public List<Trainer> Trainers { get; set; } = new List<Trainer>();

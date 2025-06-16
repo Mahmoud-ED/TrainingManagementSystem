@@ -17,6 +17,8 @@ public class CourseDetailFormEntryViewModel
     public int DurationHours { get; set; }
     public int Numberoftargets { get; set; }
 
+    public string Name { get; set; }
+
     [Display(Name = "تاريخ البدء")]
     [DataType(DataType.Date)]
     [Required(ErrorMessage = "تاريخ البدء مطلوب")]

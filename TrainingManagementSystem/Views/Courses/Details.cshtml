@@ -63,6 +63,7 @@
                         </div>
                         <div class="card-body">
                             <ul class="list-unstyled">
+                                <li><strong>الاسم:</strong> @detail.Name </li>
                                 <li><strong>المدة:</strong> @detail.DurationHours ساعة</li>
                                 <li><strong>العدد المستهدف:</strong> @detail.Numberoftargets </li>
                                 <li><strong>الحالة:</strong> <span class="badge bg-@(detail.Status?.Name == "مكتملة" ? "success" : (detail.Status?.Name == "قادمة" ? "info" : "secondary"))">@(detail.Status?.Name ?? "غير محددة")</span></li>

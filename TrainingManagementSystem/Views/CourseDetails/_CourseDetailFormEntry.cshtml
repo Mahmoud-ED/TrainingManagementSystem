@@ -31,6 +31,13 @@
     </div>
 
     <div class="row">
+
+            <div class="col-md-4 mb-3">
+            <label asp-for="Name" class="form-label">اسم البرنامج <span class="text-danger">*</span></label>
+            <input asp-for="Name" name="@($"CourseDetailsEntries[{index}].Name")" id="@($"CourseDetailsEntries_{index}__Name")" class="form-control" type="text"  />
+            <span asp-validation-for="Name" data-valmsg-for="@($"CourseDetailsEntries[{index}].Name")" class="text-danger"></span>
+        </div>
+
         <div class="col-md-4 mb-3">
             <label asp-for="StartDate" class="form-label">تاريخ البدء<span class="text-danger">*</span></label>
             <input asp-for="StartDate" name="@($"CourseDetailsEntries[{index}].StartDate")" id="@($"CourseDetailsEntries_{index}__StartDate")" class="form-control" type="date" value="@Model.StartDate.ToString("yyyy-MM-dd")" />

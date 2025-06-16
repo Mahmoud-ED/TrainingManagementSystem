@@ -1,0 +1,87 @@
+﻿@model TrainingManagementSystem.Models.Entities.Organizition
+
+@{
+    ViewData["Title"] = "إضافة جهة جديدة";
+}
+
+<div class="card shadow-lg border-0 rounded-lg mt-5 mx-auto" style="max-width: 700px;">
+    <div class="card-header bg-primary text-white">
+        <h3 class="text-center font-weight-light my-4"><i class="fas fa-plus-circle me-2"></i>@ViewData["Title"]</h3>
+    </div>
+    <div class="card-body">
+        <form asp-action="Create">
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+            
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-floating mb-3">
+                        <input asp-for="Name" class="form-control" placeholder="اسم الجهة" />
+                        <label asp-for="Name">اسم الجهة</label>
+                        <span asp-validation-for="Name" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-floating mb-3">
+                        <select asp-for="CategoryId" class="form-select" asp-items="ViewBag.CategoryId">
+                             <option value="">-- اختر الفئة --</option>
+                        </select>
+                        <label asp-for="CategoryId">الفئة</label>
+                        <span asp-validation-for="CategoryId" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+
+            <h5 class="mt-4 mb-3 border-bottom pb-2">بيانات المسؤول</h5>
+
+            <div class="row">
+                 <div class="col-md-6">
+                    <div class="form-floating mb-3">
+                        <input asp-for="ChiefName" class="form-control" placeholder="اسم المسؤول" />
+                        <label asp-for="ChiefName">اسم المسؤول</label>
+                        <span asp-validation-for="ChiefName" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-floating mb-3">
+                        <input asp-for="ChiefTitle" class="form-control" placeholder="المنصب" />
+                        <label asp-for="ChiefTitle">المنصب</label>
+                        <span asp-validation-for="ChiefTitle" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+            
+            <h5 class="mt-4 mb-3 border-bottom pb-2">معلومات الاتصال</h5>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-floating mb-3">
+                        <input asp-for="PhoneNo" class="form-control" placeholder="رقم الهاتف" />
+                        <label asp-for="PhoneNo">رقم الهاتف</label>
+                        <span asp-validation-for="PhoneNo" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-floating mb-3">
+                        <input asp-for="Email" type="email" class="form-control" placeholder="البريد الإلكتروني" />
+                        <label asp-for="Email">البريد الإلكتروني</label>
+                        <span asp-validation-for="Email" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+             <div class="form-floating mb-3">
+                <textarea asp-for="StreetAddress" class="form-control" placeholder="العنوان" style="height: 100px"></textarea>
+                <label asp-for="StreetAddress">العنوان بالتفصيل</label>
+                <span asp-validation-for="StreetAddress" class="text-danger"></span>
+            </div>
+
+            <div class="mt-4 mb-0 d-grid gap-2 d-md-flex justify-content-md-end">
+                <a asp-action="Index" class="btn btn-secondary"><i class="fas fa-arrow-right me-2"></i>العودة للقائمة</a>
+                <button type="submit" class="btn btn-primary"><i class="fas fa-save me-2"></i>حفظ البيانات</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
