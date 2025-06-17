@@ -1,0 +1,206 @@
+﻿@model IEnumerable<ApplicationUser>
+@inject UserManager<ApplicationUser> _userManager
+@inject IAuthorizationService authorizationService
+
+@{
+    ViewData["Title"] = "إدارة المستخدمين";
+    // تحديد الفلتر الحالي لتلوين البطاقة النشطة
+    var currentFilter = ViewContext.RouteData.Values["userList"]?.ToString() ?? "All";
+}
+
+<!-- 1. CSS مخصص لتحسينات طفيفة -->
+<style>
+    .filter-card {
+        transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+        border: 1px solid #dee2e6; /* Borde predeterminado */
+    }
+
+        .filter-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
+        }
+
+        /* Estilo para el filtro activo */
+        .filter-card.active {
+            border-color: var(--bs-primary);
+            background-color: #e7f1ff;
+            border-width: 2px;
+        }
+
+    .user-avatar {
+        width: 45px;
+        height: 45px;
+        object-fit: cover;
+        border-radius: 50%;
+        background-color: #e9ecef;
+        color: var(--bs-primary);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+    }
+
+    .table-responsive {
+        overflow-x: auto;
+    }
+
+    .badge {
+        font-size: 0.8em;
+        padding: 0.4em 0.7em;
+    }
+</style>
+
+<!-- 2. رأس الصفحة المنظم -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="h4 mb-0 text-primary fw-bold">
+        <i class="bi bi-people-fill me-2"></i> @ViewData["Title"]
+    </h2>
+    <div class="d-flex gap-2">
+        <a asp-action="CreateUser" class="btn btn-primary">
+            <i class="bi bi-plus-circle-fill me-1"></i> إنشاء مستخدم
+        </a>
+        <a asp-action="Employees" asp-controller="Employees" class="btn btn-outline-secondary">
+            <i class="bi bi-person-badge me-1"></i> الموظفون
+        </a>
+    </div>
+</div>
+
+
+<!-- 3. بطاقات الفلاتر المحسّنة -->
+<div class="row g-3 mb-4">
+    @{
+        var filters = new[]
+        {
+        new { Name = "All Users", Value = "All", Count = ViewBag.AllUsers, Icon = "bi-people", Color = "text-secondary" },
+        new { Name = "Confirmed", Value = "Confirmed", Count = ViewBag.Confirmed, Icon = "bi-person-check", Color = "text-success" },
+        new { Name = "Unconfirmed", Value = "Unconfirmed", Count = ViewBag.Unconfirmed, Icon = "bi-person-exclamation", Color = "text-warning" },
+        new { Name = "Locked users", Value = "Locked", Count = ViewBag.Locked, Icon = "bi-person-lock", Color = "text-danger" }
+        };
+    }
+
+    @foreach (var filter in filters)
+    {
+        <div class="col-lg-3 col-md-6">
+            <a asp-action="Users" asp-route-userList="@(filter.Value == "All" ? null : filter.Value)" class="text-decoration-none">
+                <div class="card filter-card @(currentFilter.Equals(filter.Value, StringComparison.OrdinalIgnoreCase) ? "active" : "")">
+                    <div class="card-body d-flex justify-content-between align-items-center p-3">
+                        <div>
+                            <p class="card-text text-muted mb-1">@filter.Name</p>
+                            <h4 class="card-title fw-bold mb-0">@filter.Count</h4>
+                        </div>
+                        <i class="bi @filter.Icon fs-1 @filter.Color opacity-75"></i>
+                    </div>
+                </div>
+            </a>
+        </div>
+    }
+</div>
+
+<!-- 4. جدول البيانات داخل بطاقة -->
+<div class="card shadow-sm">
+    <div class="card-header bg-light py-3">
+        <h5 class="mb-0 text-dark">
+            <i class="bi bi-list-ul me-2"></i> قائمة المستخدمين - <span class="text-primary">@ViewBag.UserList</span>
+        </h5>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table id="usersTable" class="table table-hover align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th scope="col">المستخدم</th>
+                        <th scope="col">الأدوار</th>
+                        <th scope="col" class="text-center">الحالة</th>
+                        <th scope="col" class="text-center">حالة القفل</th>
+                        <th scope="col">تاريخ الإنشاء</th>
+                        <th scope="col">الإجراءات</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var user in Model)
+                    {
+                        @if (!User.IsInRole("Prog") && await _userManager.IsInRoleAsync(user, "Prog")) { continue; }
+
+                        <tr>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <div class="user-avatar me-3">
+                                        @* يمكنك استبدال هذا بصورة المستخدم الفعلية إذا كانت موجودة *@
+                                        <span>@(user.UserName?.Substring(0, 2).ToUpper())</span>
+                                    </div>
+                                    <div>
+                                        <div class="fw-bold">@user.UserName</div>
+                                        <div class="text-muted small">@user.Email</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                @{
+                                    var roles = await _userManager.GetRolesAsync(user);
+                                }
+                                <div class="d-flex flex-wrap gap-1">
+                                    @foreach (var role in roles)
+                                    {
+                                        <span class="badge bg-secondary bg-opacity-10 text-secondary-emphasis rounded-pill">@role</span>
+                                    }
+                                </div>
+                            </td>
+                            <td class="text-center">
+                                @if (user.EmailConfirmed)
+                                {
+                                    <span class="badge bg-success bg-opacity-10 text-success-emphasis rounded-pill"><i class="bi bi-check-circle-fill me-1"></i> مؤكد</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-warning bg-opacity-10 text-warning-emphasis rounded-pill"><i class="bi bi-hourglass-split me-1"></i> غير مؤكد</span>
+                                }
+                            </td>
+                            <td class="text-center">
+                                @if (user.LockoutEnd != null && user.LockoutEnd.Value > DateTimeOffset.UtcNow)
+                                {
+                                    <span class="badge bg-danger bg-opacity-10 text-danger-emphasis rounded-pill" title="مقفل حتى: @user.LockoutEnd.Value.ToLocalTime()">
+                                        <i class="bi bi-lock-fill me-1"></i> مقفل
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-light text-dark rounded-pill"><i class="bi bi-unlock-fill me-1"></i> متاح</span>
+                                }
+                            </td>
+                            <td>
+                                <div class="text-dark">@user.CreatedDate.ToString("dd MMM, yyyy")</div>
+                                <div class="text-muted small">@user.CreatedDate.ToString("hh:mm tt")</div>
+                            </td>
+                            <td>
+                                @if ((await authorizationService.AuthorizeAsync(User, "EditUserPolicy")).Succeeded)
+                                {
+                                    <a asp-action="EditUser" asp-route-id="@user.Id" class="btn btn-sm btn-outline-primary" title="تعديل المستخدم">
+                                        <i class="bi bi-pencil-square"></i>
+                                    </a>
+                                }
+                                @* يمكنك إضافة أزرار إجراءات أخرى هنا (مثل حذف، عرض التفاصيل) *@
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<partial name="Partial/_datatables-css"></partial>
+<partial name="Partial/_datatables-js"></partial>
+
+<script>
+    // $(document).ready(function () {
+    //     $('#usersTable').DataTable({
+    //         // لإضافة اللغة العربية
+    //         // language: { url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/ar.json' },
+    //         responsive: true,
+    //         "columnDefs": [
+    //             { "orderable": false, "targets": [1, 5] } // منع الترتيب بالأدوار والإجراءات
+    //         ],
+    //         "order": [[4, "desc"]] // الترتيب الافتراضي حسب تاريخ الإنشاء (الأحدث أولاً)
+    //     });
+    // });
+</script>

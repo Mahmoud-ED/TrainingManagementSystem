@@ -21,6 +21,12 @@
     <!-- Google Fonts: Cairo -->
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
+  
+
+    <script src="~/lib/datatables.net/js/jquery.dataTables.min.js"></script>
+
+    <!-- DataTables Bootstrap 5 Integration -->
+    <script src="~/lib/datatables.net-bs5/js/dataTables.bootstrap5.min.js"></script>
     <!-- CSS Files -->
     <link rel="stylesheet" href="~/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/nice-select.css" />
@@ -212,16 +218,21 @@
                                                         <li><a class="dropdown-item" asp-controller="Level" asp-action="Index"><i class="fas fa-layer-group fa-fw me-2"></i>المستويات</a></li>
                                                     </ul>
                                                 </li>
+
+                                            <li class="nav-item dropdown">
+                                                <a class="nav-link  dropdown-toggle" href="#" id="controlDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                                    <i class="fas fa-cogs me-1"></i> المستخدمين
+                                                </a>
+                                                <ul class="dropdown-menu" aria-labelledby="controlDropdown">
+                                                    <li> <a class="dropdown-item" asp-controller="Account"  asp-action="UserProfile"><i class="fas fa-graduation-cap fa-fw me-2"></i>الملف الشخصي</a></li>
+                                                        <li><a class="dropdown-item" asp-controller="Users" asp-action="Users"><i class="fas fa-users fa-fw me-2"></i>Users</a></li>
+                                                        <li><a class="dropdown-item" asp-controller="Roles" asp-action="Roles"><i class="fas fa-users fa-fw me-2"></i>Roles</a></li>
+                                                </ul>
+                                            </li>
+
                                             </ul>
 
-                                            @* إذا كان لديك عناصر أخرى تريدها على اليمين (مثل زر تسجيل الدخول)، ستحتاج إلى هيكل مختلف قليلاً أو استخدام navbar-nav مرتين *@
-                                            @* مثال:
-                    <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
-                        <li class="nav-item">
-                            <a class="nav-link" href="#">تسجيل الدخول</a>
-                        </li>
-                    </ul>
-                    *@
+             
                                         </div>
                                     </div>
                                 </nav>
@@ -281,7 +292,8 @@
 
     @* main.js يجب أن يكون من بين آخر السكربتات لأنه قد يقوم بتهيئة الإضافات المذكورة أعلاه *@
     <script src="~/js/main.js" asp-append-version="true"></script>
-
+    <script src="~/lib/datatables.net-responsive/js/dataTables.responsive.min.js"></script>
+    <script src="~/lib/datatables.net-responsive-bs5/js/responsive.bootstrap5.min.js"></script>
 
     @section Styles {
         <style>

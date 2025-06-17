@@ -342,8 +342,9 @@ namespace TrainingManagementSystem.Controllers
 
 
         [Authorize]
-        public async Task<IActionResult> UserProfile(string userId)
+        public async Task<IActionResult> UserProfile(string? userId)
         {
+
             if (userId == null)
             {
                 return View("NotFound");

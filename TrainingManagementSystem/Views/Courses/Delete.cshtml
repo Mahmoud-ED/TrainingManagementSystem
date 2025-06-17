@@ -1,35 +1,84 @@
 ﻿@model TrainingManagementSystem.Models.Entities.Course
 
 @{
-    ViewData["Title"] = "حذف الدورة";
+    ViewData["Title"] = "حذف دورة تدريبية";
+    Layout = "~/Views/Shared/_Layout.cshtml"; // تأكد من أن المسار صحيح
 }
 
-<h1>@ViewData["Title"]</h1>
+<!-- لإضافة الأيقونات، تأكد من تضمين Font Awesome في ملف _Layout.cshtml -->
+<!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" /> -->
 
-<h3>هل أنت متأكد أنك تريد حذف هذه الدورة؟</h3>
-<div>
-    <h4>@Model.Name</h4>
-    <hr />
-    <dl class="row">
-        <dt class="col-sm-3">@Html.DisplayNameFor(model => model.Name)</dt>
-        <dd class="col-sm-9">@Html.DisplayFor(model => model.Name)</dd>
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8 col-md-10">
 
-        <dt class="col-sm-3">@Html.DisplayNameFor(model => model.Code)</dt>
-        <dd class="col-sm-9">@Html.DisplayFor(model => model.Code)</dd>
+            <!-- 1. رسالة تنبيه واضحة وبارزة -->
+            <div class="alert alert-danger text-center" role="alert">
+                <h4 class="alert-heading">
+                    <i class="fas fa-exclamation-triangle me-2"></i> إجراء لا يمكن التراجع عنه!
+                </h4>
+                <p>هل أنت متأكد تماماً من رغبتك في حذف هذه الدورة؟ سيتم حذف جميع البيانات المرتبطة بها بشكل نهائي.</p>
+            </div>
 
-        <dt class="col-sm-3">@Html.DisplayNameFor(model => model.CourseClassification)</dt>
-        <dd class="col-sm-9">@Html.DisplayFor(model => model.CourseClassification.Name)</dd>
+            <!-- 2. استخدام بطاقة لعرض التفاصيل بشكل منظم -->
+            <div class="card shadow-sm border-danger">
+                <div class="card-header bg-danger text-white">
+                    <h5 class="mb-0">تفاصيل الدورة المراد حذفها</h5>
+                </div>
+                <div class="card-body">
+                    <h3 class="card-title text-primary">@Model.Name</h3>
+                    <h6 class="card-subtitle mb-3 text-muted">@Model.Code</h6>
+                    <hr>
 
-        <dt class="col-sm-3">@Html.DisplayNameFor(model => model.Level)</dt>
-        <dd class="col-sm-9">@Html.DisplayFor(model => model.Level.Name)</dd>
+                    <!-- 3. قائمة منسقة مع أيقونات للتفاصيل -->
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span>
+                                <i class="fas fa-sitemap fa-fw me-2 text-secondary"></i>
+                                @Html.DisplayNameFor(model => model.CourseClassification)
+                            </span>
+                            <span class="badge bg-info rounded-pill fs-6">@Html.DisplayFor(model => model.CourseClassification.Name)</span>
+                        </li>
 
-        <dt class="col-sm-3">@Html.DisplayNameFor(model => model.CourseParent)</dt>
-        <dd class="col-sm-9">@(Model.CourseParent != null ? Html.DisplayFor(model => model.CourseParent.Name) : "لا يوجد")</dd>
-    </dl>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span>
+                                <i class="fas fa-layer-group fa-fw me-2 text-secondary"></i>
+                                @Html.DisplayNameFor(model => model.Level)
+                            </span>
+                            <span class="badge bg-success rounded-pill fs-6">@Html.DisplayFor(model => model.Level.Name)</span>
+                        </li>
 
-    <form asp-action="Delete">
-        <input type="hidden" asp-for="Id" />
-        <input type="submit" value="حذف" class="btn btn-danger" /> |
-        <a asp-action="Index" class="btn btn-secondary">العودة إلى القائمة</a>
-    </form>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span>
+                                <i class="fas fa-link fa-fw me-2 text-secondary"></i>
+                                @Html.DisplayNameFor(model => model.CourseParent)
+                            </span>
+                            @if (Model.CourseParent != null)
+                            {
+                                <span class="badge bg-secondary rounded-pill fs-6">@Model.CourseParent.Name</span>
+                            }
+                            else
+                            {
+                                <span class="text-muted fst-italic">لا يوجد</span>
+                            }
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- 4. أزرار الإجراءات في تذييل البطاقة -->
+                <div class="card-footer bg-light text-end">
+                    <form asp-action="Delete" class="d-inline">
+                        <input type="hidden" asp-for="Id" />
+                        <button type="submit" class="btn btn-danger">
+                            <i class="fas fa-trash-alt me-2"></i> نعم، قم بالحذف
+                        </button>
+                    </form>
+                    <a asp-action="Index" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left me-2"></i> إلغاء والعودة للقائمة
+                    </a>
+                </div>
+            </div>
+
+        </div>
+    </div>
 </div>

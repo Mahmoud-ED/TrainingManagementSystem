@@ -1,0 +1,63 @@
+﻿@model List<UserRolesVM>
+
+
+<form method="post">
+    <div class="row">
+        @for (int i = 0; i < Model.Count; i++)
+        {
+            <div class="form-group mb-2">
+                <div class="list-group">
+                    @* -------------من أجل تمريرهم الى الآكشن-------- *@
+                    <input type="hidden" asp-for="@Model[i].RoleId" />
+                    <input type="hidden" asp-for="@Model[i].RoleName" />
+                    @* ----------------------------------------------- *@
+
+                    <!---------------------------switch---------------------------------------------->
+                    @if (Model[i].RoleName == "Employee" )
+                    {
+
+                        @if (Model[i].IsSelected == true)
+                        {
+                            <a class="list-group-item list-group-item-action list-group-item-success">
+                                <div class="form-check form-switch">
+                                    <b><label class="form-check-label" for="@Model[i].RoleName">@Model[i].RoleName</label></b>
+                                    <input type="hidden" asp-for="@Model[i].IsSelected" />
+                                </div>
+                            </a>
+                        }
+                    }
+                    else
+                    {
+                        @if (Model[i].IsSelected == true)
+                        {
+                            <a class="list-group-item list-group-item-action list-group-item-success">
+                                <div class="form-check form-switch">
+                                    <input asp-for="@Model[i].IsSelected" class="form-check-input" type="checkbox" id="@Model[i].RoleName">
+                                    <b><label class="form-check-label" for="@Model[i].RoleName">@Model[i].RoleName</label></b>
+                                </div>
+                            </a>
+                        }
+                        else
+                        {
+                            <a class="list-group-item list-group-item-action list-group-item-danger">
+                                <div class="form-check form-switch">
+                                    <input asp-for="@Model[i].IsSelected" class="form-check-input" type="checkbox" id="@Model[i].RoleName">
+                                    <b><label class="form-check-label" for="@Model[i].RoleName">@Model[i].RoleName</label></b>
+                                </div>
+                            </a>
+                        }
+                    }
+                    <!---------------------------end switch------------------------------------------>
+                </div>
+            </div>
+        }
+
+        <div class="form-group">
+            <input type="submit" value="Update" asp-controller="Users" asp-action="EditUserRoles"
+                   asp-route-userId="@ViewBag.userId" class="btn btn-primary mt-3 w-100" />
+        </div>
+    </div>
+
+</form>
+
+

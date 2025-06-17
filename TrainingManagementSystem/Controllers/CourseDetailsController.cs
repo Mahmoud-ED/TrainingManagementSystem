@@ -256,9 +256,6 @@ namespace TrainingManagementSystem.Controllers
             return PartialView("_CourseDetailFormEntry", new CourseDetailFormEntryViewModel { StartDate = DateTime.Today });
         }
 
-        // ... (بقية الـ Actions في CoursesController)
-
-
 
         private async Task PopulateFormViewModelDropdowns(CourseFormViewModel viewModel)
         {
@@ -447,19 +444,74 @@ namespace TrainingManagementSystem.Controllers
                 return NotFound();
             }
 
-            var course = await _context.Courses
-                .Include(c => c.CourseClassification)
-                .Include(c => c.Level)
-                .Include(c => c.CourseParent)
+            var courseDetails = await _context.CourseDetails
+                .Include(cd => cd.Location)
+                .Include(cd => cd.CourseType)
+                .Include(cd => cd.Status)
+                .Include(cd => cd.CourseTrainees)
+                    .ThenInclude(ct => ct.Trainee)
+                         .Include(cd => cd.CoursDetailsTrainer)
+                    .ThenInclude(ct => ct.Trainer)
+                .Include(cd => cd.Course) // *** جلب الكورس الرئيسي (المنهج) ***
+                    .ThenInclude(c => c.CourseClassification) // تصنيف الكورس الرئيسي
+                .Include(cd => cd.Course)
+                    .ThenInclude(c => c.Level) // مستوى الكورس الرئيسي
+                .Include(cd => cd.Course)
+                    .ThenInclude(c => c.CourseParent) // الدورة الأم للكورس الرئيسي
+                .Include(cd => cd.Course)
+                    .ThenInclude(c => c.CourseTrainers) // *** المدربون المعينون للكورس الرئيسي ***
+                        .ThenInclude(coursetrainer => coursetrainer.Trainer) // لجلب أسماء المدربين
                 .FirstOrDefaultAsync(m => m.Id == id);
 
-            if (course == null)
+            if (courseDetails == null)
             {
+
                 return NotFound();
             }
-            // يمكنك هنا عرض اسم الدورة لتأكيد الحذف
-            // لا حاجة لـ ViewModel معقد هنا، يمكن استخدام الـ Entity مباشرة أو ViewModel بسيط جداً
-            return View(course);
+            var viewModel = new CourseDetailsDisplayViewModel
+            {
+                // بيانات CourseDetails الحالية
+                Course = courseDetails.Course, // جلب الكورس الرئيسي
+                Id = courseDetails.Id,
+
+                StartDate = courseDetails.StartDate,
+                EndDate = courseDetails.EndDate,
+                Name = courseDetails.Name,
+
+                ClasifcationName = courseDetails.Course?.CourseClassification?.Name ?? "N/A",
+                Numberoftargets = courseDetails.Numberoftargets,
+                DurationHours = courseDetails.DurationHours,
+                LocationName = courseDetails.Location?.Name ?? "N/A",
+                CourseTypeName = courseDetails.CourseType?.Name ?? "N/A",
+                StatusName = courseDetails.Status?.Name ?? "N/A",
+                Trainers = courseDetails.CoursDetailsTrainer.Select(ct => new Trainer
+                {
+                    Id = ct.Trainer.Id,
+                    ArName = ct.Trainer.ArName,
+                    State = ct.Trainer.State,
+                    ProfileImageUrl = ct.Trainer.ProfileImageUrl
+                }).ToList(),
+
+                // بيانات Course الرئيسي
+                ParentCourseId = courseDetails.CourseId,
+
+                // المتدربون المسجلون في هذا الـ CourseDetails
+                EnrolledTrainees = courseDetails.CourseTrainees.Select(ct => new EnrolledTraineeViewModel
+                {
+                    ProfileImgeUrl = ct.Trainee?.ProfileImageUrl,
+                    CourseTraineeId = ct.Id,
+                    TraineeId = ct.TraineeId,
+                    TraineeName = ct.Trainee?.ArName ?? "N/A",
+                    TraineeEmail = ct.Trainee?.Email,
+                    AttendancePercentage = ct.AttendancePercentage,
+                    Grade = ct.Grade,
+                    CertificateNumber = ct.CertificateNumber,
+                    CertificateIssueDate = ct.CertificateIssueDate
+                }).OrderBy(t => t.TraineeName).ToList()
+                };
+            return View(viewModel);
+        
+        
         }
 
         // POST: Courses/Delete/5
@@ -467,51 +519,70 @@ namespace TrainingManagementSystem.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(Guid id)
         {
-            var course = await _context.Courses
-                                .Include(c => c.CourseTrainers) // لحذف العلاقات الوسيطة
-                                .Include(c => c.CourseDetails) // للنظر في كيفية التعامل مع التفاصيل
-                                .FirstOrDefaultAsync(c => c.Id == id);
+            var courseDetails = await _context.CourseDetails.FindAsync(id);
 
-            if (course == null)
+            if (courseDetails == null)
             {
-                return NotFound();
+                TempData["ErrorMessage"] = "لم يتم العثور على سجل الدورة. ربما تم حذفه بالفعل.";
+                return RedirectToAction(nameof(Index)); // أو أي صفحة قائمة مناسبة
             }
 
-            // هنا يجب أن تقرر سياسة الحذف:
-            // 1. هل تحذف الـ CourseDetails المرتبطة؟ (Cascade delete إذا تم إعداده في قاعدة البيانات)
-            // 2. أو تمنع حذف الدورة إذا كان لديها تفاصيل (CourseDetails)؟
-            // 3. أو تجعل CourseId في CourseDetails nullable وتفصلها (أقل شيوعاً هنا)
-
-            // مثال: منع الحذف إذا كان هناك تفاصيل دورات
-            if (course.CourseDetails != null && course.CourseDetails.Any())
+            try
             {
-                // أرسل رسالة خطأ للمستخدم
-                TempData["ErrorMessage"] = "لا يمكن حذف هذه الدورة لأنها تحتوي على تفاصيل دورات منفذة. يرجى حذف التفاصيل أولاً.";
-                // أعد توجيهه إلى صفحة التفاصيل أو صفحة الحذف مرة أخرى مع الرسالة
+                // 3. تنفيذ عملية الحذف
+                _context.CourseDetails.Remove(courseDetails);
+
+                // 4. حفظ التغييرات في قاعدة البيانات
+                await _context.SaveChangesAsync();
+
+                // 5. إرسال رسالة نجاح للمستخدم عبر TempData
+                TempData["SuccessMessage"] = $"تم حذف سجل تنفيذ الدورة '{courseDetails.Name}' بنجاح.";
+
+                // 6. إعادة توجيه المستخدم إلى صفحة القائمة الرئيسية
+                return RedirectToAction(nameof(Index));
+            }
+            catch (DbUpdateException ex)
+            {
+
+                TempData["ErrorMessage"] = "حدث خطأ أثناء محاولة حذف السجل. قد يكون مرتبطًا ببيانات أخرى لا يمكن حذفها.";
+
+                // إعادة المستخدم إلى صفحة تأكيد الحذف مرة أخرى مع عرض الخطأ
                 return RedirectToAction(nameof(Delete), new { id = id });
-                // أو
-                // ModelState.AddModelError("", "لا يمكن حذف هذه الدورة لأنها تحتوي على تفاصيل دورات منفذة. يرجى حذف التفاصيل أولاً.");
-                // return View(course); // سيعرض صفحة الحذف مرة أخرى مع رسالة الخطأ
             }
-
-            // حذف علاقات CourseTrainer المرتبطة
-            if (course.CourseTrainers != null && course.CourseTrainers.Any())
-            {
-                _context.CourseTrainers.RemoveRange(course.CourseTrainers);
-            }
-
-            _context.Courses.Remove(course);
-            await _context.SaveChangesAsync();
-            TempData["SuccessMessage"] = "تم حذف الدورة بنجاح!";
-            return RedirectToAction(nameof(Index));
         }
 
-        private bool CourseExists(Guid id)
+
+
+
+        [HttpPost, ActionName("DeleteTrainer")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteTrainer(Guid CoursDetailsid ,Guid trainer)
         {
-            return _context.Courses.Any(e => e.Id == id);
+            var courseDetailsTrainer = await _context.CoursDetailsTrainer.Where(CoursDetailsTrainer => CoursDetailsTrainer.CourseDetailsId == CoursDetailsid && CoursDetailsTrainer.TrainerId == trainer).FirstOrDefaultAsync();
+
+            if (courseDetailsTrainer == null)
+            {
+                TempData["ErrorMessage"] = "لم يتم العثور على سجل المدرب او المشرف. ربما تم حذفه بالفعل.";
+                return RedirectToAction("Details", new { id = CoursDetailsid });
+            }
+
+            try
+            {
+                _context.CoursDetailsTrainer.Remove(courseDetailsTrainer);
+
+                await _context.SaveChangesAsync();
+
+                return RedirectToAction("Details", new { id = CoursDetailsid });
+            }
+            catch (DbUpdateException ex)
+            {
+
+                TempData["ErrorMessage"] = "حدث خطأ أثناء محاولة حذف السجل. قد يكون مرتبطًا ببيانات أخرى لا يمكن حذفها.";
+
+                return RedirectToAction("Details", new { id = CoursDetailsid });
+            }
         }
 
-        // دالة مساعدة لإعادة ملء القوائم المنسدلة وقائمة المدربين في حالة فشل التحقق من صحة النموذج في Edit (POST)
         private async Task PopulateEditViewModelDropdownsAndTrainers(CourseFormViewModel viewModel)
         {
             viewModel.CourseClassifications = (await _context.CourseClassifications
@@ -571,10 +642,6 @@ namespace TrainingManagementSystem.Controllers
                 IsSelected = viewModel.SelectedTrainerIds != null && viewModel.SelectedTrainerIds.Contains(t.Id)
             }).ToList();
         }
-
-
-        // (داخل CourseDetailsController.cs)
-        // GET: CourseDetails/Details/5
         public async Task<IActionResult> Details(Guid? id)
         {
             if (id == null)
@@ -651,16 +718,10 @@ namespace TrainingManagementSystem.Controllers
 
 
             };
-
-
-
-
-            // تعديل عنوان الصفحة ليشمل اسم الكورس الرئيسي إذا كان مختلفاً
             ViewData["Title"] = $"تفاصيل تنفيذ: {courseDetails.Course?.Name ?? "دورة"} (تبدأ: {courseDetails.StartDate:dd-MM-yyyy})";
 
             return View(viewModel);
         }
-
 
         public async Task<IActionResult> EnrollTrainee(Guid courseDetailsId)
 

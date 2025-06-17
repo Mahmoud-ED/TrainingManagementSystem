@@ -1,0 +1,30 @@
+﻿@model EditRoleVM
+
+@{
+    ViewBag.Title = "Edit Role";
+}
+<h4>Edit Role</h4>
+<hr />
+<div class="container" style="min-height:71.5vh;">
+
+    <div class="row">
+        <div class=" col-md-4">
+            <form asp-action="EditRole">
+                <div class="form-group">
+                    <label asp-for="RoleName" class="control-label"></label>
+                    <input asp-for="RoleName" class="form-control" />
+                    <span asp-validation-for="RoleName" class="text-danger"></span>
+                    <div asp-validation-summary="All" class="text-danger"></div>
+                </div>
+                <div class="form-group">
+                    <button type="submit" class="btn btn-primary">Update</button>
+                    <a asp-action="Roles" class="btn btn-outline-primary">Back to Roles</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

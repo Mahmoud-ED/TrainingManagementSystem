@@ -1,0 +1,93 @@
+﻿
+@model RoleEmailsVM
+
+@{
+    ViewBag.Title = "Email send To Role";
+}
+
+<h4>Email send To Role</h4>
+<hr />
+<div class="container mb-5">
+    
+    @if (ViewBag.errorMessage != null)
+    {
+        <div class="alert alert-danger" style="text-align:center">
+            <p>@ViewBag.errorMessage</p>
+        </div>
+    }
+
+    <div class="row">
+        <div>
+            <a asp-action="EmailSettings" class="btn btn-info float-end">Email Settings<i class="bi bi-gear-fill ms-3" style="font-size:16px;"></i></a>
+        </div>
+
+        <div class="col-lg-6">
+            <form asp-action="SendEmailToRole" enctype="multipart/form-data">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <div class="form-group mb-3 mt-0">
+                    <b>From: </b>
+                    @Html.DisplayFor(model => model.MailSettings.DisplayName)
+                    <br />
+                    <b>Email Sender: </b>
+                    @Html.DisplayFor(model => model.MailSettings.UserName)
+                    <br />
+                    <br />
+                    <b>To Role: </b>
+                    @Html.DisplayFor(model => model.Name)
+                    <br />
+                    <b>Users Count: </b>
+                    @Html.DisplayFor(model => model.UsersCount)
+                </div>
+              
+                <div class="form-group mt-0">
+                    <label asp-for="Subject" class="control-label"></label>
+                    <input asp-for="Subject" class="form-control" />
+                    <span asp-validation-for="Subject" class="text-danger"></span>
+                </div>
+                <div class="form-group mt-0">
+                    <label asp-for="Content" class="control-label"></label>
+                    <textarea asp-for="Content" class="form-control" style="height:50px;"></textarea>
+                    <span asp-validation-for="Content" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <div class="">
+                        <input id="fileAttach" type="file" asp-for="Attachments" multiple onchange="UploadAttach(this);" class="form-control custom-file-input" />
+                        @* <input id="fileAttach" type="file" class="form-control" asp-for="Attachments" multiple onchange="UploadAttach(this);" class="form-control custom-file-input" /> *@
+                    </div>
+                </div>
+
+                @Html.HiddenFor(model => model.Name)
+
+                <div class="form-group mt-5">
+                    <button type="submit" class="btn btn-primary ps-3 pe-4 w-100">
+                        <i class="bi bi-send me-3"></i>Send
+                    </button>
+                </div>
+
+            </form>
+        </div>
+
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script>
+        $(document).ready(function () {
+            $('.custom-file-input').on("change", function () {
+
+                var fileLabel = $(this).next('.custom-file-label');
+                var files = $(this)[0].files;
+                if (files.length > 1) {
+                    fileLabel.html(files.length + ' files selected')
+                }
+                else if (files.length == 1) {
+                    fileLabel.html(files[0].name)
+                }
+            });
+        });
+    </script>
+}

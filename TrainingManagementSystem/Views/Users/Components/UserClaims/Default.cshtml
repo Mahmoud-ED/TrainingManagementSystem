@@ -1,0 +1,62 @@
+﻿@model UserClaimListVM
+
+
+
+<form method="post">
+    @if (Model.Claims.Count > 0)
+    {
+        <div class="row">
+            <div class="alert alert-light">
+
+                @for (int i = 0; i < Model.Claims.Count; i++)
+                {
+                    <div class="form-group mb-2">
+                        <div class="list-group">
+
+                            @* -------------من أجل تمريره الى الآكشن-------- *@
+                            <input type="hidden" asp-for="@Model.Claims[i].ClaimType" />
+                            @* ----------------------------------------------- *@
+
+                            <!---------------------------switch---------------------------------------------->
+                            @if (Model.Claims[i].IsSelected == true)
+                            {
+                                <a class="list-group-item list-group-item-action list-group-item-success">
+                                    <div class="form-check form-switch">
+                                        <input asp-for="@Model.Claims[i].IsSelected" class="form-check-input" type="checkbox" id="@Model.Claims[i].ClaimType">
+                                        <b><label class="form-check-label" for="@Model.Claims[i].ClaimType">@Model.Claims[i].ClaimType</label></b>
+                                    </div>
+                                </a>
+                            }
+                            else
+                            {
+                                <a class="list-group-item list-group-item-action list-group-item-danger">
+                                    <div class="form-check form-switch">
+                                        <input asp-for="@Model.Claims[i].IsSelected" class="form-check-input" type="checkbox" id="@Model.Claims[i].ClaimType">
+                                        <b><label class="form-check-label" for="@Model.Claims[i].ClaimType">@Model.Claims[i].ClaimType</label></b>
+                                    </div>
+                                </a>
+                            }
+                            <!---------------------------end switch----------------------------------------->
+
+                        </div>
+                    </div>
+                }
+
+                <div class="form-group">
+                    <input type="submit" value="Update" asp-controller="Users" asp-action="EditUserClaims"
+                           asp-route-userId="@ViewBag.userId" class="btn btn-primary mt-3 w-100" />
+                </div>
+
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="row text-center">
+            <div class="alert alert-light">
+                <h5>No claims for this user</h5>
+            </div>
+        </div>
+    }
+</form>
+

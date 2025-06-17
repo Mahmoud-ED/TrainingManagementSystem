@@ -275,9 +275,14 @@
                                 
                                     <td class="text-center">
                                         <div class="btn-group btn-group-sm" role="group">
-                                            <a asp-controller="--" asp-action="Delete" asp-route-id="@trainer.Id" title="حذف" class="fw-bold text-dark text-decoration-none">
-                                              حذف
-                                            </a>
+                                            <form asp-controller="CourseDetails" asp-action="DeleteTrainer" method="post" class="d-inline delete-form">
+                                                <input type="hidden" name="CoursDetailsid" value="@Model.Id" />
+                                                <input type="hidden" name="trainer" value="@trainer.Id" />
+                                                @Html.AntiForgeryToken()
+                                                <button type="submit" class="btn btn-outline-danger btn-sm" title="حذف">
+                                                    <i class="fas fa-trash-alt"></i> حذف
+                                                </button>
+                                            </form>
                                            
                                         </div>
                                     </td>
@@ -308,5 +313,16 @@
                 $("#removeEnrollmentForm").submit();
             }
         }
+
+
+            $('.delete-form').on('submit', function (e) {
+                e.preventDefault();
+
+                var form = $(this);
+
+                if (confirm('هل أنت متأكد أنك تريد حذف هذا المدرب من الدورة؟')) {
+                    form.get(0).submit();
+                }
+            });
     </script>
 }

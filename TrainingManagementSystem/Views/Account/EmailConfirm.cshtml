@@ -1,0 +1,33 @@
+﻿@{
+    ViewBag.Title = "Email confirmed";
+}
+
+<div class="container pt-5 mt-5">
+    <div class="row">
+        <div class="alert alert-success shadow text-center">
+            @if (ViewBag.ErrorMessage == null)
+            {
+                <h3>Email confirmation successfully </h3>
+                <hr />
+                @*-----------------------------------------------*@
+                if (ViewBag.Message != null)
+                {
+                    <p><b>@ViewBag.Message</b></p>
+                }
+                else
+                {
+                    <p>The email has been confirmed successfully and your account has been activated</p>
+                }
+                @*-----------------------------------------------*@
+
+                <a asp-action="Login" asp-controller="Account" class="btn btn-primary">Login</a>
+            }
+            else
+            {
+                <h3 class="text-danger">Email confirmation faild </h3>
+                <hr />
+                <p class="text-danger">@ViewBag.ErrorMessage</p>
+            }
+        </div>
+    </div>
+</div>

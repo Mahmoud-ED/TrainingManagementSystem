@@ -270,14 +270,6 @@
                 }
             });
 
-            // سكريبت تأكيد الحذف
-            $('.delete-item').on('click', function (e) {
-                e.preventDefault(); 
-                var deleteUrl = $(this).attr('href');
-                if (confirm('هل أنت متأكد أنك تريد حذف هذا البرنامج التدريبي؟')) {
-                    window.location.href = deleteUrl;
-                }
-            });
         });
     </script>
 }
