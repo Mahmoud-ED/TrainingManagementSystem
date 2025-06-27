@@ -122,7 +122,7 @@ namespace TrainingManagementSystem.Controllers
                         .ThenInclude(cd => cd.Status) // حالة تفصيل الدورة
                 .Include(t => t.CourseTrainees)
                     .ThenInclude(ct => ct.CourseDetails)
-                        .ThenInclude(cd => cd.Location) // موقع تفصيل الدورة
+                        .ThenInclude(cd => cd.Locations) // موقع تفصيل الدورة
                 .FirstOrDefaultAsync(m => m.Id == id);
 
             if (trainee == null) return NotFound();

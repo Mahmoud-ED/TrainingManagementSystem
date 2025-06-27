@@ -1,0 +1,284 @@
+﻿@model EnrollMultipleTraineesViewModel
+
+@{
+    ViewData["Title"] = "تسجيل مجموعة متدربين";
+    var courseDetailsReturnUrl = Url.Action("Details", "CourseDetails", new { id = Model.CourseDetailsId });
+}
+
+<div class="container mt-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a asp-controller="Courses" asp-action="Index">قائمة الدورات</a></li>
+            <li class="breadcrumb-item"><a href="@courseDetailsReturnUrl">تفاصيل تنفيذ الدورة: @Model.CourseDetailsName</a></li>
+            <li class="breadcrumb-item active" aria-current="page">@ViewData["Title"]</li>
+        </ol>
+    </nav>
+
+    <form asp-action="EnrollMultiple" method="post">
+        @Html.AntiForgeryToken()
+        <input type="hidden" asp-for="CourseDetailsId" />
+        <div asp-validation-summary="All" class="alert alert-danger" role="alert" id="main-validation-summary" style="display: @(ViewContext.ViewData.ModelState.IsValid ? "none" : "block");"></div>
+
+        <div class="card shadow-sm">
+            <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                <div>
+                    <h4 class="mb-0">@ViewData["Title"]</h4>
+                    <small>للدورة: @Model.CourseDetailsName</small>
+                </div>
+                <button type="button" class="btn btn-light" data-bs-toggle="modal" data-bs-target="#addTraineeModal">
+                    <i class="fas fa-user-plus me-2"></i>إضافة متدرب جديد
+                </button>
+            </div>
+            <div class="card-body">
+                <div class="row mb-3 p-3 bg-light border rounded">
+                    <div class="col-md-6">
+                        <label asp-for="SelectedOrganizationId" class="form-label fw-bold"></label>
+                        <select asp-for="SelectedOrganizationId" asp-items="Model.AvailableOrganizations" class="form-select" id="organizationFilter">
+                            <option value="">-- عرض كل الجهات --</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="nameFilter" class="form-label fw-bold">بحث بالاسم أو الرقم الوطني</label>
+                        <input type="text" id="nameFilter" class="form-control" placeholder="اكتب هنا للبحث..." />
+                    </div>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-bordered table-hover table-striped">
+                        <thead class="table-light">
+                            <tr>
+                                <th style="width: 5%;" class="text-center">
+                                    <input type="checkbox" id="selectAllCheckbox" title="تحديد الكل" />
+                                </th>
+                                <th style="width: 35%;">اسم المتدرب</th>
+                                <th style="width: 20%;">الرقم الوطني</th>
+                                <th>الجهة</th>
+                            </tr>
+                        </thead>
+                        <tbody id="traineesTableBody">
+                            @if (!Model.Trainees.Any())
+                            {
+                                <tr id="no-trainees-row">
+                                    <td colspan="4" class="text-center text-muted p-4">
+                                        لا يوجد متدربين متاحين للتسجيل.
+                                    </td>
+                                </tr>
+                            }
+                            else
+                            {
+                                @foreach (var trainee in Model.Trainees)
+                                {
+                                    <tr data-name="@trainee.Name.ToLower()" data-national-id="@trainee.NationalId" data-org-id="@trainee.OrganizationId">
+                                        <td class="text-center">
+                                            <input type="checkbox" name="SelectedTraineeIds" value="@trainee.Id" class="form-check-input trainee-checkbox" />
+                                        </td>
+                                        <td>@trainee.Name</td>
+                                        <td>@trainee.NationalId</td>
+                                        <td>@trainee.OrganizationName</td>
+                                    </tr>
+                                }
+                            }
+                        </tbody>
+                    </table>
+                </div>
+                <span asp-validation-for="SelectedTraineeIds" class="text-danger"></span>
+            </div>
+            <div class="card-footer bg-light">
+                <div class="d-flex justify-content-end">
+                    <a href="@courseDetailsReturnUrl" class="btn btn-outline-secondary me-2">
+                        <i class="fas fa-times"></i> إلغاء
+                    </a>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-user-check"></i> تسجيل المحددين
+                    </button>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<!-- Add Trainee Modal -->
+<div class="modal fade" id="addTraineeModal" tabindex="-1" aria-labelledby="addTraineeModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addTraineeModalLabel">إضافة وتسجيل متدرب جديد</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="quickAddForm">
+                    <div id="modal-validation-summary" class="alert alert-danger" role="alert" style="display: none;"></div>
+                    <input type="hidden" asp-for="NewTrainee.CourseDetailsId" />
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="NewTrainee.ArName" class="form-label"></label>
+                            <input asp-for="NewTrainee.ArName" class="form-control" />
+                            <span asp-validation-for="NewTrainee.ArName" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="NewTrainee.Email" class="form-label"></label>
+                            <input asp-for="NewTrainee.Email" class="form-control" />
+                            <span asp-validation-for="NewTrainee.Email" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="NewTrainee.PhoneNo" class="form-label"></label>
+                            <input asp-for="NewTrainee.PhoneNo" class="form-control" />
+                            <span asp-validation-for="NewTrainee.PhoneNo" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="NewTrainee.OrganizationId" class="form-label"></label>
+                            <select asp-for="NewTrainee.OrganizationId" asp-items="Model.NewTrainee.AvailableOrganizations" class="form-select">
+                                <option value="">-- اختر الجهة --</option>
+                            </select>
+                            <span asp-validation-for="NewTrainee.OrganizationId" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="NewTrainee.QualificationId" class="form-label"></label>
+                            <select asp-for="NewTrainee.QualificationId" asp-items="Model.NewTrainee.AvailableQualifications" class="form-select">
+                                <option value="">-- اختر المؤهل --</option>
+                            </select>
+                            <span asp-validation-for="NewTrainee.QualificationId" class="text-danger"></span>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إغلاق</button>
+                <button type="button" class="btn btn-primary" id="saveNewTraineeBtn">حفظ وتسجيل</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script>
+        $(document).ready(function () {
+            const organizationFilter = $('#organizationFilter');
+            const nameFilter = $('#nameFilter');
+            const selectAllCheckbox = $('#selectAllCheckbox');
+            const traineesTableBody = $('#traineesTableBody');
+
+            function filterTrainees() {
+                const orgValue = organizationFilter.val();
+                const nameValue = nameFilter.val().toLowerCase().trim();
+                let visibleRows = 0;
+
+                traineesTableBody.find('tr').each(function () {
+                    const row = $(this);
+                    if (row.attr('id') === 'no-trainees-row') return;
+
+                    const name = row.data('name') ? row.data('name').toString() : '';
+                    const nationalId = row.data('national-id') ? row.data('national-id').toString() : '';
+                    const orgId = row.data('org-id') ? row.data('org-id').toString() : '';
+
+                    const orgMatch = (orgValue === "" || orgId === orgValue);
+                    const nameMatch = (name.includes(nameValue) || nationalId.includes(nameValue));
+
+                    if (orgMatch && nameMatch) {
+                        row.show();
+                        visibleRows++;
+                    } else {
+                        row.hide();
+                    }
+                });
+                updateSelectAllCheckboxState();
+            }
+
+            function updateSelectAllCheckboxState() {
+                const visibleCheckboxes = traineesTableBody.find('tr:visible .trainee-checkbox');
+                const checkedVisibleCheckboxes = traineesTableBody.find('tr:visible .trainee-checkbox:checked');
+
+                if (visibleCheckboxes.length > 0 && visibleCheckboxes.length === checkedVisibleCheckboxes.length) {
+                    selectAllCheckbox.prop('checked', true);
+                    selectAllCheckbox.prop('indeterminate', false);
+                } else if (checkedVisibleCheckboxes.length > 0) {
+                    selectAllCheckbox.prop('checked', false);
+                    selectAllCheckbox.prop('indeterminate', true);
+                } else {
+                    selectAllCheckbox.prop('checked', false);
+                    selectAllCheckbox.prop('indeterminate', false);
+                }
+            }
+
+            organizationFilter.on('change', filterTrainees);
+            nameFilter.on('keyup', filterTrainees);
+
+            selectAllCheckbox.on('click', function () {
+                const isChecked = $(this).is(':checked');
+                traineesTableBody.find('tr:visible .trainee-checkbox').prop('checked', isChecked);
+                updateSelectAllCheckboxState();
+            });
+
+            traineesTableBody.on('click', '.trainee-checkbox', function() {
+                updateSelectAllCheckboxState();
+            });
+
+            const addTraineeModal = new bootstrap.Modal(document.getElementById('addTraineeModal'));
+            const quickAddForm = $('#quickAddForm');
+            const modalValidationSummary = $('#modal-validation-summary');
+
+            $('#saveNewTraineeBtn').on('click', function () {
+                if (!quickAddForm.valid()) {
+                    return;
+                }
+
+                const formData = {
+                    courseDetailsId: quickAddForm.find('input[name="NewTrainee.CourseDetailsId"]').val(),
+                    arName: quickAddForm.find('input[name="NewTrainee.ArName"]').val(),
+                    email: quickAddForm.find('input[name="NewTrainee.Email"]').val(),
+                    phoneNo: quickAddForm.find('input[name="NewTrainee.PhoneNo"]').val(),
+                    organizationId: quickAddForm.find('select[name="NewTrainee.OrganizationId"]').val(),
+                    qualificationId: quickAddForm.find('select[name="NewTrainee.QualificationId"]').val()
+                };
+
+                $.ajax({
+                    url: '@Url.Action("AddAndEnrollTrainee")',
+                    method: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify(formData),
+                    success: function (response) {
+                        $('#no-trainees-row').hide();
+                        const newRow = `
+                            <tr data-name="${response.name.toLowerCase()}" data-national-id="${response.nationalId}" data-org-id="${response.organizationId}" style="background-color: #d1e7dd;">
+                                <td class="text-center">
+                                    <input type="checkbox" name="SelectedTraineeIds" value="${response.id}" class="form-check-input trainee-checkbox" checked />
+                                </td>
+                                <td>${response.name}</td>
+                                <td>${response.nationalId}</td>
+                                <td>${response.organizationName}</td>
+                            </tr>
+                        `;
+                        traineesTableBody.prepend(newRow);
+
+                        quickAddForm[0].reset();
+                        modalValidationSummary.hide().empty();
+                        $('.is-invalid').removeClass('is-invalid');
+                        $('.field-validation-error').empty();
+                        addTraineeModal.hide();
+                        updateSelectAllCheckboxState();
+                    },
+                    error: function (xhr) {
+                        modalValidationSummary.show().empty();
+                        const errors = xhr.responseJSON;
+                        let errorList = '<ul>';
+                        for (let key in errors) {
+                            if (errors.hasOwnProperty(key)) {
+                                errors[key].forEach(err => {
+                                    errorList += `<li>${err}</li>`;
+                                });
+                            }
+                        }
+                        errorList += '</ul>';
+                        modalValidationSummary.html(errorList);
+                    }
+                });
+            });
+
+            updateSelectAllCheckboxState();
+        });
+    </script>
+}

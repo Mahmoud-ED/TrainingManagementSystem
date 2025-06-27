@@ -1,12 +1,12 @@
-using Microsoft.AspNetCore.Identity;
+Ôªøusing Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 using TrainingManagementSystem.Classes;
 using TrainingManagementSystem.Models;
 using TrainingManagementSystem.Models.Entities;
 using TrainingManagementSystem.Models.Interfaces;
 using TrainingManagementSystem.Models.Repositories;
 using TrainingManagementSystem.Models.UnitOfWork;
-using System.Security.Claims;
 
 
 
@@ -27,24 +27,24 @@ builder.Services.Configure<ProgrammerSettings>
 
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 {
-    options.Password.RequiredLength = 3; // «·ÿÊ· «·√œ‰Ï 3 √Õ—›
-    options.Password.RequiredUniqueChars = 1; // Õ—› ›—Ìœ Ê«Õœ ⁄·Ï «·√ﬁ·
-    options.Password.RequireNonAlphanumeric = false; // ⁄‰œ  ›⁄Ì·Â« ”  ÿ·» ﬂ·„«  «·„—Ê— —„“ Œ«’ Ê«Õœ ⁄·Ï «·√ﬁ·
-    options.Password.RequireDigit = true; //ÌÃ» √‰  Õ ÊÌ ⁄·Ï —ﬁ„
-    options.Password.RequireLowercase = false; //·« Ì·“„ √Õ—› ’€Ì—…
-    options.Password.RequireUppercase = false; //·« Ì·“„ √Õ—› ﬂ»Ì—…
-    options.Lockout.MaxFailedAccessAttempts = 5; // «ﬁ›«· «·Õ”«» »⁄œ 5 „Õ«Ê·«  œŒÊ· ›«‘·…
+    options.Password.RequiredLength = 3; // √á√°√ò√¶√° √á√°√É√è√§√¨ 3 √É√ç√ë√ù
+    options.Password.RequiredUniqueChars = 1; // √ç√ë√ù √ù√ë√≠√è √¶√á√ç√è √ö√°√¨ √á√°√É√û√°
+    options.Password.RequireNonAlphanumeric = false; // √ö√§√è √ä√ù√ö√≠√°√•√á √ì√ä√ä√ò√°√à √ü√°√£√á√ä √á√°√£√ë√¶√ë √ë√£√í √é√á√ï √¶√á√ç√è √ö√°√¨ √á√°√É√û√°
+    options.Password.RequireDigit = true; //√≠√å√à √É√§ √ä√ç√ä√¶√≠ √ö√°√¨ √ë√û√£
+    options.Password.RequireLowercase = false; //√°√á √≠√°√í√£ √É√ç√ë√ù √ï√õ√≠√ë√â
+    options.Password.RequireUppercase = false; //√°√á √≠√°√í√£ √É√ç√ë√ù √ü√à√≠√ë√â
+    options.Lockout.MaxFailedAccessAttempts = 5; // √á√û√ù√á√° √á√°√ç√ì√á√à √à√ö√è 5 √£√ç√á√¶√°√á√ä √è√é√¶√° √ù√á√î√°√â
     options.Lockout.DefaultLockoutTimeSpan =
-             TimeSpan.FromMinutes(15); //«ﬁ›«· «·Õ”«» ·„œ… Œ„”… ⁄‘— œﬁÌﬁ… 
-    options.SignIn.RequireConfirmedAccount = true; //  ”ÃÌ· «·œŒÊ· Ì ÿ·»  √ﬂÌœ «·Õ”«»
-    options.User.RequireUniqueEmail = true; // ⁄‰œ «‰‘«¡ «·„” Œœ„ ÌÃ» «” Œœ«„ »—Ìœ ≈·ﬂ —Ê‰Ì ›—Ìœ
+             TimeSpan.FromMinutes(15); //√á√û√ù√á√° √á√°√ç√ì√á√à √°√£√è√â √é√£√ì√â √ö√î√ë √è√û√≠√û√â 
+    options.SignIn.RequireConfirmedAccount = true; // √ä√ì√å√≠√° √á√°√è√é√¶√° √≠√ä√ò√°√à √ä√É√ü√≠√è √á√°√ç√ì√á√à
+    options.User.RequireUniqueEmail = true; // √ö√§√è √á√§√î√á√Å √á√°√£√ì√ä√é√è√£ √≠√å√à √á√ì√ä√é√è√á√£ √à√ë√≠√è √Ö√°√ü√ä√ë√¶√§√≠ √ù√ë√≠√è
 })
        .AddEntityFrameworkStores<ApplicationDbContext>()
-    //»ﬁ«⁄œ… «·»Ì«‰«  ··Ê’Ê· «·Ï «·Ãœ«Ê· Ê«œ—«¡ «·≈” ⁄·«„«  Identity —»ÿ
-    .AddDefaultTokenProviders(); //Ìı” Œœ„ „Ê›— «·—„Ê“ «·≈› —«÷Ì ·≈‰‘«¡ —„Ê“ ≈⁄«œ…  ⁄ÌÌ‰ ﬂ·„… «·„—Ê— Ê €ÌÌ— «·»—Ìœ «·≈·ﬂ —Ê‰Ì Ê≈—”«·Â« ≈·Ï «·»—Ìœ «·≈·ﬂ —Ê‰Ì Ê«·Â« › Ê«·„’«œﬁ… «·À‰«∆Ì… .
+    //√à√û√á√ö√è√â √á√°√à√≠√á√§√á√ä √°√°√¶√ï√¶√° √á√°√¨ √á√°√å√è√á√¶√° √¶√á√è√ë√á√Å √á√°√Ö√ì√ä√ö√°√á√£√á√ä Identity √ë√à√ò
+    .AddDefaultTokenProviders(); //√≠√µ√ì√ä√é√è√£ √£√¶√ù√ë √á√°√ë√£√¶√í √á√°√Ö√ù√ä√ë√á√ñ√≠ √°√Ö√§√î√á√Å √ë√£√¶√í √Ö√ö√á√è√â √ä√ö√≠√≠√§ √ü√°√£√â √á√°√£√ë√¶√ë √¶√ä√õ√≠√≠√ë √á√°√à√ë√≠√è √á√°√Ö√°√ü√ä√ë√¶√§√≠ √¶√Ö√ë√ì√á√°√•√á √Ö√°√¨ √á√°√à√ë√≠√è √á√°√Ö√°√ü√ä√ë√¶√§√≠ √¶√á√°√•√á√ä√ù √¶√á√°√£√ï√á√è√û√â √á√°√ã√§√á√Ü√≠√â .
 
 
-//’«·Õ… ≈·« ·„œ… «·œﬁ«∆ﬁ «Ê «·”«⁄«  «·„Õœœ… »⁄œ ≈‰‘«∆Â«//DataProtectorTokenProvider//·‰  ﬂÊ‰ «·—„Ê“ «· Ì Ì „ ≈‰‘«ƒÂ« »Ê«”ÿ… „Ê›— «·—„Ê“
+//√ï√á√°√ç√â √Ö√°√á √°√£√è√â √á√°√è√û√á√Ü√û √á√¶ √á√°√ì√á√ö√á√ä √á√°√£√ç√è√è√â √à√ö√è √Ö√§√î√á√Ü√•√á//DataProtectorTokenProvider//√°√§ √ä√ü√¶√§ √á√°√ë√£√¶√í √á√°√ä√≠ √≠√ä√£ √Ö√§√î√á√Ñ√•√á √à√¶√á√ì√ò√â √£√¶√ù√ë √á√°√ë√£√¶√í
 builder.Services.Configure<DataProtectionTokenProviderOptions>(options =>
                                options.TokenLifespan = TimeSpan.FromMinutes(15));
 //opt.TokenLifespan = TimeSpan.FromDays(1));
@@ -63,12 +63,12 @@ builder.Services.AddAuthorization(options =>
     options.AddPolicy("SiteStatePolicy", policy => policy.RequireClaim("SiteState", "true"));
     //options.AddPolicy("ProfilePolicy", policy => policy.RequireClaim("UserProfile", "true")); // just example
 
-    options.AddPolicy("AdminOrProgPolicy", policy => policy.RequireRole("Prog", "Admin")); // «–« «—œ‰« «” ⁄„«· «·—Ê· ﬂ»Ê·Ì’Ì À„ ‰ÿ»ﬁÂ« ›Ì «·ﬂÊ‰ —Ê·— ﬂ»Ê·Ì’Ì
+    options.AddPolicy("AdminOrProgPolicy", policy => policy.RequireRole("Prog", "Admin")); // √á√ê√á √á√ë√è√§√á √á√ì√ä√ö√£√á√° √á√°√ë√¶√° √ü√à√¶√°√≠√ï√≠ √ã√£ √§√ò√à√û√•√á √ù√≠ √á√°√ü√¶√§√ä√ë√¶√°√ë √ü√à√¶√°√≠√ï√≠
 
 
     options.AddPolicy("ProgOrAdminOrEmployeePolicy", policy =>
     {
-        policy.RequireClaim(ClaimTypes.Role, "Admin", "Employee", "Prog"); // «–« «—œ‰« «” ⁄„«· «·—Ê· ﬂ»Ê·Ì’Ì À„ ‰ÿ»ﬁÂ« ›Ì «·ﬂÊ‰ —Ê·— ﬂ»Ê·Ì’Ì
+        policy.RequireClaim(ClaimTypes.Role, "Admin", "Employee", "Prog"); // √á√ê√á √á√ë√è√§√á √á√ì√ä√ö√£√á√° √á√°√ë√¶√° √ü√à√¶√°√≠√ï√≠ √ã√£ √§√ò√à√û√•√á √ù√≠ √á√°√ü√¶√§√ä√ë√¶√°√ë √ü√à√¶√°√≠√ï√≠
     });
 
     options.AddPolicy("SettingsPolicy", policy =>
@@ -90,7 +90,7 @@ builder.Services.AddAuthorization(options =>
 //------------------------------------------------
 builder.Services.AddAutoMapper(typeof(Program).Assembly);
 
-//appsettings.jason  ”ÃÌ· ﬁ”„ «·≈⁄œ«œ«  «·Œ«’… »«·≈Ì„Ì· Ê«·„ÊÃÊœ ›Ì 
+//appsettings.jason √ä√ì√å√≠√° √û√ì√£ √á√°√Ö√ö√è√á√è√á√ä √á√°√é√á√ï√â √à√á√°√Ö√≠√£√≠√° √¶√á√°√£√¶√å√¶√è √ù√≠ 
 var emailconfig = builder.Configuration
                   .GetSection("MailSettings").Get<MailSettings>();
 builder.Services.AddSingleton(emailconfig);
@@ -102,7 +102,7 @@ builder.Services.AddMvc(options =>
 {
     options.Filters.Add(typeof(AsyncActionFilter));
 }).AddXmlSerializerFormatters();
-builder.Services.AddHttpContextAccessor(); //AsyncActionFilter ·≈” ⁄„«·Â« ·Ã·» «·ÌÊ“— «·Õ«·Ì ›Ì 
+builder.Services.AddHttpContextAccessor(); //AsyncActionFilter √°√Ö√ì√ä√ö√£√á√°√•√á √°√å√°√à √á√°√≠√¶√í√ë √á√°√ç√á√°√≠ √ù√≠ 
 
 
 builder.Services.AddSingleton<UserSessionTracker>();
@@ -116,15 +116,17 @@ if (!app.Environment.IsDevelopment())
     app.UseStatusCodePagesWithReExecute("/Error/{0}");
 }
 else if (app.Environment.IsDevelopment())
-    app.UseDeveloperExceptionPage(); //’›Õ… «·Œÿ√ «·Œ«’… »«·„ÿÊ—
+    app.UseDeveloperExceptionPage(); //√ï√ù√ç√â √á√°√é√ò√É √á√°√é√á√ï√â √à√á√°√£√ò√¶√ë
+
+
 
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();
 
-app.UseAuthentication();//Who are you//·· Õﬁﬁ „‰ ÂÊÌ… «·„” Œœ„° «·«”„ Êﬂ·„… «·„—Ê— Ê«·—„“ «·Œ«’ Ê«·„’«œﬁ… «·À‰«∆Ì…
-app.UseAuthorization();//What you allowed to do//·· Õﬁﬁ „‰ ’·«ÕÌ… «·„” Œœ„
+app.UseAuthentication();//Who are you//√°√°√ä√ç√û√û √£√§ √•√¶√≠√â √á√°√£√ì√ä√é√è√£¬° √á√°√á√ì√£ √¶√ü√°√£√â √á√°√£√ë√¶√ë √¶√á√°√ë√£√í √á√°√é√á√ï √¶√á√°√£√ï√á√è√û√â √á√°√ã√§√á√Ü√≠√â
+app.UseAuthorization();//What you allowed to do//√°√°√ä√ç√û√û √£√§ √ï√°√á√ç√≠√â √á√°√£√ì√ä√é√è√£
 
 app.MapControllerRoute(
     name: "default",

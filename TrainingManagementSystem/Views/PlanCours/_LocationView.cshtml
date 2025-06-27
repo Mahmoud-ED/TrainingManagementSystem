@@ -1,0 +1,186 @@
+﻿@model Dictionary<Locations, List<PlanCours>>
+@using System.Globalization
+
+@{
+    var selectedYear = (int)ViewData["SelectedYear"];
+    var yearStartDate = new DateTime(selectedYear, 1, 1);
+    var totalDaysInYear = 365 + (DateTime.IsLeapYear(selectedYear) ? 1 : 0);
+
+    string GetColor(Guid? id)
+    {
+        if (!id.HasValue) return "#6c757d";
+        var hash = id.Value.GetHashCode();
+        // تعديل بسيط لجعل الألوان أفتح وأكثر تناسقاً
+        return $"hsl({hash % 360}, 70%, 60%)";
+    }
+}
+
+<style>
+    .location-timeline-wrapper {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem; /* مسافة بين كل موقع والآخر */
+    }
+
+    .location-swimlane {
+        display: flex;
+        align-items: stretch; /* لجعل كل العناصر بنفس الارتفاع */
+    }
+
+    .location-label {
+        flex: 0 0 180px; /* عرض ثابت لاسم الموقع */
+        padding: 1rem;
+        background-color: #f8f9fa;
+        border: 1px solid #dee2e6;
+        border-right: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        font-weight: bold;
+        writing-mode: vertical-rl; /* لجعل النص عمودي إذا كان طويلاً */
+        text-orientation: mixed;
+        transform: rotate(180deg); /* تدوير النص ليكون مقروءاً */
+    }
+
+    .location-gantt-chart {
+        flex-grow: 1;
+        position: relative;
+        background-image: repeating-linear-gradient(to right, #f1f1f1, #f1f1f1 1px, transparent 1px, transparent 8.33%); /* خطوط عمودية تمثل الأشهر (100/12) */
+        border: 1px solid #dee2e6;
+        padding-top: 40px; /* مساحة لرأس الشهور */
+    }
+
+    .gantt-header {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 40px;
+        display: flex;
+        background-color: #f8f9fa;
+        border-bottom: 1px solid #dee2e6;
+    }
+
+    .gantt-month {
+        flex-basis: 8.333%; /* 100% / 12 شهراً */
+        text-align: center;
+        padding: 0.5rem;
+        font-size: 0.8rem;
+        font-weight: bold;
+        border-right: 1px solid #dee2e6;
+    }
+
+    .gantt-row-container {
+        position: relative;
+        width: 100%;
+    }
+
+    .gantt-bar {
+        position: absolute;
+        top: 5px; /* مسافة من الأعلى */
+        height: 30px; /* ارتفاع الشريط */
+        line-height: 30px; /* لمحاذاة النص رأسياً */
+        border-radius: 4px;
+        color: white;
+        padding: 0 10px;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        font-size: 0.8rem;
+    }
+
+        .gantt-bar:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 3px 8px rgba(0,0,0,0.2);
+            z-index: 10;
+        }
+
+</style>
+
+@if (Model.Any())
+{
+    <div class="location-timeline-wrapper">
+        <!-- رأس الشهور يتم إنشاؤه مرة واحدة فوق كل شيء -->
+        <div class="gantt-header" style="position: sticky; top: 0; z-index: 20; background:white;">
+            <div style="flex: 0 0 180px; background-color: #e9ecef;"></div> <!-- مساحة فارغة مقابل أسماء المواقع -->
+            @for (int i = 0; i < 12; i++)
+            {
+                <div class="gantt-month">@yearStartDate.AddMonths(i).ToString("MMMM", new CultureInfo("ar-EG"))</div>
+            }
+        </div>
+
+        @foreach (var group in Model.OrderBy(g => g.Key.Name))
+        {
+            // حساب أقصى تداخل لتحديد ارتفاع كل "ممر"
+            var lanes = new List<DateTime?>();
+            foreach (var plan in group.Value)
+            {
+                int laneIndex = lanes.FindIndex(laneEndDate => laneEndDate <= plan.StartDate);
+                if (laneIndex == -1)
+                {
+                    lanes.Add(plan.EndDate);
+                }
+                else
+                {
+                    lanes[laneIndex] = plan.EndDate;
+                }
+            }
+            var requiredHeight = Math.Max(1, lanes.Count) * 45; // 45px لكل صف دورة
+
+            <div class="location-swimlane">
+                <div class="location-label" style="border-color: @GetColor(group.Key.Id);">
+                    @group.Key.Name
+                </div>
+                <div class="location-gantt-chart">
+                    <div class="gantt-row-container" style="height: @(requiredHeight)px;">
+                        @{
+                            var laneAssignments = new Dictionary<Guid, int>();
+                            lanes.Clear();
+                            foreach (var plan in group.Value)
+                            {
+                                int laneIndex = lanes.FindIndex(laneEndDate => laneEndDate <= plan.StartDate);
+                                if (laneIndex == -1)
+                                {
+                                    laneIndex = lanes.Count;
+                                    lanes.Add(plan.EndDate);
+                                }
+                                else
+                                {
+                                    lanes[laneIndex] = plan.EndDate;
+                                }
+                                laneAssignments[plan.Id] = laneIndex;
+                            }
+                        }
+
+                        @foreach (var plan in group.Value)
+                        {
+                            var startOffsetDays = (plan.StartDate - yearStartDate).TotalDays;
+                            var durationDays = Math.Max(1, ((plan.EndDate ?? plan.StartDate) - plan.StartDate).TotalDays + 1);
+                            var leftPercentage = (startOffsetDays / totalDaysInYear) * 100;
+                            var widthPercentage = (durationDays / totalDaysInYear) * 100;
+                            var topPosition = laneAssignments[plan.Id] * 45 + 5; // 45px لكل صف
+
+                            <div class="gantt-bar"
+                                 style="left: @leftPercentage.ToString("F2", CultureInfo.InvariantCulture)%;
+                                                    width: @widthPercentage.ToString("F2", CultureInfo.InvariantCulture)%;
+                                                    top: @(topPosition)px;
+                                                    background-color: @GetColor(plan.CourseId);"
+                                 data-bs-toggle="tooltip" data-bs-placement="top"
+                                 title="@plan.Course.Name - من @plan.StartDate.ToShortDateString() إلى @((plan.EndDate ?? plan.StartDate).ToShortDateString())">
+                                <strong>@plan.Course.Name</strong>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
+else
+{
+    <div class="alert alert-info text-center">لا توجد خطط مرتبطة بمواقع في هذه السنة.</div>
+}

@@ -1,0 +1,157 @@
+﻿@* تحديد نوع الموديل كـ dynamic لأنه سيتغير (مرة List، مرة Dictionary) *@
+@model dynamic
+@using System.Globalization
+@using TrainingManagementSystem.Models.Entities
+
+@{
+    ViewData["Title"] = "الخطة الزمنية للبرامج التدريبية";
+    var viewMode = ViewData["ViewMode"] as string ?? "Timeline";
+    var selectedYear = (int)ViewData["SelectedYear"];
+    var selectedQuarter = (int)ViewData["SelectedQuarter"];
+    var yearList = ViewData["Years"] as IEnumerable<SelectListItem>;
+
+    // دالة مساعدة لتلوين الأشرطة
+    string GetColorForCourse(Guid? id)
+    {
+        if (!id.HasValue) return "#6c757d";
+        var hash = id.Value.GetHashCode();
+        var r = (hash & 0xFF0000) >> 16;
+        var g = (hash & 0x00FF00) >> 8;
+        var b = hash & 0x0000FF;
+        return $"rgb({r % 200 + 50}, {g % 200 + 50}, {b % 200 + 50})";
+    }
+}
+
+<style>
+    /* ... نفس كود CSS السابق للخطة الزمنية ... */
+    .btn-group .btn.active {
+        z-index: 2; /* لإظهار الزر المختار فوق الآخرين */
+    }
+
+    #calendar {
+        max-width: 1100px;
+        margin: 0 auto;
+    }
+</style>
+<link href="~/css/timelincss.css" rel="stylesheet" />
+<div class="container-fluid mt-4">
+    <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+            <h4 class="mb-0">@ViewData["Title"]</h4>
+            <a asp-action="Create" class="btn btn-light btn-sm"><i class="fas fa-plus me-1"></i> إنشاء خطة جديدة</a>
+        </div>
+        <div class="card-body">
+            <!-- قسم الفلاتر والتبديل بين طرق العرض -->
+            <div class="card filter-card mb-4">
+                <div class="card-body">
+                    <form id="filterForm" method="get" asp-action="Index">
+                        <input type="hidden" name="viewMode" value="@viewMode" />
+                        <div class="d-flex justify-content-between align-items-center">
+                            <!-- أزرار تبديل العرض -->
+                            <div class="btn-group" role="group">
+                                <a asp-action="Index" asp-route-viewMode="Timeline" class="btn @(viewMode == "Timeline" ? "btn-dark" : "btn-outline-dark")"><i class="fas fa-chart-bar me-1"></i> خطة زمنية</a>
+                                <a asp-action="Index" asp-route-viewMode="Location" class="btn @(viewMode == "Location" ? "btn-dark" : "btn-outline-dark")"><i class="fas fa-map-marker-alt me-1"></i> حسب الموقع</a>
+                                <a asp-action="Index" asp-route-viewMode="Calendar" class="btn @(viewMode == "Calendar" ? "btn-dark" : "btn-outline-dark")"><i class="fas fa-calendar-alt me-1"></i> تقويم</a>
+                                <a asp-action="Index" asp-route-viewMode="List" class="btn @(viewMode == "List" ? "btn-dark" : "btn-outline-dark")"><i class="fas fa-list me-1"></i> قائمة</a>
+                            </div>
+                            <!-- الفلاتر -->
+                            <div class="d-flex g-3 align-items-center">
+                                <div class="me-3">
+                                    <select name="year" class="form-select form-select-sm" onchange="this.form.submit()">
+                                        @foreach (var yearItem in yearList)
+                                        {
+                                            <option value="@yearItem.Value" selected="@(yearItem.Value == selectedYear.ToString())">@yearItem.Text</option>
+                                        }
+                                    </select>
+                                </div>
+                                @if (viewMode == "Timeline")
+                                {
+                                    <div class="me-2">
+                                        <select name="quarter" class="form-select form-select-sm" onchange="this.form.submit()">
+                                            <option value="1" selected="@(selectedQuarter == 1)">الربع الأول</option>
+                                            <option value="2" selected="@(selectedQuarter == 2)">الربع الثاني</option>
+                                            <option value="3" selected="@(selectedQuarter == 3)">الربع الثالث</option>
+                                            <option value="4" selected="@(selectedQuarter == 4)">الربع الرابع</option>
+                                        </select>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- ======================= منطقة عرض المحتوى المتغير ======================= -->
+            @if (viewMode == "Timeline")
+            {
+                @await Html.PartialAsync("_TimelineView", (IEnumerable<PlanCours>)Model)
+            }
+            else if (viewMode == "Location")
+            {
+                @await Html.PartialAsync("_LocationView", (Dictionary<Locations, List<PlanCours>>)Model)
+            }
+            else if (viewMode == "Calendar")
+            {
+                <div id="calendar"></div>
+            }
+            else if (viewMode == "List")
+            {
+                @await Html.PartialAsync("_ListView", (IEnumerable<PlanCours>)Model)
+            }
+
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @if (viewMode == "Calendar")
+    {
+        <!-- مكتبة FullCalendar (مهمة جداً لعرض التقويم) -->
+        <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js"></script>
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                var calendarEl = document.getElementById('calendar');
+                var calendar = new FullCalendar.Calendar(calendarEl, {
+                    headerToolbar: {
+                        left: 'prev,next today',
+                        center: 'title',
+                        right: 'dayGridMonth,timeGridWeek,listWeek'
+                    },
+                    initialView: 'dayGridMonth',
+                    locale: 'ar', // تفعيل اللغة العربية
+                    buttonText: {
+                        today: 'اليوم',
+                        month: 'شهر',
+                        week: 'أسبوع',
+                        list: 'قائمة'
+                    },
+                    events: {
+                        url: '@Url.Action("GetCalendarEvents")', // جلب الأحداث من الكنترولر
+                        failure: function() {
+                            alert('حدث خطأ أثناء تحميل الأحداث!');
+                        }
+                    },
+                    eventClick: function(info) {
+                        info.jsEvent.preventDefault(); // منع السلوك الافتراضي
+                        if (info.event.url) {
+                            window.open(info.event.url, "_self"); // فتح الرابط في نفس الصفحة
+                        }
+                    },
+                    loading: function(isLoading) {
+                        // يمكنك هنا إضافة مؤشر تحميل
+                    }
+                });
+                calendar.render();
+            });
+        </script>
+    }
+    else
+    {
+        <script>
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl);
+            });
+        </script>
+    }
+}

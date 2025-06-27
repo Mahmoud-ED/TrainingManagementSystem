@@ -1,6 +1,6 @@
 ﻿@model CreateCourseViewModel
 @{
-    ViewData["Title"] = "إنشاء دورة تدريبية جديدة";
+    ViewData["Title"] = "انشاء تصنيف دورات";
 }
 
 @section Styles {
@@ -117,25 +117,37 @@
 
             <div class="row g-4">
                 <div class="col-md-6">
-                    <label asp-for="Name" class="form-label"><i class="fas fa-signature"></i>اسم الدورة</label>
+                    <label asp-for="Name" class="form-label"><i class="fas fa-signature"></i>اسم التصنيف</label>
                     <input asp-for="Name" class="form-control" placeholder="مثال: مقدمة في البرمجة" required />
                     <span asp-validation-for="Name" class="text-danger small mt-1"></span>
                 </div>
 
                 <div class="col-md-6">
-                    <label asp-for="Code" class="form-label"><i class="fas fa-hashtag"></i>كود الدورة</label>
+                    <label asp-for="Code" class="form-label"><i class="fas fa-hashtag"></i>كود التصنيف</label>
                     <input asp-for="Code" class="form-control" placeholder="مثال: CS101" required />
                     <span asp-validation-for="Code" class="text-danger small mt-1"></span>
                 </div>
 
+                <div class="col-md-6">
+                    <label asp-for="DurationHours" class="form-label"><i class="fas fa-hashtag"></i>عدد الساعات</label>
+                    <input asp-for="DurationHours" class="form-control" placeholder="" required />
+                    <span asp-validation-for="DurationHours" class="text-danger small mt-1"></span>
+                </div>
+
+                <div class="col-md-6">
+                    <label asp-for="Days" class="form-label"><i class="fas fa-hashtag"></i>عدد الأيام</label>
+                    <input asp-for="Days" class="form-control" required />
+                    <span asp-validation-for="Days" class="text-danger small mt-1"></span>
+                </div>
+
                 <div class="col-12">
-                    <label asp-for="Description" class="form-label"><i class="fas fa-align-left"></i>وصف الدورة</label>
-                    <textarea asp-for="Description" class="form-control" rows="4" placeholder="اكتب وصفاً موجزاً عن محتوى الدورة وأهدافها..."></textarea>
+                    <label asp-for="Description" class="form-label"><i class="fas fa-align-left"></i>وصف التصنيف</label>
+                    <textarea asp-for="Description" class="form-control" rows="4" placeholder="اكتب وصفاً موجزاً عن محتوى التصنيف وأهدافها..."></textarea>
                     <span asp-validation-for="Description" class="text-danger small mt-1"></span>
                 </div>
 
                 <div class="col-md-6">
-                    <label asp-for="CourseClassificationId" class="form-label"><i class="fas fa-sitemap"></i>محور الدورة</label>
+                    <label asp-for="CourseClassificationId" class="form-label"><i class="fas fa-sitemap"></i>محور التصنيف</label>
                     <select asp-for="CourseClassificationId" class="form-select" required>
                         <option></option> <!-- فارغ للـ placeholder -->
                         @foreach (var item in Model.CourseClassifications)
@@ -147,7 +159,7 @@
                 </div>
 
                 <div class="col-md-6">
-                    <label asp-for="LevelId" class="form-label"><i class="fas fa-layer-group"></i>مستوى الدورة</label>
+                    <label asp-for="LevelId" class="form-label"><i class="fas fa-layer-group"></i>مستوى التصنيف</label>
                     <select asp-for="LevelId" class="form-select" required>
                         <option></option> <!-- فارغ للـ placeholder -->
                         @foreach (var item in Model.Levels)
@@ -159,7 +171,7 @@
                 </div>
 
                 <div class="col-12">
-                    <label asp-for="CourseParentId" class="form-label"><i class="fas fa-link"></i>الدورة المرجعية (إن وجدت)</label>
+                    <label asp-for="CourseParentId" class="form-label"><i class="fas fa-link"></i>التصنيف المرجعية (إن وجدت)</label>
                     <select asp-for="CourseParentId" class="form-select">
                         <option></option> <!-- فارغ للـ placeholder -->
                         @foreach (var item in Model.ParentCourses)
@@ -169,17 +181,6 @@
                     </select>
                     <span asp-validation-for="CourseParentId" class="text-danger small mt-1"></span>
                 </div>
-
-             @*    <div class="col-12">
-                    <label asp-for="SelectedTrainerIds" class="form-label"><i class="fas fa-chalkboard-teacher"></i>المدربون</label>
-                    <select asp-for="SelectedTrainerIds" class="form-select" multiple required>
-                        @foreach (var item in Model.AllTrainers)
-                        {
-                            <option value="@item.Value">@item.Text</option>
-                        }
-                    </select>
-                    <span asp-validation-for="SelectedTrainerIds" class="text-danger small mt-1"></span>
-                </div> *@
 
                 <div class="mb-4">
                     <label asp-for="SelectedTrainerIds" class="form-label"><i class="fas fa-users"></i> Assign Users (Hold Ctrl/Cmd to select multiple)</label>
@@ -191,7 +192,7 @@
 
                 <div class="col-12 mt-5 text-end">
                     <button type="submit" class="btn btn-primary btn-submit px-5">
-                        <i class="fas fa-save me-2"></i>إنشاء الدورة
+                        <i class="fas fa-save me-2"></i>إنشاء التصنيف
                     </button>
                 </div>
             </div>
@@ -219,8 +220,8 @@
             }
 
             // تهيئة القوائم الفردية
-            initializeSelect2('#CourseClassificationId', 'اختر محور الدورة');
-            initializeSelect2('#LevelId', 'اختر مستوى الدورة');
+            initializeSelect2('#CourseClassificationId', 'اختر محور التصنيف');
+            initializeSelect2('#LevelId', 'اختر مستوى التصنيف');
             initializeSelect2('#CourseParentId', 'اختر دورة مرجعية (اختياري)', true);
 
             // تهيئة خاصة بقائمة المدربين (متعددة الاختيارات)

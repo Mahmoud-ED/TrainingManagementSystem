@@ -32,10 +32,9 @@ namespace TrainingManagementSystem.Models.Entities
 
         //----------------------------------------------------
         [ValidateNever]
-        public Location Location { get; set; }
-        [Required(ErrorMessage = "الموقع مطلوب")]
-        [Display(Name = "Location")]
-        public Guid LocationId { get; set; }
+        public Locations? Locations { get; set; }
+        [Display(Name = "Locations")]
+        public Guid? LocationId { get; set; }
 
         //----------------------------------------------------
         [ValidateNever]

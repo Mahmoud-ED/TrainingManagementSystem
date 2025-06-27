@@ -188,7 +188,7 @@
                                 <th>الحالة</th>
                                 <th>تاريخ البدء</th>
                                 <th>الموقع</th>
-                                <th class="text-center">المسجلون</th>
+                                <th class="text-center">العدد المستهدف</th>
                                 <th class="text-center">الإجراءات</th>
                             </tr>
                         </thead>
@@ -213,11 +213,12 @@
                                         </span>
                                     </td>
                                     <td>@item.StartDate.ToString("yyyy/MM/dd")</td>
-                                    <td>@(item.Location?.Name ?? "N/A")</td>
+                                    <td>@(item.Locations?.Name ?? "N/A")</td>
                                     
                                     <!-- (جديد) عمود المسجلون مع شريط التقدم -->
                                     <td class="text-center">
-                                        <div class="progress-container">
+                                        @item.Numberoftargets
+                                        @* <div class="progress-container">
                                             <div class="d-flex justify-content-between align-items-center mb-1">
                                                 <small class="fw-bold">@(item.CourseTrainees?.Count ?? 0) / @item.Numberoftargets</small>
                                             </div>
@@ -227,7 +228,7 @@
                                             <div class="progress">
                                                 <div class="progress-bar" role="progressbar" style="width: @percentage%;" aria-valuenow="@percentage" aria-valuemin="0" aria-valuemax="100"></div>
                                             </div>
-                                        </div>
+                                        </div> *@
                                     </td>
 
                                     <td class="text-center">

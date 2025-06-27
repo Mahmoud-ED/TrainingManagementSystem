@@ -1,0 +1,151 @@
+﻿@model PlanCours
+
+@{
+    Layout = null; // مهم جداً، لا نستخدم أي Layout
+}
+
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="utf-8" />
+    <title>خطة تدريبية - @Model.Course.Name</title>
+
+    <!-- تحميل Bootstrap CSS مباشرة من CDN لتنسيق أفضل للطباعة -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        /* === تنسيقات مخصصة للطباعة الرسمية === */
+        body {
+            font-family: 'Tahoma', 'Segoe UI', sans-serif; /* خطوط واضحة ورسمية */
+            background-color: #FFF; /* خلفية بيضاء للطباعة */
+        }
+
+        .report-container {
+            width: 210mm; /* عرض ورقة A4 */
+            min-height: 297mm; /* ارتفاع ورقة A4 */
+            margin: auto;
+            padding: 15mm; /* هوامش مناسبة */
+            box-shadow: 0 0 10px rgba(0,0,0,0.1); /* ظل خفيف على الشاشة فقط */
+        }
+
+        .report-header .logo img {
+            max-width: 100px;
+        }
+
+        .document-title h1 {
+            font-size: 22pt;
+            text-decoration: underline;
+            text-decoration-thickness: 2px;
+            text-underline-offset: 10px;
+        }
+
+        .section-header {
+            background-color: #e9ecef !important; /* لون هيدر القسم */
+            font-weight: bold;
+            color: #004a99 !important;
+        }
+
+        .signatures {
+            margin-top: 60px;
+            page-break-inside: avoid; /* منع تقسيم التوقيعات بين الصفحات */
+        }
+
+        .signature-block .line {
+            border-bottom: 1px solid #333;
+            margin-top: 40px;
+        }
+
+
+        .report-container {
+            width: 100%;
+            margin: 0;
+            padding: 0;
+            box-shadow: none; /* إخفاء الظل عند الطباعة */
+        }
+
+        .btn {
+            display: none !important; /* إخفاء كل الأزرار عند الطباعة */
+        }
+
+        }
+    </style>
+</head>
+<body>
+    <div class="report-container bg-white">
+
+        <!-- زر الطباعة للمستخدم على الشاشة -->
+        <div class="d-print-none text-center mb-4">
+            <button onclick="window.print();" class="btn btn-primary btn-lg">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-printer-fill" viewBox="0 0 16 16"><path d="M5 1a2 2 0 0 0-2 2v1h10V3a2 2 0 0 0-2-2zm6 8H5a1 1 0 0 0-1 1v3a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-3a1 1 0 0 0-1-1" /><path d="M0 7a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2h-1v-2a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v2H2a2 2 0 0 1-2-2zm2.5 1a.5.5 0 1 0 0-1 .5.5 0 0 0 0 1" /></svg>
+                طباعة / حفظ كـ PDF
+            </button>
+            <button onclick="window.close();" class="btn btn-secondary btn-lg">إغلاق</button>
+        </div>
+
+        <!-- نفس محتوى التقرير الذي صممناه سابقاً -->
+        <header class="report-header d-flex justify-content-between align-items-center border-bottom border-primary border-3 pb-3 mb-5">
+            <div class="logo">
+                <img src="/images/logo.png" alt="شعار الدولة" />
+            </div>
+            <div class="titles text-center">
+                <h1 class="h4 mb-1">المملكة العربية السعودية</h1>
+                <h2 class="h6 fw-normal text-muted">وزارة التدريب والتطوير التقني (مثال)</h2>
+            </div>
+            <div class="ref-number text-start small">
+                <strong>رقم الإشارة: </strong> @DateTime.Now.Year-@(Model.Id.ToString().Substring(0, 4).ToUpper())<br />
+                <strong>التاريخ: </strong> @DateTime.Now.ToString("dd/MM/yyyy")
+            </div>
+        </header>
+
+        <section class="document-title text-center mb-5">
+            <h1 class="display-6">خطة دورة تدريبية</h1>
+        </section>
+
+        <!-- باقي أقسام التقرير ... (المعلومات، الجدول الزمني، المدربون، التوقيعات) -->
+        <!--  (يمكنك نسخ ولصق نفس الأقسام من الردود السابقة هنا) -->
+
+        <section class="section card mb-4">
+            <div class="section-header card-header">أولاً: معلومات الدورة الأساسية</div>
+            <div class="card-body">
+                <dl class="row">
+                    <dt class="col-sm-4">اسم الدورة التدريبية</dt>
+                    <dd class="col-sm-8">@Model.Course.Name</dd>
+                    <dt class="col-sm-4">مدة الدورة (بالساعات)</dt>
+                    <dd class="col-sm-8">@Model.DurationHours ساعة تدريبية</dd>
+                    <dt class="col-sm-4">عدد المستهدفين</dt>
+                    <dd class="col-sm-8">@(Model.Numberoftargets.HasValue? Model.Numberoftargets.Value.ToString() : "غير محدد")</dd>
+                </dl>
+            </div>
+        </section>
+
+        <!-- ... باقي الأقسام ... -->
+
+        <footer class="signatures row text-center">
+            <div class="signature-block col-4">
+                <div><strong>مُعد الخطة</strong></div>
+                <div class="line mt-5"></div>
+                <div class="name mt-2">.........................</div>
+            </div>
+            <div class="signature-block col-4">
+                <div><strong>مراجعة واعتماد</strong></div>
+                <div class="line mt-5"></div>
+                <div class="name mt-2">.........................</div>
+            </div>
+            <div class="signature-block col-4">
+                <div><strong>المصادقة النهائية</strong></div>
+                <div class="line mt-5"></div>
+                <div class="name mt-2">.........................</div>
+            </div>
+        </footer>
+
+    </div>
+
+    <!-- كود JavaScript لتشغيل الطباعة -->
+    <script type="text/javascript">
+        // يمكن تشغيل الطباعة تلقائياً عند تحميل الصفحة
+         window.onload = function() {
+          window.print();
+        }
+    </script>
+</body>
+</html>

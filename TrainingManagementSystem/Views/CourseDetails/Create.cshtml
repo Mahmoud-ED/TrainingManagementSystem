@@ -14,22 +14,17 @@
         <div class="card-header bg-primary text-white">
             <h3 class="mb-0">@ViewData["Title"]</h3>
         </div>
-        @* يجب أن يكون الفورم هو العنصر الخارجي الذي يلف كل شيء سيتم إرساله *@
+
         <form asp-action="Create" method="post" id="createCourseForm">
-            @Html.AntiForgeryToken() @* مهم جداً لأمان الفورم *@
+            @Html.AntiForgeryToken()
             <div asp-validation-summary="ModelOnly" class="alert alert-danger m-3"></div>
 
-            @* حقل مخفي لـ ID الدورة (إذا كانت موجودة للتعديل أو تم اختيارها) *@
-            @* إذا كانت هذه صفحة "إنشاء" فقط، وهذا الحقل يتم ملؤه من اختيار كارد، فمكانه صحيح. *@
-            @* إذا كانت هذه الصفحة تستخدم أيضاً لـ "تعديل" دورة موجودة، فيجب أن يكون Model.Id له قيمة هنا. *@
             <input type="hidden" asp-for="Id" id="hiddenCourseIdInput" />
 
-
-            @if (Model.Course != null) // يعني أننا نعرض معلومات دورة موجودة (ربما بعد اختيارها أو عند التعديل)
+            @if (Model.Course != null)
             {
                 <div class="card shadow-sm m-3 bg-light border-primary">
                     <div class="card-header bg-info text-white">
-                        @* تغيير اللون للتمييز *@
                         <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>معلومات الدورة المختارة/الحالية</h5>
                     </div>
                     <div class="card-body">
@@ -46,29 +41,26 @@
                                 <p class="mb-0"><strong>المستوى:</strong> @Model.Course.Level?.Name</p>
                             </div>
                         </div>
-                        @* هنا يمكنك وضع حقول النموذج الرئيسية إذا كانت الدورة مختارة ويجب أن تكون للقراءة فقط أو معبأة مسبقًا *@
-                        @* مثال: *@
-                        @* <div class="form-group mt-3"> *@
-                        @* <label asp-for="Name" class="control-label"></label> *@
-                        @* <input asp-for="Name" class="form-control" readonly /> *@
-                        @* </div> *@
                     </div>
                 </div>
             }
-            else if (Model.Id == Guid.Empty && Model.CourseList != null && Model.CourseList.Any()) // نعرض قائمة الاختيار فقط إذا كنا في وضع إنشاء جديد ولم يتم اختيار دورة بعد
+            else if (Model.Id == Guid.Empty && Model.CourseList != null && Model.CourseList.Any())
             {
                 <div class="container mt-4 p-3 border rounded mb-3">
-                    <h4 class="mb-3 text-primary"><i class="fas fa-tasks me-2"></i>اختيار دورة موجودة (اختياري)</h4>
+                    <h4 class="mb-3 text-primary"><i class="fas fa-tasks me-2"></i>اختيار دورة موجودة</h4>
                     <p class="text-muted">إذا كانت هذه الدورة تكرارًا أو تحديثًا لدورة سابقة، يمكنك اختيارها من القائمة أدناه لربط التفاصيل الجديدة بها.</p>
-                    @* الحقل المخفي هنا سيتم ملؤه بواسطة JavaScript عند اختيار كارد. *@
-                    @* الاسم يجب أن يكون مطابقًا للخاصية التي تريد ربطها في الكنترولر، ربما 'Id' أو 'SelectedBaseCourseId' *@
-                    @* <input type="hidden" asp-for="Id" id="hiddenCourseIdInput" />  -- هذا مكرر من الأعلى، تأكد من الغرض *@
 
                     <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4" id="courseCardsContainer">
                         @foreach (var courseItem in Model.CourseList)
                         {
                             <div class="col">
-                                <div class="card h-100 course-card shadow-sm" data-course-id="@courseItem.Id" data-course-name="@courseItem.Name" style="cursor: pointer;">
+                                <div class="card h-100 course-card shadow-sm" style="cursor: pointer;"
+                                     data-course-id="@courseItem.Id"
+                                     data-course-name="@courseItem.Name"
+                                     data-duration-hours="@courseItem.DurationHours"
+                                     data-days="@(courseItem.Days ?? 0)">
+                                    @* <-- أهم إضافة هنا: تمرير البيانات اللازمة *@
+
                                     <div class="card-body d-flex flex-column">
                                         <h5 class="card-title">@courseItem.Name</h5>
                                         @if (!string.IsNullOrWhiteSpace(courseItem.Code))
@@ -103,62 +95,13 @@
                             </div>
                         }
                     </div>
-                    @* مكان لعرض معلومات الدورة المختارة إذا أردت ذلك قبل الإرسال *@
                     <div class="mt-3 p-2 bg-light-subtle border rounded" id="selectedCourseFeedback" style="display:none;">
-                        <p class="mb-0"><strong>الدورة المختارة كقاعدة:</strong> <span id="selectedCourseNameDisplayFeedback"></span> (ID: <span id="selectedCourseIdDisplayFeedback"></span>)</p>
-                        <small class="text-muted">سيتم استخدام هذه الدورة كمرجع. يمكنك تعديل التفاصيل أدناه.</small>
+                        <p class="mb-0"><strong>الدورة المختارة كقاعدة:</strong> <span id="selectedCourseNameDisplayFeedback"></span></p>
                     </div>
                 </div>
             }
-            else if (Model.Id == Guid.Empty) // وضع إنشاء جديد، ولم يتم اختيار دورة، ولا توجد قائمة دورات لعرضها
-            {
-                @* هنا يجب وضع حقول إدخال بيانات الدورة الرئيسية إذا لم يتم اختيار دورة *@
-                @* مثل اسم الدورة، الوصف، المحور، المستوى الخ... إذا كانت مطلوبة بشكل مستقل *@
-                <div class="m-3 p-3 border rounded">
-                    <h4 class="mb-3 text-primary"><i class="fas fa-book me-2"></i>بيانات الدورة الجديدة</h4>
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label asp-for="Name" class="form-label"></label>
-                            <input asp-for="Name" class="form-control" />
-                            <span asp-validation-for="Name" class="text-danger"></span>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label asp-for="Code" class="form-label"></label>
-                            <input asp-for="Code" class="form-control" />
-                            <span asp-validation-for="Code" class="text-danger"></span>
-                        </div>
+          
 
-                        <div class="col-md-6 mb-3">
-                            <label asp-for="Numberoftargets" class="form-label"></label>
-                            <input asp-for="Numberoftargets" class="form-control" />
-                            <span asp-validation-for="Numberoftargets" class="text-danger"></span>
-                        </div>
-                    </div>
-                    <div class="mb-3">
-                        <label asp-for="Description" class="form-label"></label>
-                        <textarea asp-for="Description" class="form-control" rows="3"></textarea>
-                        <span asp-validation-for="Description" class="text-danger"></span>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label asp-for="CourseClassificationId" class="form-label"></label>
-                            <select asp-for="CourseClassificationId" class="form-select" asp-items="Model.CourseClassifications">
-                                <option value="">-- اختر المحور --</option>
-                            </select>
-                            <span asp-validation-for="CourseClassificationId" class="text-danger"></span>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label asp-for="LevelId" class="form-label"></label>
-                            <select asp-for="LevelId" class="form-select" asp-items="Model.Levels">
-                                <option value="">-- اختر المستوى --</option>
-                            </select>
-                            <span asp-validation-for="LevelId" class="text-danger"></span>
-                        </div>
-                    </div>
-                </div>
-            }
-
-            @* قسم تفاصيل تنفيذ الدورة (CourseDetails) مشترك للجميع *@
             <div class="card-body">
                 <fieldset class="mb-4 p-3 border rounded">
                     <legend class="w-auto px-2 h5 text-success"><i class="fas fa-calendar-alt me-2"></i>تفاصيل ومواعيد تنفيذ الدورة</legend>
@@ -167,13 +110,12 @@
                         {
                             for (int i = 0; i < Model.CourseDetailsEntries.Count; i++)
                             {
-                                @* تأكد أن الموديل الجزئي يتوقع هذه البيانات *@
                                 @Html.Partial("_CourseDetailFormEntry", Model.CourseDetailsEntries[i],
                                 new ViewDataDictionary(ViewData) {
                                                 { "index", i },
-                                                { "Statuses", Model.Statuses }, // تمرير قائمة الحالات
-                                                { "Locations", Model.Locations }, // تمرير قائمة الأماكن
-                                                { "CourseTypes", Model.CourseTypes } // تمرير قائمة أنواع الدورات
+                                                { "Statuses", Model.Statuses },
+                                                { "Locations", Model.Locations },
+                                                { "CourseTypes", Model.CourseTypes }
                                                 })
                                                 }
                                                 }
@@ -187,7 +129,6 @@
                 <hr />
                 <div class="d-flex justify-content-end p-3">
                     <a asp-action="Index" asp-controller="Courses" class="btn btn-outline-secondary me-2">
-                        @* حدد الكنترولر إذا لم يكن Courses *@
                         <i class="fas fa-times me-1"></i> إلغاء
                     </a>
                     <button type="submit" class="btn btn-primary">
@@ -195,7 +136,7 @@
                     </button>
                 </div>
             </div>
-        </form> @* نهاية الفورم الرئيسي *@
+        </form>
     </div>
 </div>
 
@@ -207,60 +148,61 @@
 
     <script>
         $(document).ready(function () {
+
+            // ===================================================================
+            // ======== START: وظيفة مساعدة لحساب تاريخ الانتهاء ========
+            // ===================================================================
+            function calculateAndSetEndDate(detailEntryElement) {
+                const startDateInput = detailEntryElement.find('input[id$="__StartDate"]');
+                const endDateInput = detailEntryElement.find('input[id$="__EndDate"]');
+                const days = detailEntryElement.data('base-course-days'); // نقرأ الأيام من بيانات العنصر
+
+                const startDateValue = startDateInput.val();
+
+                // نتأكد من وجود كل البيانات اللازمة
+                if (startDateValue && days && parseInt(days) > 0) {
+                    try {
+                        let startDate = new Date(startDateValue);
+                        if (isNaN(startDate.getTime())) return;
+
+                        // إضافة الأيام (مع طرح يوم واحد لأن اليوم الأول يُحسب)
+                        startDate.setDate(startDate.getDate() + (parseInt(days) - 1));
+
+                        // تنسيق التاريخ إلى YYYY-MM-DD لوضعه في حقل الإدخال
+                        const year = startDate.getFullYear();
+                        const month = ('0' + (startDate.getMonth() + 1)).slice(-2);
+                        const day = ('0' + startDate.getDate()).slice(-2);
+                        const newEndDate = `${year}-${month}-${day}`;
+
+                        endDateInput.val(newEndDate);
+                    } catch (e) {
+                        console.error("Error calculating end date:", e);
+                        endDateInput.val('');
+                    }
+                }
+            }
+
             // --- START: Dynamic CourseDetail Entries ---
             function updateRemoveButtonsVisibility() {
-                var entries = $("#courseDetailsContainer .course-detail-entry");
+                const entries = $("#courseDetailsContainer .course-detail-entry");
                 entries.find(".remove-course-detail").toggleClass("d-none", entries.length <= 1);
             }
 
-            // --- ملاحظة حول Re-indexing ---
-            // الـ Model Binder في ASP.NET Core ذكي كفاية للتعامل مع الفجوات في الـ indices
-            // (e.g., CourseDetailsEntries[0], CourseDetailsEntries[2]).
-            // لذا، إعادة الفهرسة (reindexCourseDetails) ليست ضرورية عادةً وتضيف تعقيدًا.
-            // إذا لم تواجه مشاكل في الـ model binding، يمكنك إزالتها.
-            // لقد أبقيت على التعليقات لها إذا كنت تحتاجها لسبب خاص.
-
-            // function reindexCourseDetails() {
-            //     $("#courseDetailsContainer .course-detail-entry").each(function(newIndex, entryElement) {
-            //         $(entryElement).find('input, select, textarea').each(function() {
-            //             var currentName = $(this).attr('name');
-            //             if (currentName) {
-            //                 $(this).attr('name', currentName.replace(/CourseDetailsEntries\[\d+\]/, `CourseDetailsEntries[${newIndex}]`));
-            //             }
-            //             var currentId = $(this).attr('id');
-            //             if (currentId) {
-            //                 $(this).attr('id', currentId.replace(/CourseDetailsEntries_\d+__/, `CourseDetailsEntries_${newIndex}__`));
-            //             }
-            //         });
-            //         $(entryElement).find('span[data-valmsg-for]').each(function() {
-            //             var currentFor = $(this).attr('data-valmsg-for');
-            //             if (currentFor) {
-            //                $(this).attr('data-valmsg-for', currentFor.replace(/CourseDetailsEntries\[\d+\]/, `CourseDetailsEntries[${newIndex}]`));
-            //             }
-            //         });
-            //          // Update header for the entry
-            //         $(entryElement).find('.course-detail-entry-header').text(`تفصيل تنفيذ دورة #${newIndex + 1}`);
-            //     });
-            // }
-
             $("#addCourseDetailButton").click(function () {
-                var currentIndex = $("#courseDetailsContainer .course-detail-entry").length;
-                // var antiForgeryToken = "@GetAntiXsrfRequestToken()"; // ليس ضروريًا لـ GET عادةً
-
+                const currentIndex = $("#courseDetailsContainer .course-detail-entry").length;
                 $.ajax({
-                    url: '@Url.Action("GetCourseDetailEntryPartial", "CourseDetails")', // تأكد أن الكنترولر هو Courses أو ما يناسبك
+                    url: '@Url.Action("GetCourseDetailEntryPartial", "CourseDetails")', // تأكد من اسم الكنترولر الصحيح
                     type: 'GET',
                     data: { index: currentIndex },
                     success: function (result) {
                         $("#courseDetailsContainer").append(result);
-                        var form = $("#createCourseForm");
+                        const form = $("#createCourseForm");
                         form.removeData("validator").removeData("unobtrusiveValidation");
                         $.validator.unobtrusive.parse(form);
                         updateRemoveButtonsVisibility();
-                        // reindexCourseDetails();
                     },
                     error: function (xhr, status, error) {
-                        console.error("Error adding course detail entry:", status, error, xhr.responseText);
+                        console.error("Error adding course detail entry:", status, error);
                         alert("حدث خطأ أثناء إضافة تفصيل الدورة. راجع الكونسول.");
                     }
                 });
@@ -268,51 +210,77 @@
 
             $("#courseDetailsContainer").on("click", ".remove-course-detail", function (e) {
                 e.preventDefault();
-                // لا نزيل إذا كان آخر عنصر إلا إذا كنت تريد ذلك وتضيف عنصرًا فارغًا بعد ذلك.
-                // المنطق الحالي يحافظ على عنصر واحد على الأقل إذا بدأنا بواحد.
-                if ($("#courseDetailsContainer .course-detail-entry").length > 1 || '@(Model.CourseDetailsEntries?.Count ?? 0)' === '0') {
+                if ($("#courseDetailsContainer .course-detail-entry").length > 1) {
                      $(this).closest(".course-detail-entry").remove();
                      updateRemoveButtonsVisibility();
-                    // reindexCourseDetails();
                 } else {
                      alert("يجب أن يكون هناك تفصيل واحد على الأقل للدورة.");
                 }
             });
 
-            updateRemoveButtonsVisibility();
-
-            // Add at least one detail entry if none exist on page load for a new course
-             if ('@(Model.Id == Guid.Empty && (Model.CourseDetailsEntries == null || !Model.CourseDetailsEntries.Any()))' === 'True') {
-                 $("#addCourseDetailButton").trigger('click'); // استخدم trigger('click')
+            if ('@(Model.Id == Guid.Empty && (Model.CourseDetailsEntries == null || !Model.CourseDetailsEntries.Any()))' === 'True') {
+                 $("#addCourseDetailButton").trigger('click');
+            } else {
+                 updateRemoveButtonsVisibility();
             }
             // --- END: Dynamic CourseDetail Entries ---
 
-
-            // --- START: Course Card Selection ---
+            // ===================================================================
+            // ======== START: تعديل منطق اختيار كرت الدورة (الأهم) ========
+            // ===================================================================
             $('#courseCardsContainer').on('click', '.course-card', function () {
-                var courseId = $(this).data('course-id');
-                var courseName = $(this).data('course-name'); // استخدام data-course-name أفضل
-
-                console.log("Card clicked! Course ID: " + courseId + ", Name: " + courseName);
+                const $card = $(this);
+                const courseId = $card.data('course-id');
+                const courseName = $card.data('course-name');
+                const durationHours = $card.data('duration-hours');
+                const courseDays = $card.data('days');
 
                 // تحديث الحقل المخفي الرئيسي للدورة
-                $('#hiddenCourseIdInput').val(courseId).trigger('change'); // trigger change إذا كانت هناك أي ارتباطات أخرى
-
-                // تحديث العرض المرئي للاختيار
+                $('#hiddenCourseIdInput').val(courseId).trigger('change');
                 $('#selectedCourseNameDisplayFeedback').text(courseName);
-                $('#selectedCourseFeedback').slideDown(); // إظهار بشكل لطيف
-
-                // تأثير بصري للكارد المختار
+                $('#selectedCourseFeedback').slideDown();
                 $('#courseCardsContainer .course-card').removeClass('border-primary shadow-lg').addClass('shadow-sm');
-                $(this).removeClass('shadow-sm').addClass('border-primary shadow-lg'); // تمييز أقوى
+                $card.addClass('border-primary shadow-lg');
 
-                // يمكنك هنا إخفاء قسم إدخال بيانات الدورة الرئيسية إذا أردت
-                // وإظهار معلومات الدورة المختارة بشكل أوضح، أو حتى جلب بياناتها عبر AJAX لتعبئة حقول أخرى.
-                // مثال:
-                // $('#manualCourseEntrySection').hide(); // افترض أن لديك قسم بهذا الـ ID
-                // $('#selectedCourseDisplaySection').show(); // قسم آخر لعرض بيانات الدورة المختارة
+                // تعبئة بيانات النموذج الجزئي الأول
+                const firstDetailEntry = $('#courseDetailsContainer .course-detail-entry:first');
+                if (firstDetailEntry.length > 0) {
+                    firstDetailEntry.find('input[id$="__Name"]').val(courseName).trigger('input');
+                    firstDetailEntry.find('input[id$="__DurationHours"]').val(durationHours).trigger('input');
+
+                    // تخزين عدد الأيام في بيانات العنصر نفسه لاستخدامه لاحقاً
+                    firstDetailEntry.data('base-course-days', courseDays);
+
+                    // استدعاء الوظيفة لحساب تاريخ النهاية فوراً
+                    calculateAndSetEndDate(firstDetailEntry);
+                }
             });
             // --- END: Course Card Selection ---
+
+
+            // ===================================================================
+            // ======== START: مراقبة تغيير تاريخ البدء لحساب النهاية تلقائياً ========
+            // ===================================================================
+
+              $('#courseDetailsContainer').on('change', 'select[id$="__LocationId"]', function() {
+                const $select = $(this);
+                const selectedOption = $select.find('option:selected');
+                const fullCount = selectedOption.data('full-count');
+                const targetInput = $select.closest('.course-detail-entry').find('input[id$="__Numberoftargets"]');
+
+                if (fullCount !== undefined && fullCount !== '') {
+                    targetInput.val(fullCount);
+                } else {
+                    targetInput.val('');
+                }
+            });
+
+
+            $('#courseDetailsContainer').on('change', 'input[id$="__StartDate"]', function() {
+                const detailEntry = $(this).closest('.course-detail-entry');
+                // نستدعي وظيفة الحساب لهذا العنصر المحدد
+                calculateAndSetEndDate(detailEntry);
+            });
         });
     </script>
 }

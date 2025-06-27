@@ -1,0 +1,176 @@
+﻿@* افترض أن هذا هو الـ ViewModel الخاص بك *@
+@model CourseFormViewModel
+
+@{
+    ViewData["Title"] = "إنشاء خطة برنامج تدريبي جديد";
+}
+
+<div class="container mt-4">
+    <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white">
+            <h3 class="mb-0">@ViewData["Title"]</h3>
+        </div>
+
+        <form asp-action="Create" method="post" id="createCourseForm">
+            @Html.AntiForgeryToken()
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger m-3" role="alert"></div>
+
+            @* حقل مخفي لـ ID الدورة الأساسية إذا تم اختيارها من الكروت *@
+            <input type="hidden" asp-for="Id" id="hiddenCourseIdInput" />
+
+            @* --- قسم اختيار الدورة كقاعدة (اختياري) --- *@
+            @if (Model.CourseList != null && Model.CourseList.Any())
+            {
+                <div class="m-3 p-3 border rounded">
+                    <h4 class="mb-3 text-primary"><i class="fas fa-tasks me-2"></i>اختيار دورة موجودة كقاعدة</h4>
+                    <p class="text-muted">اختر دورة من القائمة لملء بياناتها تلقائياً في أول تفصيل تنفيذ.</p>
+
+                    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4" id="courseCardsContainer">
+                        @foreach (var courseItem in Model.CourseList)
+                        {
+                            <div class="col">
+                                <div class="card h-100 course-card shadow-sm" style="cursor: pointer;"
+                                     data-course-id="@courseItem.Id"
+                                     data-course-name="@courseItem.Name"
+                                     data-duration-hours="@courseItem.DurationHours"
+                                     data-days="@(courseItem.Days ?? 0)">
+                                    <div class="card-body">
+                                        <h5 class="card-title">@courseItem.Name</h5>
+                                        <p class="card-text small text-muted">@courseItem.Description</p>
+                                    </div>
+                                    <div class="card-footer text-center bg-light">
+                                        <small class="text-muted">اختر هذه الدورة</small>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                    <div class="mt-3 p-2 bg-light-subtle border rounded" id="selectedCourseFeedback" style="display:none;">
+                        <p class="mb-0"><strong>الدورة المختارة:</strong> <span id="selectedCourseNameDisplayFeedback"></span></p>
+                    </div>
+                </div>
+            }
+
+            @* --- قسم تفاصيل تنفيذ الدورات (PlanCours) --- *@
+            <div class="card-body">
+                <fieldset class="mb-4 p-3 border rounded">
+                    <legend class="w-auto px-2 h5 text-success"><i class="fas fa-calendar-alt me-2"></i>تفاصيل تنفيذ الدورات</legend>
+                    <div id="planEntriesContainer">
+                        @* يتم عرض أي إدخالات موجودة هنا (مفيد عند فشل التحقق من الصحة) *@
+                        @if (Model.CourseDetailsEntries != null)
+                        {
+                            for (int i = 0; i < Model.CourseDetailsEntries.Count; i++)
+                            {
+                                @* تأكد من أن اسم البارشل صحيح *@
+                                @await Html.PartialAsync("_PlanCourseEntryPartial", Model.CourseDetailsEntries[i], new ViewDataDictionary(ViewData) { { "index", i } })
+                            }
+                        }
+                    </div>
+                    <button type="button" id="addPlanEntryButton" class="btn btn-outline-success btn-sm mt-2">
+                        <i class="fas fa-plus"></i> إضافة تفصيل تنفيذ آخر
+                    </button>
+                    <span asp-validation-for="CourseDetailsEntries" class="text-danger d-block mt-2"></span>
+                </fieldset>
+
+                <hr />
+                <div class="d-flex justify-content-end p-3">
+                    <a asp-action="Index" class="btn btn-outline-secondary me-2">
+                        <i class="fas fa-times me-1"></i> إلغاء
+                    </a>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save me-1"></i> حفظ الخطة
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+        $(document).ready(function () {
+            // === وظائف مساعدة ===
+            function calculateAndSetEndDate(entryElement) {
+                const startDateInput = entryElement.find('input[id$="__StartDate"]');
+                const endDateInput = entryElement.find('input[id$="__EndDate"]');
+                const days = entryElement.data('base-course-days');
+                if (startDateInput.val() && days && parseInt(days) > 0) {
+                    let startDate = new Date(startDateInput.val());
+                    startDate.setDate(startDate.getDate() + parseInt(days) - 1);
+                    endDateInput.val(startDate.toISOString().split('T')[0]);
+                }
+            }
+
+            function updateRemoveButtonsVisibility() {
+                const entries = $("#planEntriesContainer .plan-entry");
+                entries.find(".remove-plan-entry").toggleClass("d-none", entries.length <= 1);
+            }
+
+            // === منطق الإضافة والحذف الديناميكي ===
+            $("#addPlanEntryButton").click(function () {
+                const currentIndex = $("#planEntriesContainer .plan-entry").length;
+                $.ajax({
+                    url: '@Url.Action("GetPlanCourseEntryPartial")', // افترض أن لديك هذا الـ Action في الكنترولر
+                    type: 'GET',
+                    data: { index: currentIndex },
+                    success: function (result) {
+                        $("#planEntriesContainer").append(result);
+                        $("#createCourseForm").removeData("validator").removeData("unobtrusiveValidation");
+                        $.validator.unobtrusive.parse("#createCourseForm");
+                        updateRemoveButtonsVisibility();
+                    },
+                    error: function () { alert("حدث خطأ."); }
+                });
+            });
+
+            $("#planEntriesContainer").on("click", ".remove-plan-entry", function () {
+                if ($("#planEntriesContainer .plan-entry").length > 1) {
+                    $(this).closest(".plan-entry").remove();
+                    updateRemoveButtonsVisibility();
+                }
+            });
+
+            if ($("#planEntriesContainer .plan-entry").length === 0) {
+                $("#addPlanEntryButton").trigger('click');
+            } else {
+                updateRemoveButtonsVisibility();
+            }
+
+            // === منطق ربط الأحداث (التفاعلات) ===
+            // اختيار كرت الدورة
+            $('#courseCardsContainer').on('click', '.course-card', function () {
+                const $card = $(this);
+                $('#hiddenCourseIdInput').val($card.data('course-id'));
+                $('#selectedCourseNameDisplayFeedback').text($card.data('course-name'));
+                $('#selectedCourseFeedback').slideDown();
+                $('.course-card').removeClass('border-primary shadow-lg');
+                $card.addClass('border-primary shadow-lg');
+
+                const firstEntry = $('#planEntriesContainer .plan-entry:first');
+                if (firstEntry.length > 0) {
+                    firstEntry.find('input[id$="__Name"]').val($card.data('course-name')); // افترض وجود حقل اسم في البارشل
+                    firstEntry.find('input[id$="__DurationHours"]').val($card.data('duration-hours'));
+                    firstEntry.data('base-course-days', $card.data('days'));
+                    calculateAndSetEndDate(firstEntry);
+                }
+            });
+
+            // ربط اختيار الموقع بالعدد المستهدف
+            $('#planEntriesContainer').on('change', 'select[id$="__LocationId"]', function() {
+                const $select = $(this);
+                const fullCount = $select.find('option:selected').data('full-count');
+                const targetInput = $select.closest('.plan-entry').find('input[id$="__Numberoftargets"]');
+                targetInput.val(fullCount !== undefined ? fullCount : '');
+            });
+
+            // ربط تغيير تاريخ البدء بتاريخ الانتهاء
+            $('#planEntriesContainer').on('change', 'input[id$="__StartDate"]', function() {
+                calculateAndSetEndDate($(this).closest('.plan-entry'));
+            });
+        });
+    </script>
+}

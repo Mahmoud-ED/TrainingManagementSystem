@@ -50,7 +50,7 @@ namespace TrainingManagementSystem.Controllers
                 .Include(c => c.CourseDetails)
                     .ThenInclude(cd => cd.Status)
                 .Include(c => c.CourseDetails)     // Eager load CourseDetails again to chain another .ThenInclude
-                    .ThenInclude(cd => cd.Location) // **** IF Location IS AN ENTITY ****
+                    .ThenInclude(cd => cd.Locations) // **** IF Location IS AN ENTITY ****
                 .Include(c => c.CourseDetails)     // Eager load CourseDetails again
                     .ThenInclude(cd => cd.CourseTrainees)
                 .Include(c => c.CourseTrainers)
@@ -117,6 +117,8 @@ namespace TrainingManagementSystem.Controllers
                         // الخطوة 1: إنشاء وحفظ الدورة أولاً للحصول على ID
                         var course = new Course
                         {
+                            Days= viewModel.Days,
+                            DurationHours = viewModel.DurationHours,
                             Name = viewModel.Name,
                             Code = viewModel.Code,
                             Description = viewModel.Description,
@@ -186,7 +188,7 @@ namespace TrainingManagementSystem.Controllers
                 .Include(c => c.CourseDetails)
                     .ThenInclude(cd => cd.Status)
                 .Include(c => c.CourseDetails)     // Eager load CourseDetails again to chain another .ThenInclude
-                    .ThenInclude(cd => cd.Location) // **** IF Location IS AN ENTITY ****
+                    .ThenInclude(cd => cd.  Locations   ) // **** IF Location IS AN ENTITY ****
                 .Include(c => c.CourseDetails)     // Eager load CourseDetails again
                     .ThenInclude(cd => cd.CourseTrainees)
                 .Include(c => c.CourseTrainers)

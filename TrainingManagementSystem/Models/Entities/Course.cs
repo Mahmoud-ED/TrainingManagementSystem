@@ -36,12 +36,25 @@ namespace TrainingManagementSystem.Models.Entities
         //---------------------------------------------------------------
         public List<CourseDetails> CourseDetails { get; set; } 
         //---------------------------------------------------------------
-          public List<CourseTrainer> CourseTrainers { get; set; }
+        public List<CourseTrainer> CourseTrainers { get; set; }
+        //---------------------------------------------------------------
+
+        public List<PlanCours> PlanCours { get; set; } = new List<PlanCours>();
+
         //---------------------------------------------------------------
 
         [ValidateNever]
         public CourseParent? CourseParent { get; set; } // مفرد و nullable
         [Display(Name = "مرجع الدورة السابقة")]
         public Guid? CourseParentId { get; set; } //Refrence of the previous course
+
+
+
+
+
+        public int DurationHours { get; set; }
+
+        public int? Days { get; set; } 
+
     }
 }

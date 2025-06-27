@@ -42,10 +42,10 @@ namespace TrainingManagementSystem.Models.Entities
 
 
         [ValidateNever]
-        public Specialization Specialization { get; set; }
+        public Specialization? Specialization { get; set; }
         [Required(ErrorMessage = "Specialization is required")]
         [Display(Name = "التخصص")]
-        public Guid SpecializationId { get; set; }
+        public Guid? SpecializationId { get; set; }
 
 
         [ValidateNever]

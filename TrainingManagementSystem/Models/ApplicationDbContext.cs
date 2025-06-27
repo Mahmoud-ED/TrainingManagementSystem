@@ -27,12 +27,13 @@ namespace TrainingManagementSystem.Models
         public DbSet<CourseDetails> CourseDetails { get; set; }
         public DbSet<CourseTrainee> CourseTrainees { get; set; }
         public DbSet<CourseTrainer> CourseTrainers { get; set; }
+        public DbSet<PlanCoursTrainer> PlanCoursTrainers { get; set; }
         public DbSet<CoursDetailsTrainer> CoursDetailsTrainer { get; set; }
         public DbSet<CourseType> CourseTypes { get; set; }
         public DbSet<CourseParent> CourseParent { get; set; }
         public DbSet<Department> Departments { get; set; }
         public DbSet<Level> Levels { get; set; }
-        public DbSet<Location> Locations { get; set; }
+        public DbSet<Locations> Locations { get; set; }
         public DbSet<Organizition> Organizitions { get; set; }
         public DbSet<Qualification> Qualifications { get; set; }
         public DbSet<PlanHeader> PlanHeaders { get; set; }
@@ -45,6 +46,7 @@ namespace TrainingManagementSystem.Models
         public DbSet<UserProfile> UserProfiles { get; set; }
         public DbSet<Employee> Employees { get; set; }
         public DbSet<SiteInfo> SiteInfo { get; set; }
+        public DbSet<PlanCours> PlanCours { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -158,14 +160,28 @@ namespace TrainingManagementSystem.Models
                         .HasOne(cd => cd.Course) // <<-- Courses -> Course
                         .WithMany(c => c.CourseDetails)
                         .HasForeignKey(cd => cd.CourseId)
-                        .OnDelete(DeleteBehavior.Cascade); // إذا حذفت دورة، احذف تفاصيلها
+                        .OnDelete(DeleteBehavior.Cascade);
+
+
+            modelBuilder.Entity<PlanCours>()
+                      .HasOne(cd => cd.Course) 
+                      .WithMany(c => c.PlanCours)
+                      .HasForeignKey(cd => cd.CourseId)
+                      .OnDelete(DeleteBehavior.Restrict);
 
             // CourseDetails -> Location
             modelBuilder.Entity<CourseDetails>()
-                        .HasOne(cd => cd.Location) // <<-- Locations -> Location
+                        .HasOne(cd => cd.Locations) // <<-- Locations -> Location
                         .WithMany(l => l.CourseDetails)
                         .HasForeignKey(cd => cd.LocationId)
                         .OnDelete(DeleteBehavior.Restrict);
+
+
+            modelBuilder.Entity<PlanCours>()
+                      .HasOne(cd => cd. Locations) // <<-- Locations -> Location
+                      .WithMany(l => l.PlanCours)
+                      .HasForeignKey(cd => cd.LocationId)
+                      .OnDelete(DeleteBehavior.Restrict);
 
             // CourseDetails -> CourseType
             modelBuilder.Entity<CourseDetails>()
@@ -195,11 +211,9 @@ namespace TrainingManagementSystem.Models
                         .OnDelete(DeleteBehavior.Cascade);
 
 
-            modelBuilder.Entity<CoursDetailsTrainer>()
-                     .HasOne(ct => ct.Trainer) // Trainers -> Trainer
-                     .WithMany(t => t.CoursDetailsTrainer) // Trainer.CourseTrainers هو List<CourseTrainer>
-                     .HasForeignKey(ct => ct.TrainerId)
-                     .OnDelete(DeleteBehavior.Cascade);
+         
+
+         
 
             // Organization -> Category (تصحيح الاسم)
             modelBuilder.Entity<Organizition>() // <<-- Organizition -> Organization
@@ -221,10 +235,32 @@ namespace TrainingManagementSystem.Models
                         .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<CoursDetailsTrainer>()
+                  .HasOne(ct => ct.Trainer) // Trainers -> Trainer
+                  .WithMany(t => t.CoursDetailsTrainer) // Trainer.CourseTrainers هو List<CourseTrainer>
+                  .HasForeignKey(ct => ct.TrainerId)
+                  .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<CoursDetailsTrainer>()
                        .HasOne(ct => ct.CourseDetails)
                        .WithMany(c => c.CoursDetailsTrainer)
                        .HasForeignKey(ct => ct.CourseDetailsId)
                        .OnDelete(DeleteBehavior.Cascade);
+
+
+
+            modelBuilder.Entity<PlanCoursTrainer>()
+                     .HasOne(ct => ct.Trainer) // Trainers -> Trainer
+                     .WithMany(t => t.PlanCoursTrainers) // Trainer.CourseTrainers هو List<CourseTrainer>
+                     .HasForeignKey(ct => ct.TrainerId)
+                     .OnDelete(DeleteBehavior.Cascade);
+
+
+            modelBuilder.Entity<PlanCoursTrainer>()
+                   .HasOne(ct => ct.PlanCourss)
+                   .WithMany(c => c.PlanCoursTrainers)
+                   .HasForeignKey(ct => ct.PlanCoursId)
+                   .OnDelete(DeleteBehavior.Cascade);
+
 
 
         }

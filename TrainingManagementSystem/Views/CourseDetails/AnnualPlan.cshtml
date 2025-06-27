@@ -133,7 +133,7 @@
                                                 </td>
                                                 <td>@item.StartDate.ToString("dd MMM")</td>
                                                 <td>@(item.EndDate.HasValue? item.EndDate.Value.ToString("dd MMM") : "-")</td>
-                                                <td>@(item.Location?.Name ?? "N/A")</td>
+                                                <td>@(item.Locations?.Name ?? "N/A")</td>
                                                 <td class="text-center">
                                                     @if (item.Status != null)
                                                     {

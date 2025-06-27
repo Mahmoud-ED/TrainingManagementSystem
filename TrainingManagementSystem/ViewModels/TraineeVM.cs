@@ -38,7 +38,7 @@ namespace TrainingManagementSystem.ViewModels
 
         [Required(ErrorMessage = "التخصص مطلوب")]
         [Display(Name = "التخصص")]
-        public Guid SpecializationId { get; set; }
+        public Guid? SpecializationId { get; set; }
 
         [Required(ErrorMessage = "المؤهل العلمي مطلوب")]
         [Display(Name = "المؤهل العلمي")]

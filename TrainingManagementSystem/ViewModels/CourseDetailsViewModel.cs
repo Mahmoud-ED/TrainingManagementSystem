@@ -93,25 +93,6 @@ public class CourseDetailsIndexViewModel
     public int CancelledCoursesCount { get; set; }
 }
 
-// --- ViewModel لفورم تسجيل متدرب جديد في CourseDetails ---
-public class EnrollTraineeViewModel
-{
-    [Required]
-    public Guid CourseDetailsId { get; set; }
-    public Guid CourseId { get; set; } // ID لـ CourseId (مهم للتعديل/الحذف)
-    public string CourseDetailsName { get; set; } // للعرض في الفورم
-
-    [Required(ErrorMessage = "يجب اختيار متدرب")]
-    [Display(Name = "المتدرب")]
-    public Guid SelectedTraineeId { get; set; }
-    public SelectList AvailableTrainees { get; set; } // قائمة بالمتدربين غير المسجلين بعد في هذه الدورة
-
-    // يمكنك إضافة حقول أولية من CourseTrainee هنا إذا أردت تعبئتها عند التسجيل مباشرة
-    // مثل تاريخ بدء افتراضي أو ملاحظات أولية.
-    // ولكن عادةً هذه تترك لـ EditEnrollment.
-    [Display(Name = "ملاحظات (اختياري)")]
-    public string? Notes { get; set; }
-}
 
 // --- ViewModel لتعديل بيانات تسجيل متدرب (CourseTrainee) ---
 public class EditEnrollmentViewModel

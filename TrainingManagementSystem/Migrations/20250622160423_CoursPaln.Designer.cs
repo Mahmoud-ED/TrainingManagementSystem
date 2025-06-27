@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TrainingManagementSystem.Models;
 
@@ -11,9 +12,11 @@ using TrainingManagementSystem.Models;
 namespace TrainingManagementSystem.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250622160423_CoursPaln")]
+    partial class CoursPaln
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -750,7 +753,7 @@ namespace TrainingManagementSystem.Migrations
                     b.ToTable("Levels");
                 });
 
-            modelBuilder.Entity("TrainingManagementSystem.Models.Entities.Locations", b =>
+            modelBuilder.Entity("TrainingManagementSystem.Models.Entities.Location", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -862,33 +865,6 @@ namespace TrainingManagementSystem.Migrations
                     b.HasIndex("LocationId");
 
                     b.ToTable("PlanCours");
-                });
-
-            modelBuilder.Entity("TrainingManagementSystem.Models.Entities.PlanCoursTrainer", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("Created")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime?>("Modified")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid>("PlanCoursId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("TrainerId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("PlanCoursId");
-
-                    b.HasIndex("TrainerId");
-
-                    b.ToTable("PlanCoursTrainers");
                 });
 
             modelBuilder.Entity("TrainingManagementSystem.Models.Entities.PlanHeader", b =>
@@ -1328,7 +1304,7 @@ namespace TrainingManagementSystem.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("TrainingManagementSystem.Models.Entities.Locations", "Locations")
+                    b.HasOne("TrainingManagementSystem.Models.Entities.Location", "Location")
                         .WithMany("CourseDetails")
                         .HasForeignKey("LocationId")
                         .OnDelete(DeleteBehavior.Restrict);
@@ -1343,7 +1319,7 @@ namespace TrainingManagementSystem.Migrations
 
                     b.Navigation("CourseType");
 
-                    b.Navigation("Locations");
+                    b.Navigation("Location");
 
                     b.Navigation("Status");
                 });
@@ -1410,38 +1386,18 @@ namespace TrainingManagementSystem.Migrations
             modelBuilder.Entity("TrainingManagementSystem.Models.Entities.PlanCours", b =>
                 {
                     b.HasOne("TrainingManagementSystem.Models.Entities.Course", "Course")
-                        .WithMany("PlanCours")
+                        .WithMany()
                         .HasForeignKey("CourseId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("TrainingManagementSystem.Models.Entities.Locations", "Locations")
-                        .WithMany("PlanCours")
-                        .HasForeignKey("LocationId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                    b.HasOne("TrainingManagementSystem.Models.Entities.Location", "Location")
+                        .WithMany()
+                        .HasForeignKey("LocationId");
 
                     b.Navigation("Course");
 
-                    b.Navigation("Locations");
-                });
-
-            modelBuilder.Entity("TrainingManagementSystem.Models.Entities.PlanCoursTrainer", b =>
-                {
-                    b.HasOne("TrainingManagementSystem.Models.Entities.PlanCours", "PlanCourss")
-                        .WithMany("PlanCoursTrainers")
-                        .HasForeignKey("PlanCoursId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Trainer", "Trainer")
-                        .WithMany("PlanCoursTrainers")
-                        .HasForeignKey("TrainerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("PlanCourss");
-
-                    b.Navigation("Trainer");
+                    b.Navigation("Location");
                 });
 
             modelBuilder.Entity("TrainingManagementSystem.Models.Entities.Trainee", b =>
@@ -1525,8 +1481,6 @@ namespace TrainingManagementSystem.Migrations
 
                     b.Navigation("CourseTrainers");
 
-                    b.Navigation("PlanCoursTrainers");
-
                     b.Navigation("TrainerSpecializations");
                 });
 
@@ -1540,8 +1494,6 @@ namespace TrainingManagementSystem.Migrations
                     b.Navigation("CourseDetails");
 
                     b.Navigation("CourseTrainers");
-
-                    b.Navigation("PlanCours");
                 });
 
             modelBuilder.Entity("TrainingManagementSystem.Models.Entities.CourseClassification", b =>
@@ -1576,21 +1528,14 @@ namespace TrainingManagementSystem.Migrations
                     b.Navigation("Courses");
                 });
 
-            modelBuilder.Entity("TrainingManagementSystem.Models.Entities.Locations", b =>
+            modelBuilder.Entity("TrainingManagementSystem.Models.Entities.Location", b =>
                 {
                     b.Navigation("CourseDetails");
-
-                    b.Navigation("PlanCours");
                 });
 
             modelBuilder.Entity("TrainingManagementSystem.Models.Entities.Organizition", b =>
                 {
                     b.Navigation("Trainees");
-                });
-
-            modelBuilder.Entity("TrainingManagementSystem.Models.Entities.PlanCours", b =>
-                {
-                    b.Navigation("PlanCoursTrainers");
                 });
 
             modelBuilder.Entity("TrainingManagementSystem.Models.Entities.Qualification", b =>

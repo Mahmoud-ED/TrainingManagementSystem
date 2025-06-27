@@ -1,0 +1,92 @@
+﻿@model PlanCours
+
+@{
+    ViewData["Title"] = "تعديل الخطة التدريبية";
+}
+<style>
+    .select {
+        width: 400px; /* تحديد عرض ثابت يلغي تأثير Bootstrap */
+        padding: 2px;
+    }
+</style>
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">@ViewData["Title"]</h4>
+                </div>
+                <div class="card-body">
+                    <p class="card-text text-muted">يرجى تحديث معلومات الخطة التدريبية أدناه.</p>
+                    <hr />
+                    <form asp-action="Edit">
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+                        <input type="hidden" asp-for="Id" />
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="CourseId" class="form-label fw-bold"></label>
+
+                                <!-- أضفنا هنا كلاس form-select-lg -->
+                                <select asp-for="CourseId" class="form-select form-select-lg" asp-items="ViewBag.CoursesList"></select>
+
+                                <span asp-validation-for="CourseId" class="text-danger"></span>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="DurationHours" class="form-label fw-bold"></label>
+                                <input asp-for="DurationHours" type="number" class="form-control" />
+                                <span asp-validation-for="DurationHours" class="text-danger"></span>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="StartDate" class="form-label fw-bold">تاريخ البدء</label>
+                                <input asp-for="StartDate" class="form-control" />
+                                <span asp-validation-for="StartDate" class="text-danger"></span>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="EndDate" class="form-label fw-bold">تاريخ الانتهاء (اختياري)</label>
+                                <input asp-for="EndDate" class="form-control" />
+                                <span asp-validation-for="EndDate" class="text-danger"></span>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="LocationId" class="form-label fw-bold"></label>
+                                <select asp-for="LocationId" class="form-select" asp-items="ViewBag.LocationsList">
+                                    <option value="">-- اختر موقع (اختياري) --</option>
+                                </select>
+                                <span asp-validation-for="LocationId" class="text-danger"></span>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Numberoftargets" class="form-label fw-bold">عدد المستهدفين</label>
+                                <input asp-for="Numberoftargets" type="number" class="form-control" />
+                                <span asp-validation-for="Numberoftargets" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <hr />
+                        <div class="form-group mt-4 d-flex justify-content-end">
+                            <button type="submit" class="btn btn-primary me-2">
+                                <i class="fas fa-save me-2"></i>حفظ التعديلات
+                            </button>
+                            <a asp-action="Index" class="btn btn-outline-secondary">
+                                <i class="fas fa-times me-2"></i>إلغاء
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+}

@@ -36,6 +36,8 @@ namespace TrainingManagementSystem.ViewModels
         // --- وهذه ستحمل قائمة كل المدربين لعرضها في الفورم ---
         public IEnumerable<SelectListItem>? AllTrainers { get; set; }
 
+        public int DurationHours { get; set; } = 0; // عدد الساعات
+        public int Days { get; set; } = 0; // عدد الأيام
 
         // ... (باقي خصائص القوائم المنسدلة)
         public IEnumerable<SelectListItem>? CourseClassifications { get; set; }

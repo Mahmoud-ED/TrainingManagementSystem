@@ -36,6 +36,7 @@ public class Trainer : BaseEntity
     public List<TrainerSpecialization> TrainerSpecializations { get; set; } = new();
 
     public List<CourseTrainer> CourseTrainers { get; set; } = new();
+    public List<PlanCoursTrainer> PlanCoursTrainers { get; set; } = new();
     public List<CoursDetailsTrainer> CoursDetailsTrainer { get; set; } = new();
 
     public string? UserId { get; set; }

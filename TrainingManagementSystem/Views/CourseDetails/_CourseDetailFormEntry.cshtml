@@ -7,15 +7,14 @@
     }
 }
 @{
-    var index = ViewData["index"] ?? new Random().Next(1000, 9999); // قيمة عشوائية إذا لم يتم تمرير index
+    var index = ViewData["index"] ?? new Random().Next(1000, 9999);
     var parentViewModel = ViewData["ParentViewModel"] as CourseFormViewModel;
-    var parentList = ViewData["ParentListSize"] as List<CourseDetailFormEntryViewModel>;
-    // تحديد هل هذا هو الإدخال الوحيد بناءً على العدد الفعلي للعناصر في DOM سيكون أدق
-    // لكن هذا تقريب جيد إذا تم تمرير ParentListSize بشكل صحيح عند التحميل الأولي
-    bool isOnlyOneEntryInitially = parentList != null && parentList.Count <= 1 && (int)index == 0;
+    bool isOnlyOneEntryInitially = (int)index == 0; // تبسيط للتحقق
 
+    // --- هذا هو التغيير الأول: استلام القائمة الصحيحة ---
+    var locationsWithData = ViewData["LocationsWithData"] as IEnumerable<dynamic> ?? new List<dynamic>();
 
-    var locationsList = parentViewModel?.Locations?.ToList() ?? new List<SelectListItem>();
+    // القوائم الأخرى تبقى كما هي
     var courseTypesList = parentViewModel?.CourseTypes?.ToList() ?? new List<SelectListItem>();
     var statusesList = parentViewModel?.Statuses?.ToList() ?? new List<SelectListItem>();
 }
@@ -31,12 +30,9 @@
     </div>
 
     <div class="row">
+        
+        <input type="hidden" asp-for="Name" name="@($"CourseDetailsEntries[{index}].Name")" id="@($"CourseDetailsEntries_{index}__Name")" class="form-control"  />
 
-            <div class="col-md-4 mb-3">
-            <label asp-for="Name" class="form-label">اسم البرنامج <span class="text-danger">*</span></label>
-            <input asp-for="Name" name="@($"CourseDetailsEntries[{index}].Name")" id="@($"CourseDetailsEntries_{index}__Name")" class="form-control" type="text"  />
-            <span asp-validation-for="Name" data-valmsg-for="@($"CourseDetailsEntries[{index}].Name")" class="text-danger"></span>
-        </div>
 
         <div class="col-md-4 mb-3">
             <label asp-for="StartDate" class="form-label">تاريخ البدء<span class="text-danger">*</span></label>
@@ -53,19 +49,26 @@
             <input asp-for="DurationHours" name="@($"CourseDetailsEntries[{index}].DurationHours")" id="@($"CourseDetailsEntries_{index}__DurationHours")" class="form-control" type="number" min="1" />
             <span asp-validation-for="DurationHours" data-valmsg-for="@($"CourseDetailsEntries[{index}].DurationHours")" class="text-danger"></span>
         </div>
-
         <div class="col-md-4 mb-3">
             <label asp-for="Numberoftargets" class="form-label">العدد المستهدف<span class="text-danger">*</span></label>
             <input asp-for="Numberoftargets" name="@($"CourseDetailsEntries[{index}].Numberoftargets")" id="@($"CourseDetailsEntries_{index}__Numberoftargets")" class="form-control" type="number" min="1" />
             <span asp-validation-for="Numberoftargets" data-valmsg-for="@($"CourseDetailsEntries[{index}].Numberoftargets")" class="text-danger"></span>
         </div>
-
     </div>
     <div class="row">
         <div class="col-md-4 mb-3">
             <label asp-for="LocationId" class="form-label">الموقع<span class="text-danger">*</span></label>
-            <select asp-for="LocationId" name="@($"CourseDetailsEntries[{index}].LocationId")" id="@($"CourseDetailsEntries_{index}__LocationId")" class="form-select" asp-items="locationsList">
+
+            <select asp-for="LocationId" name="@($"CourseDetailsEntries[{index}].LocationId")" id="@($"CourseDetailsEntries_{index}__LocationId")" class="form-select">
+                <option value="">-- اختر الموقع --</option>
+                @foreach (var location in locationsWithData)
+                {
+                    // نتحقق إذا كان هذا الخيار هو المختار
+                    bool isSelected = Model.LocationId.ToString() == location.Id;
+                    <option value="@location.Id" data-full-count="@location.FullCount" selected="@isSelected">@location.Name</option>
+                }
             </select>
+
             <span asp-validation-for="LocationId" data-valmsg-for="@($"CourseDetailsEntries[{index}].LocationId")" class="text-danger"></span>
         </div>
         <div class="col-md-4 mb-3">
@@ -81,4 +84,4 @@
             <span asp-validation-for="StatusId" data-valmsg-for="@($"CourseDetailsEntries[{index}].StatusId")" class="text-danger"></span>
         </div>
     </div>
-</div> 
+</div>

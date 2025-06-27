@@ -1,0 +1,112 @@
+﻿/*
+  استبدل هذه القاعدة في ملف CSS لديك
+*/
+.gantt-bar-container {
+    flex-grow: 1; /* تأخذ باقي المساحة */
+    position: relative;
+    padding: 12px 0; /* مساحة علوية وسفلية للأشرطة */
+    /* 
+      استخدام متغيرات CSS التي تم تمريرها من ملف الـ Razor
+      لإنشاء خطوط شبكة دقيقة ومتطابقة مع عرض الشهور.
+    */
+    background-image: linear-gradient(to right, #e9e9e9 1px, transparent 1px), linear-gradient(to right, #e9e9e9 1px, transparent 1px);
+    background-size: 100% 100%; /* يجب أن يكون الحجم 100% */
+    background-position: var(--grid-line-1) 0, var(--grid-line-2) 0; /* تطبيق المواضع الدقيقة */
+    background-repeat: no-repeat;
+}
+
+/* لا تنس التأكد من وجود هذه القواعد الأخرى من الحل السابق */
+.gantt-chart-container {
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    overflow: hidden;
+    background-color: #fdfdfd;
+}
+
+.gantt-header {
+    display: flex;
+    background-color: #f5f5f5;
+    border-bottom: 1px solid #e0e0e0;
+    font-weight: bold;
+    color: #333;
+}
+
+.gantt-month {
+    /* تم حذف flex: 1 من هنا لأن العرض الآن يتم تحديده عبر style */
+    padding: 12px;
+    text-align: center;
+    border-left: 1px solid #e0e0e0;
+}
+
+    .gantt-month:first-child {
+        border-left: none;
+    }
+
+.gantt-body {
+    position: relative;
+}
+
+.gantt-row {
+    display: flex;
+    border-bottom: 1px solid #f0f0f0;
+    align-items: stretch;
+}
+
+    .gantt-row:last-child {
+        border-bottom: none;
+    }
+
+.gantt-label {
+    flex: 0 0 200px;
+    padding: 12px 15px;
+    background-color: #fafafa;
+    border-right: 1px solid #e0e0e0;
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: #444;
+}
+
+.gantt-bar {
+    position: absolute;
+    top: 12px;
+    bottom: 12px;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    transition: filter 0.2s ease-in-out;
+    cursor: pointer;
+}
+
+    .gantt-bar:hover {
+        filter: brightness(1.1);
+    }
+
+.tooltip-inner {
+    white-space: pre-wrap;
+}
+
+/*
+  استبدل هذه القاعدة في ملف CSS لديك
+*/
+.gantt-bar-container {
+    flex-grow: 1;
+    position: relative;
+    padding: 12px 0;
+    /* إنشاء 11 خطًا للشبكة باستخدام المتغيرات التي تم تمريرها */
+    background-image: linear-gradient(to right, #e9e9e9 1px, transparent 1px), linear-gradient(to right, #e9e9e9 1px, transparent 1px), linear-gradient(to right, #e9e9e9 1px, transparent 1px), linear-gradient(to right, #e9e9e9 1px, transparent 1px), linear-gradient(to right, #e9e9e9 1px, transparent 1px), linear-gradient(to right, #e9e9e9 1px, transparent 1px), linear-gradient(to right, #e9e9e9 1px, transparent 1px), linear-gradient(to right, #e9e9e9 1px, transparent 1px), linear-gradient(to right, #e9e9e9 1px, transparent 1px), linear-gradient(to right, #e9e9e9 1px, transparent 1px), linear-gradient(to right, #e9e9e9 1px, transparent 1px);
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+    /* تطبيق المواضع الدقيقة للخطوط */
+    background-position: var(--grid-line-1) 0, var(--grid-line-2) 0, var(--grid-line-3) 0, var(--grid-line-4) 0, var(--grid-line-5) 0, var(--grid-line-6) 0, var(--grid-line-7) 0, var(--grid-line-8) 0, var(--grid-line-9) 0, var(--grid-line-10) 0, var(--grid-line-11) 0;
+}
+
+/* تعديل بسيط لاسم الدورة ليتناسب مع العرض الأوسع */
+.yearly-view .gantt-label {
+    flex: 0 0 250px; /* زيادة العرض قليلًا */
+}
+
+/* تعديل بسيط لاسم الشهر ليكون أصغر قليلاً في العرض السنوي */
+.yearly-view .gantt-month {
+    font-size: 0.9em;
+}

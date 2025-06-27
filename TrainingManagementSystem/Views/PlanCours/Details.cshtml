@@ -1,0 +1,139 @@
+﻿@model PlanCours
+
+@{
+    ViewData["Title"] = "تفاصيل الخطة التدريبية";
+}
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-12">
+            <h1 class="display-6">@ViewData["Title"]</h1>
+            <p class="text-muted">عرض تفصيلي لمعلومات الخطة والمدربين المرتبطين بها.</p>
+            <a asp-action="PrintPlanAsPdf" asp-route-id="@Model.Id" class="btn btn-info" target="_blank">
+                <i class="fas fa-print me-2"></i>طباعة التقرير (PDF)
+            </a>
+            <hr />
+        </div>
+    </div>
+
+    <!-- قسم معلومات الخطة الأساسية -->
+    <div class="card mb-4 shadow-sm">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">المعلومات الأساسية للخطة</h5>
+        </div>
+        <div class="card-body">
+            <dl class="row">
+                <dt class="col-sm-3">@Html.DisplayNameFor(model => model.Course)</dt>
+                <dd class="col-sm-9">@Html.DisplayFor(model => model.Course.Name)</dd>
+
+                <dt class="col-sm-3">@Html.DisplayNameFor(model => model.DurationHours)</dt>
+                <dd class="col-sm-9">@Html.DisplayFor(model => model.DurationHours) ساعة</dd>
+
+                <dt class="col-sm-3">تاريخ البدء</dt>
+                <dd class="col-sm-9">@Model.StartDate.ToString("dd-MM-yyyy")</dd>
+
+                <dt class="col-sm-3">تاريخ الانتهاء</dt>
+                <dd class="col-sm-9">
+                    @if (Model.EndDate.HasValue)
+                    {
+                        <span>@Model.EndDate.Value.ToString("dd-MM-yyyy")</span>
+                    }
+                    else
+                    {
+                        <span class="text-muted">غير محدد</span>
+                    }
+                </dd>
+
+                <dt class="col-sm-3">موقع الدورة</dt>
+                <dd class="col-sm-9">
+                    @if (Model.Locations != null)
+                    {
+                        <span>@Html.DisplayFor(model => model.Locations.Name)</span>
+                    }
+                    else
+                    {
+                        <span class="text-muted">غير محدد</span>
+                    }
+                </dd>
+
+                <dt class="col-sm-3">عدد المستهدفين</dt>
+                <dd class="col-sm-9">
+                    @if (Model.Numberoftargets.HasValue)
+                    {
+                        <span>@Html.DisplayFor(model => model.Numberoftargets)</span>
+                    }
+                    else
+                    {
+                        <span class="text-muted">غير محدد</span>
+                    }
+                </dd>
+            </dl>
+        </div>
+        <div class="card-footer text-muted">
+            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-outline-primary">تعديل الخطة</a>
+            <a asp-action="Index" class="btn btn-outline-secondary">العودة إلى القائمة</a>
+        </div>
+    </div>
+
+    <!-- قسم المدربين -->
+    <div class="card shadow-sm">
+        <div class="card-header bg-dark text-white">
+            <h5 class="mb-0">المدربون في هذه الخطة</h5>
+        </div>
+        <div class="card-body">
+            @if (Model.PlanCoursTrainers != null && Model.PlanCoursTrainers.Any())
+            {
+                <table class="table table-hover table-striped">
+                    <thead class="thead-light">
+                        <tr>
+                            <th>اسم المدرب</th>
+                            <th>الإجراءات</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.PlanCoursTrainers)
+                        {
+                            <tr>
+                                <td>@Html.DisplayFor(modelItem => item.Trainer.ArName)</td>
+                                <td>
+                                    <form asp-action="RemoveTrainerFromPlan" method="post" onsubmit="return confirm('هل أنت متأكد من رغبتك في حذف هذا المدرب من الخطة؟');">
+                                        <input type="hidden" name="planCoursId" value="@Model.Id" />
+                                        <input type="hidden" name="trainerId" value="@item.TrainerId" />
+                                        <button type="submit" class="btn btn-sm btn-outline-danger">حذف</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+            else
+            {
+                <div class="alert alert-info text-center" role="alert">
+                    لا يوجد مدربون مضافون لهذه الخطة حالياً.
+                </div>
+            }
+        </div>
+        <div class="card-footer">
+            <h6>إضافة مدرب جديد للخطة</h6>
+            <form asp-action="AddTrainerToPlan" method="post" class="row g-3 align-items-end">
+                <input type="hidden" name="planCoursId" value="@Model.Id" />
+                <div class="col-md-8">
+                    <label for="trainerId" class="form-label">اختر مدرباً</label>
+                    <select name="trainerId" class="form-select" asp-items="ViewBag.TrainersList" required>
+                        <option value="">-- اختر مدرب --</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <button type="submit" class="btn btn-success w-100">
+                        <i class="fas fa-plus-circle me-2"></i>إضافة المدرب
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+}

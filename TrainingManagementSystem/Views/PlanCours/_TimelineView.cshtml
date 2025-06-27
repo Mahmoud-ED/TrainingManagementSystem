@@ -1,0 +1,114 @@
+﻿@model IEnumerable<PlanCours>
+@using System.Globalization
+
+@{
+    // --- إعدادات المخطط السنوي ---
+    var displayYear = DateTime.Today.Year; // يمكنك تمرير السنة من الـ Controller إذا أردت
+    ViewData["Title"] = $"الخطة الزمنية لعام {displayYear}";
+
+    var yearStartDate = new DateTime(displayYear, 1, 1);
+    var yearEndDate = yearStartDate.AddYears(1).AddDays(-1);
+    var totalDaysInYear = (double)(yearEndDate - yearStartDate).TotalDays + 1; // يعالج السنوات الكبيسة تلقائيًا
+
+    // --- حسابات دقيقة لعرض الشهور وخطوط الشبكة ---
+    var monthWidths = new List<double>();
+    var gridLinePositions = new List<double>();
+    double cumulativeWidth = 0;
+
+    for (int i = 1; i <= 12; i++)
+    {
+        var daysInMonth = DateTime.DaysInMonth(displayYear, i);
+        var width = (daysInMonth / totalDaysInYear) * 100;
+        monthWidths.Add(width);
+
+        // أضف خطًا فاصلًا بعد كل شهر ما عدا الأخير
+        if (i < 12)
+        {
+            cumulativeWidth += width;
+            gridLinePositions.Add(cumulativeWidth);
+        }
+    }
+
+    // إنشاء سلسلة نصية لمتغيرات CSS الخاصة بخطوط الشبكة
+    var gridLinesStyle = string.Join(" ", gridLinePositions.Select((pos, index) =>
+        $"--grid-line-{index + 1}: {pos.ToString("F4", CultureInfo.InvariantCulture)}%;"
+    ));
+}
+
+@functions {
+    // نفس دالة الألوان الممتازة
+    private static readonly string[] ColorPalette = {
+        "#5b9bd5", "#ed7d31", "#a5a5a5", "#ffc000", "#4472c4", "#70ad47",
+        "#255e91", "#9e480e", "#636363", "#997300", "#264478", "#43682b"
+    };
+
+    string GetColor(Guid? id)
+    {
+        if (!id.HasValue) return "#6c757d";
+        var h = Math.Abs(id.Value.GetHashCode());
+        return ColorPalette[h % ColorPalette.Length];
+    }
+}
+
+<h3>@ViewData["Title"]</h3>
+
+<div class="gantt-chart-container yearly-view">
+    <!-- رأس المخطط يعرض 12 شهرًا -->
+    <div class="gantt-header">
+        @for (int i = 0; i < 12; i++)
+        {
+            <div class="gantt-month" style="width: @monthWidths[i].ToString("F4", CultureInfo.InvariantCulture)%">
+                @yearStartDate.AddMonths(i).ToString("MMMM", new CultureInfo("ar-EG"))
+            </div>
+        }
+    </div>
+
+    @if (Model.Any())
+    {
+        <!-- جسم المخطط -->
+        <div class="gantt-body">
+            @foreach (var plan in Model)
+            {
+                // قص الخطط لتبدأ وتنتهي ضمن حدود السنة المعروضة
+                var planStart = plan.StartDate < yearStartDate ? yearStartDate : plan.StartDate;
+                var planEnd = !plan.EndDate.HasValue
+                ? yearEndDate // إذا لم يكن هناك تاريخ نهاية، افترض أنه يستمر حتى نهاية العام
+                : (plan.EndDate.Value > yearEndDate ? yearEndDate : plan.EndDate.Value);
+
+                // لا تعرض الخطط التي انتهت قبل بداية السنة أو تبدأ بعد نهايتها
+                if (planEnd < yearStartDate || planStart > yearEndDate)
+                {
+                    continue;
+                }
+
+                var startOffsetDays = (planStart - yearStartDate).TotalDays;
+                var durationDays = Math.Max(1, (planEnd - planStart).TotalDays + 1);
+
+                var leftPercentage = (startOffsetDays / totalDaysInYear) * 100;
+                var widthPercentage = (durationDays / totalDaysInYear) * 100;
+
+                var tooltipTitle = $"{plan.Course.Name}{Environment.NewLine}" +
+                $"من: {plan.StartDate:yyyy/MM/dd}{Environment.NewLine}" +
+                $"إلى: {(plan.EndDate.HasValue ? plan.EndDate.Value.ToString("yyyy/MM/dd") : "مستمر")}";
+
+                <div class="gantt-row">
+                    <div class="gantt-label" title="@plan.Course.Name">
+                        @plan.Course.Name
+                    </div>
+                    <div class="gantt-bar-container" style="@gridLinesStyle">
+                        <div class="gantt-bar"
+                             style="left: @leftPercentage.ToString("F4", CultureInfo.InvariantCulture)%; width: @widthPercentage.ToString("F4", CultureInfo.InvariantCulture)%; background-color: @GetColor(plan.CourseId);"
+                             data-bs-toggle="tooltip"
+                             data-bs-placement="top"
+                             data-bs-title="@tooltipTitle">
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-info text-center mt-3">لا توجد خطط لعرضها.</div>
+    }
+</div>
