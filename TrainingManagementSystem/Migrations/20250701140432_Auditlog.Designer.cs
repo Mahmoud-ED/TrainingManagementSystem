@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TrainingManagementSystem.Models;
 
@@ -11,9 +12,11 @@ using TrainingManagementSystem.Models;
 namespace TrainingManagementSystem.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250701140432_Auditlog")]
+    partial class Auditlog
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -345,11 +348,9 @@ namespace TrainingManagementSystem.Migrations
 
                     b.Property<string>("UserId")
                         .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("UserId");
 
                     b.ToTable("AuditLog");
                 });
@@ -587,21 +588,6 @@ namespace TrainingManagementSystem.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("CourseParent");
-                });
-
-            modelBuilder.Entity("TrainingManagementSystem.Models.Entities.CoursePrerequisite", b =>
-                {
-                    b.Property<Guid>("CourseId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("PrerequisiteCourseId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("CourseId", "PrerequisiteCourseId");
-
-                    b.HasIndex("PrerequisiteCourseId");
-
-                    b.ToTable("CoursePrerequisites");
                 });
 
             modelBuilder.Entity("TrainingManagementSystem.Models.Entities.CourseTrainee", b =>
@@ -1317,17 +1303,6 @@ namespace TrainingManagementSystem.Migrations
                     b.Navigation("Qualification");
                 });
 
-            modelBuilder.Entity("TrainingManagementSystem.Models.Entities.AuditLog", b =>
-                {
-                    b.HasOne("TrainingManagementSystem.Models.Entities.ApplicationUser", "User")
-                        .WithMany("AuditLogs")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("TrainingManagementSystem.Models.Entities.CoursDetailsTrainer", b =>
                 {
                     b.HasOne("TrainingManagementSystem.Models.Entities.CourseDetails", "CourseDetails")
@@ -1403,25 +1378,6 @@ namespace TrainingManagementSystem.Migrations
                     b.Navigation("Locations");
 
                     b.Navigation("Status");
-                });
-
-            modelBuilder.Entity("TrainingManagementSystem.Models.Entities.CoursePrerequisite", b =>
-                {
-                    b.HasOne("TrainingManagementSystem.Models.Entities.Course", "Course")
-                        .WithMany("RequiredPrerequisites")
-                        .HasForeignKey("CourseId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("TrainingManagementSystem.Models.Entities.Course", "PrerequisiteCourse")
-                        .WithMany("PrerequisitesFor")
-                        .HasForeignKey("PrerequisiteCourseId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Course");
-
-                    b.Navigation("PrerequisiteCourse");
                 });
 
             modelBuilder.Entity("TrainingManagementSystem.Models.Entities.CourseTrainee", b =>
@@ -1618,10 +1574,6 @@ namespace TrainingManagementSystem.Migrations
                     b.Navigation("CourseTrainers");
 
                     b.Navigation("PlanCours");
-
-                    b.Navigation("PrerequisitesFor");
-
-                    b.Navigation("RequiredPrerequisites");
                 });
 
             modelBuilder.Entity("TrainingManagementSystem.Models.Entities.CourseClassification", b =>
@@ -1692,8 +1644,6 @@ namespace TrainingManagementSystem.Migrations
 
             modelBuilder.Entity("TrainingManagementSystem.Models.Entities.ApplicationUser", b =>
                 {
-                    b.Navigation("AuditLogs");
-
                     b.Navigation("Employee")
                         .IsRequired();
 

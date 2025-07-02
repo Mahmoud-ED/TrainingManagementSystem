@@ -284,6 +284,99 @@ namespace TrainingManagementSystem.Controllers
             return _context.Courses.Any(e => e.Id == id);
         }
 
-  
+        // GET: Courses/ManagePrerequisites/5
+        [HttpGet]
+        public async Task<IActionResult> ManagePrerequisites(Guid id)
+        {
+            // 1. ابحث عن الكورس الأساسي
+            var course = await _context.Courses.FindAsync(id);
+            if (course == null)
+            {
+                return NotFound();
+            }
+
+            // 2. احصل على قائمة بالمتطلبات الحالية لهذا الكورس
+            var currentPrerequisites = await _context.CoursePrerequisites
+                .Where(p => p.CourseId == id)
+                .Select(p => p.PrerequisiteCourse)
+                .ToListAsync();
+
+            // 3. احصل على قائمة بكل الكورسات الأخرى في النظام (باستثناء الكورس الحالي ومتطلباته الحالية)
+            var currentPrerequisiteIds = currentPrerequisites.Select(c => c.Id).ToList();
+            var availableCourses = await _context.Courses
+                .Where(c => c.Id != id && !currentPrerequisiteIds.Contains(c.Id))
+                .OrderBy(c => c.Name)
+                .ToListAsync();
+
+            // 4. قم بإنشاء ViewModel لتمرير كل هذه البيانات إلى الـ View
+            var viewModel = new ManagePrerequisitesViewModel
+            {
+                Course = course,
+                CurrentPrerequisites = currentPrerequisites,
+                AvailableCourses = availableCourses
+            };
+
+            return View(viewModel);
+        }
+
+        // POST: Courses/AddPrerequisite
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AddPrerequisite(Guid courseId, Guid prerequisiteCourseId)
+        {
+            // تحقق من أن الكورسين موجودان
+            var courseExists = await _context.Courses.AnyAsync(c => c.Id == courseId);
+            var prerequisiteExists = await _context.Courses.AnyAsync(c => c.Id == prerequisiteCourseId);
+
+            if (!courseExists || !prerequisiteExists || courseId == prerequisiteCourseId)
+            {
+                // يمكنك إرجاع رسالة خطأ أكثر تفصيلاً هنا إذا أردت
+                return BadRequest("بيانات غير صالحة.");
+            }
+
+            // تحقق مما إذا كان هذا المتطلب موجودًا بالفعل لتجنب التكرار
+            var alreadyExists = await _context.CoursePrerequisites
+                .AnyAsync(p => p.CourseId == courseId && p.PrerequisiteCourseId == prerequisiteCourseId);
+
+            if (alreadyExists)
+            {
+                // يمكنك إضافة رسالة للمستخدم عبر TempData
+                TempData["ErrorMessage"] = "هذا المتطلب موجود بالفعل.";
+                return RedirectToAction("ManagePrerequisites", new { id = courseId });
+            }
+
+            var newPrerequisite = new CoursePrerequisite
+            {
+                CourseId = courseId,
+                PrerequisiteCourseId = prerequisiteCourseId
+            };
+
+            _context.CoursePrerequisites.Add(newPrerequisite);
+            await _context.SaveChangesAsync();
+
+            TempData["SuccessMessage"] = "تمت إضافة المتطلب بنجاح.";
+            return RedirectToAction("ManagePrerequisites", new { id = courseId });
+        }
+
+        // POST: Courses/RemovePrerequisite
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> RemovePrerequisite(Guid courseId, Guid prerequisiteCourseId)
+        {
+            var prerequisiteToRemove = await _context.CoursePrerequisites
+                .FirstOrDefaultAsync(p => p.CourseId == courseId && p.PrerequisiteCourseId == prerequisiteCourseId);
+
+            if (prerequisiteToRemove == null)
+            {
+                return NotFound();
+            }
+
+            _context.CoursePrerequisites.Remove(prerequisiteToRemove);
+            await _context.SaveChangesAsync();
+
+            TempData["SuccessMessage"] = "تمت إزالة المتطلب بنجاح.";
+            return RedirectToAction("ManagePrerequisites", new { id = courseId });
+        }
+
     }
 }

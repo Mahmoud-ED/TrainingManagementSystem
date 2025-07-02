@@ -29,11 +29,9 @@ public class CourseDetailFormEntryViewModel
     public DateTime? EndDate { get; set; }
 
     [Display(Name = "الموقع")]
-    [Required(ErrorMessage = "الموقع مطلوب")]
     public Guid LocationId { get; set; }
 
     [Display(Name = "نوع الدورة")]
-    [Required(ErrorMessage = "نوع الدورة مطلوب")]
     public Guid CourseTypeId { get; set; }
 
     [Display(Name = "الحالة")]

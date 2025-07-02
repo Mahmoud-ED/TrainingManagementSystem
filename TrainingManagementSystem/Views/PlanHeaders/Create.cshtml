@@ -1,0 +1,83 @@
+﻿@model PlanHeader
+
+@{
+    ViewData["Title"] = "Create New Training Plan";
+}
+
+<div class="container mt-4">
+    <h1 class="display-6">@ViewData["Title"]</h1>
+    <hr />
+    <div class="row">
+        <div class="col-md-8">
+            <!-- ⭐ مهم جداً: يجب إضافة هذا الـ attribute للسماح برفع الملفات -->
+            <form asp-action="Create" enctype="multipart/form-data">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                <div class="mb-3">
+                    <label asp-for="Name" class="form-label"></label>
+                    <input asp-for="Name" class="form-control" placeholder="e.g., Annual IT Security Training" />
+                    <span asp-validation-for="Name" class="text-danger"></span>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="Year" class="form-label"></label>
+                        <!-- UX: استخدام input number أفضل من text للسنوات -->
+                        <input asp-for="Year" type="number" class="form-control" min="2020" max="2050" placeholder="e.g., 2024" />
+                        <span asp-validation-for="Year" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="Quarter" class="form-label"></label>
+                        <!-- UX: استخدام قائمة منسدلة يضمن اتساق البيانات -->
+                        <select asp-for="Quarter" class="form-select">
+                            <option value="">-- Select Quarter --</option>
+                            <option value="الربع الاول">الربع الاول</option>
+                            <option value="الربع التاني">الربع التاني</option>
+                            <option value="الربع التالت">الربع التالت</option>
+                            <option value="الربع الرابع">الربع الرابع</option>
+                        </select>
+                        <span asp-validation-for="Quarter" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Description" class="form-label"></label>
+                    <!-- UX: استخدام textarea للوصف الطويل -->
+                    <textarea asp-for="Description" class="form-control" rows="4" placeholder="Add a detailed description for the plan..."></textarea>
+                    <span asp-validation-for="Description" class="text-danger"></span>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="DateFrom" class="form-label"></label>
+                        <!-- UX: استخدام input date يعرض أداة اختيار التاريخ -->
+                        <input asp-for="DateFrom" type="date" class="form-control" />
+                        <span asp-validation-for="DateFrom" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="DateTo" class="form-label"></label>
+                        <input asp-for="DateTo" type="date" class="form-control" />
+                        <span asp-validation-for="DateTo" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="ApprovalFile" class="form-label"></label>
+                    <input asp-for="ApprovalFile" type="file" class="form-control" />
+                    <span asp-validation-for="ApprovalFile" class="text-danger"></span>
+                </div>
+
+                <div class="mt-4">
+                    <button type="submit" class="btn btn-success me-2"><i class="fas fa-save me-2"></i>Create Plan</button>
+                    <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

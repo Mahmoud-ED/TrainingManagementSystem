@@ -1,0 +1,165 @@
+﻿@model IEnumerable<TrainingManagementSystem.Models.Entities.AuditLog>
+
+@{
+    ViewData["Title"] = "سجل التتبع والعمليات";
+    // جلب قيم الفلاتر الحالية من الكويري سترينج لعرضها في حقول البحث
+    var userFilter = Context.Request.Query["userFilter"];
+    var actionFilter = Context.Request.Query["actionFilter"];
+    var entityFilter = Context.Request.Query["entityFilter"];
+    var startDateFilter = Context.Request.Query["startDate"];
+    var endDateFilter = Context.Request.Query["endDate"];
+}
+
+<div class="container-fluid mt-4">
+    <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+            <h3 class="mb-0"><i class="fas fa-history me-2"></i>@ViewData["Title"]</h3>
+            <button class="btn btn-light btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#filterCollapse" aria-expanded="false" aria-controls="filterCollapse">
+                <i class="fas fa-filter me-1"></i> إظهار/إخفاء الفلاتر
+            </button>
+        </div>
+
+        <div class="card-body">
+            <!-- قسم الفلاتر (قابل للطي) -->
+            <div class="collapse show" id="filterCollapse">
+                <div class="p-3 mb-4 bg-light border rounded">
+                    <form asp-action="Index" method="get" id="filterForm">
+                        <div class="row g-3 align-items-end">
+                            <div class="col-md-3">
+                                <label for="userFilter" class="form-label">المستخدم</label>
+                                <input type="text" id="userFilter" name="userFilter" class="form-control form-control-sm" placeholder="اسم المستخدم أو جزء منه" value="@userFilter" />
+                            </div>
+                            <div class="col-md-2">
+                                <label for="actionFilter" class="form-label">نوع العملية</label>
+                                <select id="actionFilter" name="actionFilter" class="form-select form-select-sm">
+                                    <option value="">الكل</option>
+                                    <option value="إنشاء" selected="@(actionFilter == "إنشاء")">إنشاء</option>
+                                    <option value="تعديل" selected="@(actionFilter == "تعديل")">تعديل</option>
+                                    <option value="حذف" selected="@(actionFilter == "حذف")">حذف</option>
+                                    <option value="عرض" selected="@(actionFilter == "عرض")">عرض</option>
+                                    <option value="تسجيل دخول" selected="@(actionFilter == "تسجيل دخول")">تسجيل دخول</option>
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <label for="entityFilter" class="form-label">الكيان/الشاشة</label>
+                                <input type="text" id="entityFilter" name="entityFilter" class="form-control form-control-sm" placeholder="اسم الكيان" value="@entityFilter" />
+                            </div>
+                            <div class="col-md-2">
+                                <label for="startDate" class="form-label">من تاريخ</label>
+                                <input type="date" id="startDate" name="startDate" class="form-control form-control-sm" value="@startDateFilter" />
+                            </div>
+                            <div class="col-md-2">
+                                <label for="endDate" class="form-label">إلى تاريخ</label>
+                                <input type="date" id="endDate" name="endDate" class="form-control form-control-sm" value="@endDateFilter" />
+                            </div>
+                            <div class="col-md-1 d-flex">
+                                <button type="submit" class="btn btn-primary btn-sm flex-grow-1"><i class="fas fa-search"></i></button>
+                                <a asp-action="Index" class="btn btn-outline-secondary btn-sm ms-2" title="مسح الفلاتر"><i class="fas fa-eraser"></i></a>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- جدول عرض البيانات -->
+            @if (Model.Any())
+            {
+                <div class="table-responsive">
+                    <table class="table table-bordered table-striped table-hover align-middle">
+                        <thead class="table-light text-center">
+                            <tr>
+                                <th>#</th>
+                                <th>المستخدم</th>
+                                <th>العملية</th>
+                                <th>الكيان/الشاشة</th>
+                                <th>الوقت والتاريخ</th>
+                                <th>التفاصيل</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @{
+                                var i = 1;
+                            }
+                            @foreach (var log in Model)
+                            {
+                                <tr>
+                                    <td class="text-center">@(i++)</td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <i class="fas fa-user-circle text-muted me-2"></i>
+                                            <span>@log.User?.UserName ?? "مستخدم غير معروف"</span>
+                                        </div>
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="badge @GetActionBadgeClass(log.ActionType)">
+                                            <i class="@GetActionIconClass(log.ActionType) me-1"></i>
+                                            @log.ActionType
+                                        </span>
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="badge bg-secondary">@log.EntityName</span>
+                                    </td>
+                                    <td class="text-center" dir="ltr">
+                                        <small>@log.Timestamp.ToLocalTime().ToString("yyyy-MM-dd hh:mm:ss tt")</small>
+                                    </td>
+                                    <td>
+                                        <p class="mb-0 small">@log.Details</p>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <div class="alert alert-warning text-center" role="alert">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    لا توجد سجلات تطابق معايير البحث الحالية.
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@functions {
+    // دوال مساعدة لتحديد لون وأيقونة الشارة بناءً على نوع العملية
+    private string GetActionBadgeClass(string actionType)
+    {
+        return actionType switch
+        {
+            "إنشاء" => "bg-success",
+            "تعديل" => "bg-warning text-dark",
+            "حذف" => "bg-danger",
+            "تسجيل دخول" => "bg-info",
+            _ => "bg-secondary"
+        };
+    }
+
+    private string GetActionIconClass(string actionType)
+    {
+        return actionType switch
+        {
+            "إنشاء" => "fas fa-plus-circle",
+            "تعديل" => "fas fa-edit",
+            "حذف" => "fas fa-trash-alt",
+            "تسجيل دخول" => "fas fa-sign-in-alt",
+            _ => "fas fa-info-circle"
+        };
+    }
+}
+
+@section Scripts {
+    <script>
+        // يمكن إضافة أي كود جافا سكريبت تفاعلي هنا إذا لزم الأمر
+        // مثلاً، للتأكد من أن تاريخ النهاية لا يكون قبل تاريخ البداية
+        $(document).ready(function() {
+            $('#startDate').on('change', function() {
+                const startDateValue = $(this).val();
+                if (startDateValue) {
+                    $('#endDate').attr('min', startDateValue);
+                }
+            });
+        });
+    </script>
+}

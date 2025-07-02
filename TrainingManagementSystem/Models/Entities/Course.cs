@@ -54,7 +54,20 @@ namespace TrainingManagementSystem.Models.Entities
 
         public int DurationHours { get; set; }
 
-        public int? Days { get; set; } 
+        public int? Days { get; set; }
+
+
+        // خاصية التنقل: قائمة بالكورسات التي يعتبر هذا الكورس متطلباً لها
+        public virtual ICollection<CoursePrerequisite> PrerequisitesFor { get; set; }
+
+        // خاصية التنقل: قائمة بالمتطلبات المسبقة لهذا الكورس
+        public virtual ICollection<CoursePrerequisite> RequiredPrerequisites { get; set; }
+
+        public Course()
+        {
+            PrerequisitesFor = new HashSet<CoursePrerequisite>();
+            RequiredPrerequisites = new HashSet<CoursePrerequisite>();
+        }
 
     }
 }

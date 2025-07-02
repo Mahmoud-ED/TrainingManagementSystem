@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TrainingManagementSystem.Models;
 
@@ -11,9 +12,11 @@ using TrainingManagementSystem.Models;
 namespace TrainingManagementSystem.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250701152631_R")]
+    partial class R
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -587,21 +590,6 @@ namespace TrainingManagementSystem.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("CourseParent");
-                });
-
-            modelBuilder.Entity("TrainingManagementSystem.Models.Entities.CoursePrerequisite", b =>
-                {
-                    b.Property<Guid>("CourseId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("PrerequisiteCourseId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("CourseId", "PrerequisiteCourseId");
-
-                    b.HasIndex("PrerequisiteCourseId");
-
-                    b.ToTable("CoursePrerequisites");
                 });
 
             modelBuilder.Entity("TrainingManagementSystem.Models.Entities.CourseTrainee", b =>
@@ -1405,25 +1393,6 @@ namespace TrainingManagementSystem.Migrations
                     b.Navigation("Status");
                 });
 
-            modelBuilder.Entity("TrainingManagementSystem.Models.Entities.CoursePrerequisite", b =>
-                {
-                    b.HasOne("TrainingManagementSystem.Models.Entities.Course", "Course")
-                        .WithMany("RequiredPrerequisites")
-                        .HasForeignKey("CourseId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("TrainingManagementSystem.Models.Entities.Course", "PrerequisiteCourse")
-                        .WithMany("PrerequisitesFor")
-                        .HasForeignKey("PrerequisiteCourseId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Course");
-
-                    b.Navigation("PrerequisiteCourse");
-                });
-
             modelBuilder.Entity("TrainingManagementSystem.Models.Entities.CourseTrainee", b =>
                 {
                     b.HasOne("TrainingManagementSystem.Models.Entities.CourseDetails", "CourseDetails")
@@ -1618,10 +1587,6 @@ namespace TrainingManagementSystem.Migrations
                     b.Navigation("CourseTrainers");
 
                     b.Navigation("PlanCours");
-
-                    b.Navigation("PrerequisitesFor");
-
-                    b.Navigation("RequiredPrerequisites");
                 });
 
             modelBuilder.Entity("TrainingManagementSystem.Models.Entities.CourseClassification", b =>

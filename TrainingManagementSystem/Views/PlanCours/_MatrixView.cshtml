@@ -1,0 +1,137 @@
+﻿@model TrainingManagementSystem.ViewModels.MatrixViewModel
+
+<style>
+    .matrix-table {
+        border: 2px solid #b0b0b0;
+        text-align: center;
+        vertical-align: middle;
+    }
+
+        .matrix-table th, .matrix-table td {
+            border: 1px solid #ccc;
+            padding: 0.75rem;
+        }
+
+        .matrix-table thead th {
+            background-color: #e9ecef;
+            font-weight: bold;
+        }
+
+        .matrix-table .course-name-cell {
+            text-align: right;
+            min-width: 300px;
+        }
+
+        .matrix-table .month-label {
+            writing-mode: vertical-rl;
+            text-orientation: mixed;
+            transform: rotate(180deg);
+            font-weight: bold;
+            background-color: #f8f9fa;
+            min-width: 50px;
+        }
+
+        .matrix-table tfoot {
+            font-weight: bold;
+            background-color: #e9ecef;
+        }
+
+        .matrix-table .hour-value {
+            font-family: 'Tahoma', sans-serif;
+            font-weight: bold;
+            font-size: 1.1em;
+            color: #0d6efd;
+        }
+        /* تنسيق كلمة "ساعة" لجعلها أصغر قليلاً من الرقم */
+        .matrix-table .hour-unit {
+            font-size: 0.8em;
+            color: #6c757d;
+            margin-right: 4px; /* مسافة صغيرة بين الرقم والوحدة */
+        }
+
+        .matrix-table tbody .course-name-cell {
+            background-color: #fff;
+        }
+</style>
+
+<div class="table-responsive">
+    <table class="table matrix-table table-bordered">
+        <thead>
+            <tr>
+                <th rowspan="2" class="month-label">@Model.MonthName</th>
+                <th rowspan="2" class="course-name-cell">البرنامج التدريبي</th>
+                <th colspan="@Model.NumberOfWeeks">الأسابيع</th>
+                <th rowspan="2">إجمالي الساعات</th>
+            </tr>
+            <tr>
+                @for (int i = 1; i <= Model.NumberOfWeeks; i++)
+                {
+                    <th>الأسبوع (@i)</th>
+                }
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model.Courses != null && Model.Courses.Any())
+            {
+                @foreach (var item in Model.Courses)
+                {
+                    <tr>
+                        <td></td>
+                        <td class="course-name-cell">@item.Plan.Course.Name</td>
+
+                        @* === التغيير هنا: إضافة الوحدة للخلايا الأسبوعية === *@
+                        @foreach (var hours in item.WeeklyHours)
+                        {
+                            <td class="hour-value">
+                                @if (hours > 0.1)
+                                {
+                                    <span>@hours.ToString("N0")</span>
+                    
+                                    <span class="hour-unit">ساعة</span>
+                                }
+                            </td>
+                        }
+
+                        <td class="hour-value">
+                            @item.Plan.DurationHours.ToString("N0")<span class="hour-unit">ساعة</span>
+                        </td>
+                    </tr>
+                }
+            }
+            else
+            {
+                <tr>
+                    <td colspan="@(3 + Model.NumberOfWeeks)" class="text-center p-4">لا توجد برامج تدريبية مجدولة في هذا الشهر.</td>
+                </tr>
+            }
+        </tbody>
+        @if (Model.Courses != null && Model.Courses.Any())
+        {
+
+      
+
+            <tfoot>
+                <tr>
+                    <td colspan="2" class="text-end fw-bold px-4">إجمالي الساعات التدريبية في شهر @Model.MonthName</td>
+
+                    @* === التغيير هنا: إضافة الوحدة للإجماليات الأسبوعية === *@
+                    @foreach (var total in Model.WeeklyTotals)
+                    {
+                        <td class="hour-value">
+                            @if (total > 0)
+                            {
+                                <span>@total.ToString("N0")</span>
+                    
+                                <span class="hour-unit">ساعة</span>
+                            }
+                        </td>
+                    }
+
+                    <td class="hour-value">
+                        @Model.GrandTotal.ToString("N0")<span class="hour-unit">ساعة</span>
+                    </td>
+                </tr>
+            </tfoot>
+        }
+    </table>
+</div>

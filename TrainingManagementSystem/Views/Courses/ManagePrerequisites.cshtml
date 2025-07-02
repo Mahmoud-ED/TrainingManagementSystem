@@ -1,0 +1,115 @@
+﻿@model ManagePrerequisitesViewModel
+
+@{
+    ViewData["Title"] = $"إدارة المتطلبات المسبقة لـ: {Model.Course.Name}";
+}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="mb-0">@ViewData["Title"]</h2>
+        <a asp-action="Index" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-1"></i> العودة إلى قائمة الكورسات
+        </a>
+    </div>
+
+    <!-- رسائل النجاح أو الخطأ -->
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <div class="row g-4">
+        <!-- عمود المتطلبات الحالية -->
+        <div class="col-md-6">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="fas fa-check-circle me-2"></i>المتطلبات الحالية</h5>
+                </div>
+                <div class="card-body">
+                    @if (!Model.CurrentPrerequisites.Any())
+                    {
+                        <div class="alert alert-info text-center">لا توجد متطلبات مسبقة لهذا الكورس حاليًا.</div>
+                    }
+                    else
+                    {
+                        <ul class="list-group">
+                            @foreach (var prereq in Model.CurrentPrerequisites)
+                            {
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <span>@prereq.Name</span>
+                                    <form asp-action="RemovePrerequisite" method="post" onsubmit="return confirm('هل أنت متأكد من إزالة هذا المتطلب؟');">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="courseId" value="@Model.Course.Id" />
+                                        <input type="hidden" name="prerequisiteCourseId" value="@prereq.Id" />
+                                        <button type="submit" class="btn btn-sm btn-outline-danger" title="إزالة المتطلب">
+                                            <i class="fas fa-trash-alt"></i>
+                                        </button>
+                                    </form>
+                                </li>
+                            }
+                        </ul>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- عمود إضافة متطلب جديد -->
+        <div class="col-md-6">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0"><i class="fas fa-plus-circle me-2"></i>إضافة متطلب جديد</h5>
+                </div>
+                <div class="card-body">
+                    @if (!Model.AvailableCourses.Any())
+                    {
+                        <div class="alert alert-warning text-center">لا توجد كورسات أخرى متاحة للإضافة كمتطلب.</div>
+                    }
+                    else
+                    {
+                        <form asp-action="AddPrerequisite" method="post">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="courseId" value="@Model.Course.Id" />
+                            <div class="mb-3">
+                                <label for="prerequisiteCourseId" class="form-label">اختر الكورس المتطلب:</label>
+                                <select name="prerequisiteCourseId" id="prerequisiteCourseId" class="form-select" required>
+                                    <option value="">-- اختر كورس --</option>
+                                    @foreach (var course in Model.AvailableCourses)
+                                    {
+                                        <option value="@course.Id">@course.Name</option>
+                                    }
+                                </select>
+                            </div>
+                            <div class="d-grid">
+                                <button type="submit" class="btn btn-success">
+                                    <i class="fas fa-plus me-1"></i> إضافة المتطلب
+                                </button>
+                            </div>
+                        </form>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // هذا السكربت اختياري، يمكنك إضافة مكتبة مثل Select2 لتحسين شكل القائمة المنسدلة إذا كانت طويلة جداً.
+        // $(document).ready(function() {
+        //     $('#prerequisiteCourseId').select2({
+        //         placeholder: "-- اختر كورس --",
+        //         language: "ar"
+        //     });
+        // });
+    </script>
+}

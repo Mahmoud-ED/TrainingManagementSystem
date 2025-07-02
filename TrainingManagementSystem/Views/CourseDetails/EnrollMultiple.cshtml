@@ -14,6 +14,15 @@
         </ol>
     </nav>
 
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">@TempData["SuccessMessage"]<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>
+    }
+    @if (TempData["WarningMessage"] != null)
+    {
+        <div class="alert alert-warning alert-dismissible fade show" role="alert">@TempData["WarningMessage"]<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>
+    }
+
     <form asp-action="EnrollMultiple" method="post">
         @Html.AntiForgeryToken()
         <input type="hidden" asp-for="CourseDetailsId" />
@@ -43,6 +52,11 @@
                     </div>
                 </div>
 
+                <div class="alert alert-info small py-2">
+                    <i class="fas fa-info-circle me-1"></i>
+                    <strong>ملاحظة:</strong> هذه القائمة تعرض فقط المتدربين المؤهلين (الذين أكملوا جميع المتطلبات المسبقة) وغير المسجلين حالياً في هذه الدورة.
+                </div>
+
                 <div class="table-responsive">
                     <table class="table table-bordered table-hover table-striped">
                         <thead class="table-light">
@@ -60,7 +74,7 @@
                             {
                                 <tr id="no-trainees-row">
                                     <td colspan="4" class="text-center text-muted p-4">
-                                        لا يوجد متدربين متاحين للتسجيل.
+                                        لا يوجد متدربين مؤهلين ومتاحين للتسجيل في هذه الدورة حاليًا.
                                     </td>
                                 </tr>
                             }
@@ -68,7 +82,7 @@
                             {
                                 @foreach (var trainee in Model.Trainees)
                                 {
-                                    <tr data-name="@trainee.Name.ToLower()" data-national-id="@trainee.NationalId" data-org-id="@trainee.OrganizationId">
+                                    <tr data-name="@trainee.Name.ToLower()" data-national-id="@(trainee.NationalId ?? "")" data-org-id="@trainee.OrganizationId">
                                         <td class="text-center">
                                             <input type="checkbox" name="SelectedTraineeIds" value="@trainee.Id" class="form-check-input trainee-checkbox" />
                                         </td>
@@ -106,9 +120,10 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form id="quickAddForm">
+                <form id="quickAddForm" novalidate>
+                    @Html.AntiForgeryToken() <!-- Added for security if needed by AJAX setup -->
                     <div id="modal-validation-summary" class="alert alert-danger" role="alert" style="display: none;"></div>
-                    <input type="hidden" asp-for="NewTrainee.CourseDetailsId" />
+                    <input type="hidden" asp-for="NewTrainee.CourseDetailsId" value="@Model.CourseDetailsId" />
 
                     <div class="row">
                         <div class="col-md-6 mb-3">
@@ -157,6 +172,7 @@
     }
     <script>
         $(document).ready(function () {
+            // الكود الخاص بالفلاتر وتحديد الكل يبقى كما هو
             const organizationFilter = $('#organizationFilter');
             const nameFilter = $('#nameFilter');
             const selectAllCheckbox = $('#selectAllCheckbox');
@@ -171,12 +187,12 @@
                     const row = $(this);
                     if (row.attr('id') === 'no-trainees-row') return;
 
-                    const name = row.data('name') ? row.data('name').toString() : '';
-                    const nationalId = row.data('national-id') ? row.data('national-id').toString() : '';
-                    const orgId = row.data('org-id') ? row.data('org-id').toString() : '';
+                    const name = (row.data('name') || '').toString();
+                    const nationalId = (row.data('national-id') || '').toString();
+                    const orgId = (row.data('org-id') || '').toString();
 
                     const orgMatch = (orgValue === "" || orgId === orgValue);
-                    const nameMatch = (name.includes(nameValue) || nationalId.includes(nameValue));
+                    const nameMatch = (nameValue === "" || name.includes(nameValue) || nationalId.includes(nameValue));
 
                     if (orgMatch && nameMatch) {
                         row.show();
@@ -217,63 +233,57 @@
                 updateSelectAllCheckboxState();
             });
 
+            // الكود الخاص بالنافذة المنبثقة AJAX يبقى كما هو
             const addTraineeModal = new bootstrap.Modal(document.getElementById('addTraineeModal'));
             const quickAddForm = $('#quickAddForm');
             const modalValidationSummary = $('#modal-validation-summary');
 
             $('#saveNewTraineeBtn').on('click', function () {
                 if (!quickAddForm.valid()) {
-                    return;
+                    return; // Unobtrusive validation سيقوم بعرض الأخطاء
                 }
+                $(this).prop('disabled', true).html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> جار الحفظ...');
 
-                const formData = {
-                    courseDetailsId: quickAddForm.find('input[name="NewTrainee.CourseDetailsId"]').val(),
-                    arName: quickAddForm.find('input[name="NewTrainee.ArName"]').val(),
-                    email: quickAddForm.find('input[name="NewTrainee.Email"]').val(),
-                    phoneNo: quickAddForm.find('input[name="NewTrainee.PhoneNo"]').val(),
-                    organizationId: quickAddForm.find('select[name="NewTrainee.OrganizationId"]').val(),
-                    qualificationId: quickAddForm.find('select[name="NewTrainee.QualificationId"]').val()
-                };
+                // استخدام FormData لتسهيل إرسال البيانات
+                const formData = new FormData(quickAddForm[0]);
+
+                // تحويل FormData إلى كائن JSON
+                const jsonData = {};
+                formData.forEach((value, key) => {
+                    // إزالة البادئة "NewTrainee." من الأسماء
+                    const newKey = key.replace('NewTrainee.', '');
+                    jsonData[newKey] = value;
+                });
 
                 $.ajax({
                     url: '@Url.Action("AddAndEnrollTrainee")',
                     method: 'POST',
-                    contentType: 'application/json',
-                    data: JSON.stringify(formData),
+                    contentType: 'application/json; charset=utf-8',
+                    data: JSON.stringify(jsonData),
+                    headers: {
+                        // إضافة التوكن للحماية من CSRF إذا كان مطلوبًا
+                         'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
+                    },
                     success: function (response) {
-                        $('#no-trainees-row').hide();
-                        const newRow = `
-                            <tr data-name="${response.name.toLowerCase()}" data-national-id="${response.nationalId}" data-org-id="${response.organizationId}" style="background-color: #d1e7dd;">
-                                <td class="text-center">
-                                    <input type="checkbox" name="SelectedTraineeIds" value="${response.id}" class="form-check-input trainee-checkbox" checked />
-                                </td>
-                                <td>${response.name}</td>
-                                <td>${response.nationalId}</td>
-                                <td>${response.organizationName}</td>
-                            </tr>
-                        `;
-                        traineesTableBody.prepend(newRow);
-
-                        quickAddForm[0].reset();
-                        modalValidationSummary.hide().empty();
-                        $('.is-invalid').removeClass('is-invalid');
-                        $('.field-validation-error').empty();
-                        addTraineeModal.hide();
-                        updateSelectAllCheckboxState();
+                        window.location.reload(); // أبسط طريقة لتحديث كل شيء بعد النجاح
                     },
                     error: function (xhr) {
                         modalValidationSummary.show().empty();
-                        const errors = xhr.responseJSON;
                         let errorList = '<ul>';
-                        for (let key in errors) {
-                            if (errors.hasOwnProperty(key)) {
-                                errors[key].forEach(err => {
+                        if (xhr.responseJSON) {
+                            $.each(xhr.responseJSON, function(key, errors) {
+                                errors.forEach(err => {
                                     errorList += `<li>${err}</li>`;
                                 });
-                            }
+                            });
+                        } else {
+                            errorList += '<li>حدث خطأ غير متوقع. يرجى المحاولة مرة أخرى.</li>';
                         }
                         errorList += '</ul>';
                         modalValidationSummary.html(errorList);
+                    },
+                    complete: function() {
+                         $('#saveNewTraineeBtn').prop('disabled', false).html('حفظ وتسجيل');
                     }
                 });
             });

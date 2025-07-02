@@ -38,10 +38,9 @@ namespace TrainingManagementSystem.Models.Entities
 
         //----------------------------------------------------
         [ValidateNever]
-        public CourseType CourseType { get; set; }
-        [Required(ErrorMessage = "النوع مطلوب")]
+        public CourseType? CourseType { get; set; }
         [Display(Name = "Course Type")]
-        public Guid CourseTypeId { get; set; }
+        public Guid? CourseTypeId { get; set; }
 
         //----------------------------------------------------
         [ValidateNever]

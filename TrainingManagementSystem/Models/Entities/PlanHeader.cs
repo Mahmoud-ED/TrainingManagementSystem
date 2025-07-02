@@ -7,7 +7,6 @@ namespace TrainingManagementSystem.Models.Entities
 {
     public class PlanHeader : BaseEntity
     {
-        [StringLength(100)]
         [Required]
         public string Name { get; set; }
 
@@ -16,7 +15,6 @@ namespace TrainingManagementSystem.Models.Entities
         [Required]
         public string Year { get; set; }
 
-        [StringLength(10)] // e.g., "Q1", "First Quarter"
         [Required]
         public string Quarter { get; set; }
 

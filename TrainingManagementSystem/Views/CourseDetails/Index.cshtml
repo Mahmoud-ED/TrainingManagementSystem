@@ -182,8 +182,6 @@
                     <table class="table table-hover table-striped mb-0" id="courses-table">
                         <thead class="table-light">
                             <tr>
-                                <th>المحور</th>
-                                <th>التصنيف</th>
                                 <th>اسم البرنامج التدريبي</th>
                                 <th>الحالة</th>
                                 <th>تاريخ البدء</th>
@@ -197,15 +195,8 @@
                             {
                                 // (جديد) إضافة class و data-status للصف
                                 <tr class="course-row" data-status="@(item.Status?.Name ?? "غير محددة")">
-                                    <td>
-                                        <strong>@item.Course.CourseClassification.Name</strong><br>
-                                    </td>
-                                     <td>
-                                        <strong>@item.Course.Name</strong><br>
-                                    </td>
                                      <td>
                                         <strong>@item.Name</strong><br>
-                                        <small class="text-muted">@item.CourseType?.Name</small>
                                     </td>
                                     <td>
                                         <span class="badge bg-@(GetStatusBadgeClass(item.Status?.Name))">

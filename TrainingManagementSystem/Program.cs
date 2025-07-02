@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using TrainingManagementSystem.Classes;
+using TrainingManagementSystem.Filters;
 using TrainingManagementSystem.Models;
 using TrainingManagementSystem.Models.Entities;
 using TrainingManagementSystem.Models.Interfaces;
@@ -90,10 +91,15 @@ builder.Services.AddAuthorization(options =>
 //------------------------------------------------
 builder.Services.AddAutoMapper(typeof(Program).Assembly);
 
+// ...
+
 //appsettings.jason ÊÓÌíá ÞÓã ÇáÅÚÏÇÏÇÊ ÇáÎÇÕÉ ÈÇáÅíãíá æÇáãæÌæÏ Ýí 
 var emailconfig = builder.Configuration
                   .GetSection("MailSettings").Get<MailSettings>();
 builder.Services.AddSingleton(emailconfig);
+
+//builder.Services.AddScoped<AuditAttribute>();
+//builder.Services.AddScoped<AuditActionFilter>();
 
 builder.Services.AddScoped<IEmailSender, EmailSender>();
 

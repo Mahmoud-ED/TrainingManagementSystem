@@ -23,6 +23,7 @@ namespace TrainingManagementSystem.Models
         public DbSet<Contact> Contact { get; set; }
         public DbSet<Category> Categories { get; set; }
         public DbSet<Course> Courses { get; set; }
+        public DbSet<CoursePrerequisite> CoursePrerequisites { get; set; }
         public DbSet<CourseClassification> CourseClassifications { get; set; }
         public DbSet<CourseDetails> CourseDetails { get; set; }
         public DbSet<CourseTrainee> CourseTrainees { get; set; }
@@ -40,6 +41,7 @@ namespace TrainingManagementSystem.Models
         public DbSet<Specialization> Specializations { get; set; }
         public DbSet<Status> Statuses { get; set; }
         public DbSet<Trainee> Trainees { get; set; }
+        public DbSet<AuditLog> AuditLog { get; set; }
         public DbSet<Trainer> Trainers { get; set; }
         public DbSet<TrainerSpecialization> TrainerSpecializations { get; set; }
         public DbSet<SiteState> SiteState { get; set; }
@@ -47,6 +49,7 @@ namespace TrainingManagementSystem.Models
         public DbSet<Employee> Employees { get; set; }
         public DbSet<SiteInfo> SiteInfo { get; set; }
         public DbSet<PlanCours> PlanCours { get; set; }
+
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -234,6 +237,14 @@ namespace TrainingManagementSystem.Models
                         .HasForeignKey(ct => ct.CourseId)
                         .OnDelete(DeleteBehavior.Cascade);
 
+
+            modelBuilder.Entity<AuditLog>()
+                       .HasOne(ct => ct.User)
+                       .WithMany(c => c.AuditLogs)
+                       .HasForeignKey(ct => ct.UserId)
+                       .OnDelete(DeleteBehavior.Cascade);
+
+
             modelBuilder.Entity<CoursDetailsTrainer>()
                   .HasOne(ct => ct.Trainer) // Trainers -> Trainer
                   .WithMany(t => t.CoursDetailsTrainer) // Trainer.CourseTrainers هو List<CourseTrainer>
@@ -261,6 +272,22 @@ namespace TrainingManagementSystem.Models
                    .HasForeignKey(ct => ct.PlanCoursId)
                    .OnDelete(DeleteBehavior.Cascade);
 
+            modelBuilder.Entity<CoursePrerequisite>()
+        .HasKey(cp => new { cp.CourseId, cp.PrerequisiteCourseId });
+
+            // 2. تعريف العلاقة من الكورس إلى متطلباته
+            modelBuilder.Entity<CoursePrerequisite>()
+                .HasOne(cp => cp.Course) // كل سجل في الجدول الوسيط له كورس أساسي واحد
+                .WithMany(c => c.RequiredPrerequisites) // والكورس الأساسي له العديد من المتطلبات
+                .HasForeignKey(cp => cp.CourseId) // والمفتاح الخارجي هو CourseId
+                .OnDelete(DeleteBehavior.Restrict); // منع الحذف المتتالي
+
+            // 3. تعريف العلاقة من المتطلب إلى الكورسات التي تعتمد عليه
+            modelBuilder.Entity<CoursePrerequisite>()
+                .HasOne(cp => cp.PrerequisiteCourse) // كل سجل في الجدول الوسيط له كورس متطلب واحد
+                .WithMany(c => c.PrerequisitesFor) // والكورس المتطلب يمكن أن يكون متطلباً للعديد من الكورسات
+                .HasForeignKey(cp => cp.PrerequisiteCourseId) // والمفتاح الخارجي هو PrerequisiteCourseId
+                .OnDelete(DeleteBehavior.Restrict); // منع الحذف المتتالي
 
 
         }

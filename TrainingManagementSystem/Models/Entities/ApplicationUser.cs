@@ -40,6 +40,7 @@ namespace TrainingManagementSystem.Models.Entities
         {
             get { return ModifiedDate?.ToLocalTime().ToString("dd-MM-yyyy hh:mm:ss tt"); }
         }
+        public virtual ICollection<AuditLog> AuditLogs { get; set; } = new List<AuditLog>();
 
-    }
+}
 }

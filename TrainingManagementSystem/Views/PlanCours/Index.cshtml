@@ -1,79 +1,140 @@
-﻿@* تحديد نوع الموديل كـ dynamic لأنه سيتغير (مرة List، مرة Dictionary) *@
-@model dynamic
+﻿@model dynamic
 @using System.Globalization
 @using TrainingManagementSystem.Models.Entities
+@using TrainingManagementSystem.ViewModels
 
 @{
-    ViewData["Title"] = "الخطة الزمنية للبرامج التدريبية";
-    var viewMode = ViewData["ViewMode"] as string ?? "Timeline";
+    ViewData["Title"] = "الخطة السنوية للبرامج التدريبية";
+    var viewMode = ViewData["ViewMode"] as string ?? "Gantt";
     var selectedYear = (int)ViewData["SelectedYear"];
-    var selectedQuarter = (int)ViewData["SelectedQuarter"];
     var yearList = ViewData["Years"] as IEnumerable<SelectListItem>;
-
-    // دالة مساعدة لتلوين الأشرطة
-    string GetColorForCourse(Guid? id)
-    {
-        if (!id.HasValue) return "#6c757d";
-        var hash = id.Value.GetHashCode();
-        var r = (hash & 0xFF0000) >> 16;
-        var g = (hash & 0x00FF00) >> 8;
-        var b = hash & 0x0000FF;
-        return $"rgb({r % 200 + 50}, {g % 200 + 50}, {b % 200 + 50})";
-    }
+    var selectedMonth = (viewMode == "Matrix") ? (int)ViewData["SelectedMonth"] : DateTime.Today.Month;
 }
 
 <style>
-    /* ... نفس كود CSS السابق للخطة الزمنية ... */
+    /* ... كل كود CSS يبقى كما هو ... */
     .btn-group .btn.active {
-        z-index: 2; /* لإظهار الزر المختار فوق الآخرين */
+        background-color: var(--bs-primary);
+        color: white;
+        z-index: 2;
     }
 
     #calendar {
         max-width: 1100px;
-        margin: 0 auto;
+        margin: 40px auto;
+        padding: 0 10px;
+        font-family: 'Segoe UI', sans-serif;
     }
+
+    :root {
+        --fc-border-color: #dee2e6;
+        --fc-daygrid-event-dot-width: 8px;
+        --fc-list-event-dot-width: 10px;
+        --fc-list-event-hover-bg-color: #f8f9fa;
+    }
+
+    .fc .fc-button-primary {
+        background-color: #0d6efd;
+        border-color: #0d6efd;
+    }
+
+        .fc .fc-button-primary:not(:disabled):active, .fc .fc-button-primary:not(:disabled).fc-button-active {
+            background-color: #0b5ed7;
+            border-color: #0a58ca;
+        }
+
+    .fc-daygrid-event {
+        border-radius: 5px;
+        padding: 3px 6px;
+        font-size: 0.85em;
+        font-weight: 500;
+        border: 1px solid rgba(0,0,0,0.1);
+    }
+
+    .fc-event-main-frame {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        gap: 2px;
+    }
+
+    .fc-event-title {
+        font-weight: bold;
+        color: white;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .fc-event-location {
+        font-size: 0.9em;
+        color: rgba(255, 255, 255, 0.85);
+        display: flex;
+        align-items: center;
+    }
+
+        .fc-event-location i {
+            margin-left: 5px;
+        }
 </style>
-<link href="~/css/timelincss.css" rel="stylesheet" />
+
 <div class="container-fluid mt-4">
     <div class="card shadow-sm">
-        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-            <h4 class="mb-0">@ViewData["Title"]</h4>
-            <a asp-action="Create" class="btn btn-light btn-sm"><i class="fas fa-plus me-1"></i> إنشاء خطة جديدة</a>
+        <div class="card-header bg-light d-flex flex-wrap justify-content-between align-items-center p-3 gap-3">
+            <h4 class="mb-0 text-primary"><i class="fas fa-tasks me-2"></i>@ViewData["Title"]</h4>
+            <div class="d-flex gap-2">
+              @*   <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#copyPlanModal">
+                    <i class="fas fa-copy me-2"></i>نسخ خطة من سنة سابقة
+                </button> *@
+                <a asp-action="AdvancedCopy" class="btn btn-outline-secondary">
+                    <i class="fas fa-copy me-2"></i>نسخ خطة من سنة سابقة
+                </a>
+                <a asp-action="Create" class="btn btn-primary"><i class="fas fa-plus me-2"></i>إضافة خطة جديدة</a>
+            </div>
         </div>
+
         <div class="card-body">
-            <!-- قسم الفلاتر والتبديل بين طرق العرض -->
-            <div class="card filter-card mb-4">
+            <!-- Filter Bar -->
+            <div class="card border-light shadow-sm mb-4">
                 <div class="card-body">
                     <form id="filterForm" method="get" asp-action="Index">
                         <input type="hidden" name="viewMode" value="@viewMode" />
-                        <div class="d-flex justify-content-between align-items-center">
-                            <!-- أزرار تبديل العرض -->
+                        <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+                            <!-- View Switcher -->
                             <div class="btn-group" role="group">
-                                <a asp-action="Index" asp-route-viewMode="Timeline" class="btn @(viewMode == "Timeline" ? "btn-dark" : "btn-outline-dark")"><i class="fas fa-chart-bar me-1"></i> خطة زمنية</a>
-                                <a asp-action="Index" asp-route-viewMode="Location" class="btn @(viewMode == "Location" ? "btn-dark" : "btn-outline-dark")"><i class="fas fa-map-marker-alt me-1"></i> حسب الموقع</a>
-                                <a asp-action="Index" asp-route-viewMode="Calendar" class="btn @(viewMode == "Calendar" ? "btn-dark" : "btn-outline-dark")"><i class="fas fa-calendar-alt me-1"></i> تقويم</a>
-                                <a asp-action="Index" asp-route-viewMode="List" class="btn @(viewMode == "List" ? "btn-dark" : "btn-outline-dark")"><i class="fas fa-list me-1"></i> قائمة</a>
+                                <a href="?viewMode=Gantt&year=@selectedYear" class="btn @(viewMode == "Gantt" ? "active" : "btn-outline-primary")" title="مخطط زمني"><i class="fas fa-chart-bar me-1"></i></a>
+                                <a href="?viewMode=Matrix&year=@selectedYear" class="btn @(viewMode == "Matrix" ? "active" : "btn-outline-primary")" title="عرض مصفوفة"><i class="fas fa-th me-1"></i></a>
+                                <a href="?viewMode=Location&year=@selectedYear" class="btn @(viewMode == "Location" ? "active" : "btn-outline-primary")" title="حسب الموقع"><i class="fas fa-map-marker-alt me-1"></i></a>
+                                <a href="?viewMode=Calendar&year=@selectedYear" class="btn @(viewMode == "Calendar" ? "active" : "btn-outline-primary")" title="تقويم"><i class="fas fa-calendar-alt me-1"></i></a>
+                                <a href="?viewMode=List&year=@selectedYear" class="btn @(viewMode == "List" ? "active" : "btn-outline-primary")" title="قائمة"><i class="fas fa-list me-1"></i></a>
                             </div>
-                            <!-- الفلاتر -->
-                            <div class="d-flex g-3 align-items-center">
-                                <div class="me-3">
-                                    <select name="year" class="form-select form-select-sm" onchange="this.form.submit()">
+
+                            <!-- Date Filters -->
+                            <div class="d-flex align-items-center gap-3">
+                                <div class="d-flex align-items-center gap-2">
+                                    <label for="yearFilter" class="form-label mb-0 fw-bold">السنة:</label>
+                                    <select name="year" id="yearFilter" class="form-select" onchange="this.form.submit()">
                                         @foreach (var yearItem in yearList)
                                         {
-                                            <option value="@yearItem.Value" selected="@(yearItem.Value == selectedYear.ToString())">@yearItem.Text</option>
+                                            <option value="@yearItem.Value" selected="@yearItem.Selected">@yearItem.Text</option>
                                         }
                                     </select>
                                 </div>
-                                @if (viewMode == "Timeline")
+                                @if (viewMode == "Matrix")
                                 {
-                                    <div class="me-2">
-                                        <select name="quarter" class="form-select form-select-sm" onchange="this.form.submit()">
-                                            <option value="1" selected="@(selectedQuarter == 1)">الربع الأول</option>
-                                            <option value="2" selected="@(selectedQuarter == 2)">الربع الثاني</option>
-                                            <option value="3" selected="@(selectedQuarter == 3)">الربع الثالث</option>
-                                            <option value="4" selected="@(selectedQuarter == 4)">الربع الرابع</option>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <label for="monthFilter" class="form-label mb-0 fw-bold">الشهر:</label>
+                                        <select name="month" id="monthFilter" class="form-select" onchange="this.form.submit()">
+                                            @for (int i = 1; i <= 12; i++)
+                                            {
+                                                var monthName = new CultureInfo("ar-EG").DateTimeFormat.GetMonthName(i);
+                                                <option value="@i" selected="@(i == selectedMonth)">@monthName</option>
+                                            }
                                         </select>
                                     </div>
+                                    <a asp-action="PrintMatrix" asp-route-year="@selectedYear" asp-route-month="@selectedMonth" target="_blank" class="btn btn-success">
+                                        <i class="fas fa-print me-1"></i> طباعة
+                                    </a>
                                 }
                             </div>
                         </div>
@@ -81,77 +142,140 @@
                 </div>
             </div>
 
-            <!-- ======================= منطقة عرض المحتوى المتغير ======================= -->
-            @if (viewMode == "Timeline")
+            <!-- ... قسم رسائل النجاح والخطأ ... -->
+            @if (TempData["SuccessMessage"] != null)
             {
-                @await Html.PartialAsync("_TimelineView", (IEnumerable<PlanCours>)Model)
+                <div class="alert alert-success alert-dismissible fade show" role="alert">@TempData["SuccessMessage"]<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>
             }
-            else if (viewMode == "Location")
+            @if (TempData["ErrorMessage"] != null)
             {
-                @await Html.PartialAsync("_LocationView", (Dictionary<Locations, List<PlanCours>>)Model)
-            }
-            else if (viewMode == "Calendar")
-            {
-                <div id="calendar"></div>
-            }
-            else if (viewMode == "List")
-            {
-                @await Html.PartialAsync("_ListView", (IEnumerable<PlanCours>)Model)
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">@TempData["ErrorMessage"]<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>
             }
 
+            <!-- Dynamic Content Area -->
+            <div>
+                @if (viewMode == "Gantt")
+                {
+                    @await Html.PartialAsync("_GanttView", (IEnumerable<PlanCours>)Model)
+                }
+                else if (viewMode == "Location")
+                {
+
+                    @await Html.PartialAsync("_LocationView", (Dictionary<Locations, List<PlanCours>>)Model)
+                }
+                else if (viewMode == "Calendar")
+                {
+
+                    <div id="calendar"></div>
+                }
+                else if (viewMode == "List")
+                {
+
+                    @await Html.PartialAsync("_ListView", (IEnumerable<PlanCours>)Model)
+                }
+                else if (viewMode == "Matrix")
+                {
+
+                    @await Html.PartialAsync("_MatrixView", (MatrixViewModel)Model)
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- =========================
+    Modal for Copying Plan (Clean Version)
+============================== -->
+<div class="modal fade" id="copyPlanModal" tabindex="-1" aria-labelledby="copyPlanModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="copyPlanModalLabel"><i class="fas fa-copy me-2"></i>نسخ الخطة السنوية</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <!-- The Form that will be submitted -->
+            <form id="copyPlanForm" asp-controller="PlanCours" asp-action="CopyPlanAsync" method="post">
+                @Html.AntiForgeryToken()
+                <div class="modal-body">
+                    <p>سيتم نسخ جميع الدورات المخططة من السنة المصدر إلى السنة الهدف. هل أنت متأكد؟</p>
+                    <div class="mb-3">
+                        <label for="sourceYear" class="form-label"><strong>نسخ من سنة:</strong></label>
+                        <select id="sourceYear" name="sourceYear" class="form-select">
+                            @foreach (var yearItem in (IEnumerable<SelectListItem>)ViewData["Years"])
+                            {
+                                <option value="@yearItem.Value">@yearItem.Text</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="targetYear" class="form-label"><strong>إلى سنة (جديدة):</strong></label>
+                        <input type="number" id="targetYear" name="targetYear" class="form-control" value="@(DateTime.Today.Year + 1)" min="2020" max="2050" required />
+                    </div>
+                    <div id="copyWarning" class="alert alert-warning d-none" role="alert">
+                        <strong>تحذير:</strong> السنة الهدف تحتوي على خطط مسجلة مسبقًا. النسخ سيضيف الدورات الجديدة إليها.
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
+                    <!-- This is now a standard submit button which works correctly with the form -->
+                    <button type="submit" class="btn btn-primary">نعم، قم بالنسخ</button>
+                </div>
+            </form>
         </div>
     </div>
 </div>
 
 @section Scripts {
-    @if (viewMode == "Calendar")
-    {
-        <!-- مكتبة FullCalendar (مهمة جداً لعرض التقويم) -->
-        <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js"></script>
-        <script>
-            document.addEventListener('DOMContentLoaded', function() {
-                var calendarEl = document.getElementById('calendar');
-                var calendar = new FullCalendar.Calendar(calendarEl, {
-                    headerToolbar: {
-                        left: 'prev,next today',
-                        center: 'title',
-                        right: 'dayGridMonth,timeGridWeek,listWeek'
-                    },
-                    initialView: 'dayGridMonth',
-                    locale: 'ar', // تفعيل اللغة العربية
-                    buttonText: {
-                        today: 'اليوم',
-                        month: 'شهر',
-                        week: 'أسبوع',
-                        list: 'قائمة'
-                    },
-                    events: {
-                        url: '@Url.Action("GetCalendarEvents")', // جلب الأحداث من الكنترولر
-                        failure: function() {
-                            alert('حدث خطأ أثناء تحميل الأحداث!');
-                        }
-                    },
-                    eventClick: function(info) {
-                        info.jsEvent.preventDefault(); // منع السلوك الافتراضي
-                        if (info.event.url) {
-                            window.open(info.event.url, "_self"); // فتح الرابط في نفس الصفحة
-                        }
-                    },
-                    loading: function(isLoading) {
-                        // يمكنك هنا إضافة مؤشر تحميل
-                    }
-                });
-                calendar.render();
-            });
-        </script>
-    }
-    else
-    {
-        <script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+
+            // Initialize Bootstrap Tooltips
             var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
             var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
                 return new bootstrap.Tooltip(tooltipTriggerEl);
             });
-        </script>
-    }
+
+            // --- Calendar View Logic ---
+            if ('@viewMode' === 'Calendar') {
+                var calendarEl = document.getElementById('calendar');
+                // ... The rest of the calendar code remains the same ...
+                var calendar = new FullCalendar.Calendar(calendarEl, {
+                    headerToolbar: { left: 'prev,next today', center: 'title', right: 'dayGridMonth,timeGridWeek,listWeek' },
+                    initialView: 'dayGridMonth',
+                    locale: 'ar',
+                    buttonText: { today: 'اليوم', month: 'شهر', week: 'أسبوع', list: 'قائمة' },
+                    events: '@Url.Action("GetCalendarEvents")',
+                    displayEventEnd: false,
+                    eventContent: function (arg) { let locationName = arg.event.extendedProps.locationName; let eventTitle = document.createElement('div'); eventTitle.classList.add('fc-event-title'); eventTitle.innerHTML = arg.event.title; let eventLocation = document.createElement('div'); eventLocation.classList.add('fc-event-location'); if (locationName) { eventLocation.innerHTML = `<i class="fas fa-map-marker-alt fa-sm"></i> ${locationName}`; } return { domNodes: [eventTitle, eventLocation] }; },
+                    eventClick: function (info) { info.jsEvent.preventDefault(); Swal.fire({ title: `<strong>${info.event.title}</strong>`, icon: 'info', html: `<hr><div style="text-align: right; margin-right: 15px;"><p><strong><i class="fas fa-map-marker-alt text-primary"></i> الموقع:</strong> ${info.event.extendedProps.locationName}</p><p><strong><i class="fas fa-calendar-start text-primary"></i> يبدأ في:</strong> ${new Date(info.event.start).toLocaleDateString('ar-EG')}</p>${info.event.end ? `<p><strong><i class="fas fa-calendar-end text-primary"></i> ينتهي في:</strong> ${new Date(info.event.end.valueOf() - 1).toLocaleDateString('ar-EG')}</p>` : ''}</div>`, showCloseButton: true, showCancelButton: false, focusConfirm: false, confirmButtonText: '<i class="fas fa-info-circle"></i> عرض كامل التفاصيل', }).then((result) => { if (result.isConfirmed) { window.location.href = info.event.url; } }); }
+                });
+                calendar.render();
+            }
+
+            // --- Copy Plan Modal Logic (Corrected) ---
+            const targetYearInput = document.getElementById('targetYear');
+            const copyWarningDiv = document.getElementById('copyWarning');
+
+            if (targetYearInput) {
+                targetYearInput.addEventListener('change', function () {
+                    const year = this.value;
+                    if (year) {
+                        fetch(`/PlanCours/CheckIfYearHasPlans?year=${year}`)
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.hasPlans) {
+                                    copyWarningDiv.classList.remove('d-none');
+                                } else {
+                                    copyWarningDiv.classList.add('d-none');
+                                }
+                            });
+                    }
+                });
+            }
+
+        }); // End of DOMContentLoaded
+    </script>
 }
