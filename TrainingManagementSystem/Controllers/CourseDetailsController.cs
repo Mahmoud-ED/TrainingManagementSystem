@@ -374,6 +374,108 @@ namespace TrainingManagementSystem.Controllers
             // لأنك تحتاج إلى الحفاظ على القيم التي أدخلها المستخدم.
             // الـ Model Binding سيفعل ذلك تلقائياً إذا كانت أسماء الحقول صحيحة.
         }
+
+        private async Task PopulateDropdownsAsync(CourseFormViewModel viewModel)
+        {
+            viewModel.CourseClassifications = (await _context.CourseClassifications
+                .OrderBy(c => c.Name)
+                .Select(c => new SelectListItem
+                {
+                    Value = c.Id.ToString(),
+                    Text = c.Name,
+                    Selected = (c.Id == viewModel.CourseClassificationId)
+                })
+                .ToListAsync());
+            viewModel.CourseClassifications.Insert(0, new SelectListItem
+            {
+                Value = "",
+                Text = "-- اختر تصنيف الدورة --",
+                Selected = (viewModel.CourseClassificationId == Guid.Empty)
+            });
+
+            viewModel.Levels = (await _context.Levels
+                .OrderBy(l => l.Name)
+                .Select(l => new SelectListItem
+                {
+                    Value = l.Id.ToString(),
+                    Text = l.Name,
+                    Selected = (l.Id == viewModel.LevelId)
+                })
+                .ToListAsync());
+            viewModel.Levels.Insert(0, new SelectListItem
+            {
+                Value = "",
+                Text = "-- اختر المستوى --",
+                Selected = (viewModel.LevelId == Guid.Empty)
+            });
+
+            viewModel.CourseParents = (await _context.CourseParent
+                .OrderBy(cp => cp.Name)
+                .Select(cp => new SelectListItem
+                {
+                    Value = cp.Id.ToString(),
+                    Text = cp.Name,
+                    Selected = (cp.Id == viewModel.CourseParentId)
+                })
+                .ToListAsync());
+            viewModel.CourseParents.Insert(0, new SelectListItem
+            {
+                Value = "",
+                Text = "-- اختر الدورة المرجعية --",
+                Selected = (!viewModel.CourseParentId.HasValue || viewModel.CourseParentId == Guid.Empty)
+            });
+
+            viewModel.Locations = (await _context.Locations
+                .OrderBy(l => l.Name)
+                .Select(l => new SelectListItem
+                {
+                    Value = l.Id.ToString(),
+                    Text = l.Name
+                })
+                .ToListAsync());
+            viewModel.Locations.Insert(0, new SelectListItem
+            {
+                Value = "",
+                Text = "-- اختر الموقع --"
+            });
+
+            viewModel.CourseTypes = (await _context.CourseTypes
+                .OrderBy(ct => ct.Name)
+                .Select(ct => new SelectListItem
+                {
+                    Value = ct.Id.ToString(),
+                    Text = ct.Name
+                })
+                .ToListAsync());
+            viewModel.CourseTypes.Insert(0, new SelectListItem
+            {
+                Value = "",
+                Text = "-- اختر نوع الدورة --"
+            });
+
+            viewModel.Statuses = (await _context.Statuses
+                .OrderBy(s => s.Name)
+                .Select(s => new SelectListItem
+                {
+                    Value = s.Id.ToString(),
+                    Text = s.Name
+                })
+                .ToListAsync());
+            viewModel.Statuses.Insert(0, new SelectListItem
+            {
+                Value = "",
+                Text = "-- اختر الحالة --"
+            });
+
+            var allTrainers = await _context.Trainers.OrderBy(t => t.ArName).ToListAsync();
+            viewModel.AvailableTrainers = allTrainers.Select(t => new TrainerCheckboxViewModel
+            {
+                Id = t.Id,
+                Name = t.ArName,
+                IsSelected = viewModel.SelectedTrainerIds != null && viewModel.SelectedTrainerIds.Contains(t.Id)
+            }).ToList();
+        }
+
         [HttpGet]
         public async Task<IActionResult> Edit(Guid? id)
         {
@@ -878,11 +980,12 @@ namespace TrainingManagementSystem.Controllers
             viewModel.NewTrainee.AvailableOrganizations = new SelectList(organizations, "Id", "Name");
             viewModel.NewTrainee.AvailableQualifications = new SelectList(qualifications, "Id", "Name");
         }
-        [HttpPost]
+        //[HttpPost]
 
 
-     
+
         // GET: /EditEnrollment/{courseTraineeId}
+        [HttpGet] // <-- هادي هي الإضافة الأهم في الموضوع كله
         public async Task<IActionResult> EditEnrollment(Guid courseTraineeId)
         {
             var courseTrainee = await _context.CourseTrainees
@@ -909,9 +1012,11 @@ namespace TrainingManagementSystem.Controllers
                 CertificateIssueDate = courseTrainee.CertificateIssueDate,
                 Notes = courseTrainee.Notes
             };
-            return View(viewModel); // ستحتاج لإنشاء View لهذا
-        }
 
+            // تأكد أن اسم الـ View مطابق لاسم الأكشن أو حدده صراحة
+            // return View("EditEnrollment", viewModel);
+            return View(viewModel);
+        }
         // POST: /EditEnrollment
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -996,6 +1101,11 @@ namespace TrainingManagementSystem.Controllers
                 return BadRequest("معرف التسجيل مطلوب.");
             }
 
+            var IsPased = await _context.CourseTrainees.AnyAsync(ct => ct.Id == id && ct.Grade != null);
+            if (!IsPased)
+            {
+                return BadRequest("لا يمكن طباعة الشهادة لأن المتدرب لم يحصل على درجة.");
+            }
             var courseTrainee = await _context.CourseTrainees
                 .Include(ct => ct.Trainee) // لجلب اسم المتدرب وبياناته
                 .Include(ct => ct.CourseDetails) // لجلب تفاصيل تنفيذ الدورة

@@ -185,7 +185,7 @@
                                     <td>@(trainee.CertificateNumber ?? "-")</td>
                                     <td class="text-center">
                                         <div class="btn-group btn-group-sm" role="group">
-                                            <a asp-action="EditEnrollment" asp-route-courseTraineeId="@trainee.CourseTraineeId" class="btn btn-outline-primary" title="تعديل بيانات التسجيل والشهادة">
+                                            <a asp-controller="CourseDetails"  asp-action="EditEnrollment" asp-route-courseTraineeId="@trainee.CourseTraineeId" class="btn btn-outline-primary" title="تعديل بيانات التسجيل والشهادة">
                                                 <i class="fas fa-edit"></i> <span class="d-none d-md-inline">تعديل</span>
                                             </a>
                                             <a asp-action="PrintCertificate" asp-route-id="@trainee.CourseTraineeId" class="btn btn-outline-info" title="طباعة شهادة" target="_blank">
