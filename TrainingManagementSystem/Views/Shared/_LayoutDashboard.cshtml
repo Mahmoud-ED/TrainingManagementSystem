@@ -1,414 +1,274 @@
 ﻿@inject IUnitOfWork<SiteInfo> _siteInfo
 
 <!DOCTYPE html>
-<html lang="ar">
-
+<html lang="ar" dir="rtl">
 <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
     @{
-        var siteInfo = _siteInfo.Entity.GetAll().SingleOrDefault();
-        ViewBag.SiteName = siteInfo?.Name;
-        ViewBag.LogoUrl = siteInfo?.LogoUrl;
+        var siteInfo = _siteInfo.Entity.GetAll().FirstOrDefault();
+        ViewData["Title"] = ViewData["Title"] ?? "الصفحة الرئيسية";
+        var siteName = siteInfo?.Name ?? "نظام التدريب";
+        var logoUrl = string.IsNullOrEmpty(siteInfo?.LogoUrl) ? "~/img/oo.png" : siteInfo.LogoUrl;
+
+        ViewBag.SiteName = siteInfo?.Name ?? "نظام التدريب";
+        ViewBag.LogoUrl = string.IsNullOrEmpty(siteInfo?.LogoUrl) ? "~/img/oo.png" : siteInfo.LogoUrl;
+    
     }
-    <partial name="Partial/_title" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" 
-    integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA=="
+    <title>@ViewData["Title"] | @siteName</title>
 
-    crossorigin="anonymous" referrerpolicy="no-referrer" />
     <!-- Google Fonts: Cairo -->
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
-  
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700&display=swap" rel="stylesheet" />
 
-    <script src="~/lib/datatables.net/js/jquery.dataTables.min.js"></script>
+    <!-- Font Awesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 
-    <!-- DataTables Bootstrap 5 Integration -->
-    <script src="~/lib/datatables.net-bs5/js/dataTables.bootstrap5.min.js"></script>
-    <!-- CSS Files -->
-    <link rel="stylesheet" href="~/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="~/css/nice-select.css" />
-    <link rel="stylesheet" href="~/css/font-awesome.min.css" />
-    <link rel="stylesheet" href="~/css/icofont.css" />
-    <link rel="stylesheet" href="~/css/slicknav.min.css" />
-    <link rel="stylesheet" href="~/css/owl-carousel.css" />
-    <link rel="stylesheet" href="~/css/datepicker.css" />
-    <link rel="stylesheet" href="~/css/animate.min.css" />
-    <link rel="stylesheet" href="~/css/magnific-popup.css" />
-    <link rel="stylesheet" href="~/css/normalize.css" />
-    <link rel="stylesheet" href="~/style.css" />
-    <link rel="stylesheet" href="~/css/responsive.css" />
-    <link rel="stylesheet" href="~/css/color/color1.css" />
+    <!-- Bootstrap 5 (RTL) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.rtl.min.css" integrity="sha384-nU14brUcp6StFntEOOEBvcJm4huWjB0OcIeQ3fltAfSmuZFrkAif0T+UtNGlKKQv" crossorigin="anonymous">
 
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-
+    <!-- Custom Site Styles -->
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+
+    <!-- Loader Overlay CSS -->
+    <link href="~/css/loader.css" rel="stylesheet" />
+
     <style>
+        /* == Global Styles == */
         body {
-            font-family: 'Cairo', sans-serif !important;
+            font-family: 'Cairo', sans-serif;
+            background-color: #f8f9fa;
         }
 
+        /* == Navbar Customization == */
+        .navbar-custom {
+            background-color: #ffffff;
+            box-shadow: 0 2px 4px rgba(0,0,0,.05);
+            padding-top: 0.5rem;
+            padding-bottom: 0.5rem;
+        }
+
+            .navbar-custom .navbar-brand img {
+                max-height: 50px;
+            }
+
+            .navbar-custom .nav-link {
+                font-weight: 600;
+                color: #5a5a5a;
+                padding: 0.5rem 1rem;
+                border-radius: 6px;
+                transition: all 0.3s ease;
+            }
+
+                .navbar-custom .nav-link:hover,
+                .navbar-custom .nav-link.active,
+                .navbar-custom .dropdown:hover > .nav-link { /* إبراز القائمة عند فتحها بالمرور */
+                    color: #0d6efd;
+                    background-color: rgba(13, 110, 253, 0.05);
+                }
+
+        /* == Dropdown Menu Customization == */
+        .dropdown-menu {
+            font-family: 'Cairo', sans-serif;
+            border: none;
+            box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.1);
+            border-radius: 8px;
+            margin-top: 0.5rem !important; /* مسافة بسيطة تحت القائمة الرئيسية */
+        }
+
+        .dropdown-item {
+            display: flex;
+            align-items: center;
+            padding: 0.6rem 1.2rem;
+            font-weight: 500;
+            color: #333;
+        }
+
+            .dropdown-item .fa-fw {
+                width: 1.7em; /* عرض ثابت للأيقونة للمحاذاة */
+                margin-inline-end: 0.5rem; /* مسافة بين الأيقونة والنص */
+                opacity: 0.7;
+            }
+
+            .dropdown-item:hover, .dropdown-item:focus {
+                background-color: #0d6efd;
+                color: #fff;
+            }
+
+                .dropdown-item:hover .fa-fw {
+                    opacity: 1;
+                }
+
+        /* == Breadcrumbs Customization == */
         .breadcrumbs {
-            padding: 20px 0;
+            background-color: #e9ecef;
+            padding: 15px 0;
             font-size: 14px;
         }
 
             .breadcrumbs h2 {
-                font-size: 18px;
-                margin-bottom: 10px;
+                font-size: 22px;
+                font-weight: 700;
+                margin: 0;
+                color: #343a40;
             }
 
         .bread-list {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 5px;
-            font-size: 13px;
-        }
-
-            .bread-list li {
-                margin: 0;
-                padding: 0 5px;
-            }
-
-
-        .main-menu .nav.menu {
-            display: flex !important;
-            flex-direction: row;
-            align-items: center;
-            justify-content: flex-start; /* أو center إذا أردت توسط القائمة */
-            gap: 5px; /* تقليل المسافة بين عناصر القائمة الرئيسية */
             padding: 0;
             margin: 0;
+            list-style: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
-            .main-menu .nav.menu li {
-                list-style: none;
-                position: relative; /* مهم للقوائم المنسدلة */
+            .bread-list li.active {
+                font-weight: 600;
+                color: #000;
             }
-
-                /* تنسيق الرابط الرئيسي للقائمة المنسدلة */
-                .main-menu .nav.menu li.dropdown > a.dropdown-toggle::after {
-                    display: inline-block;
-                    margin-left: .255em;
-                    vertical-align: .255em;
-                    content: "";
-                    border-top: .3em solid;
-                    border-right: .3em solid transparent;
-                    border-bottom: 0;
-                    border-left: .3em solid transparent;
-                }
-
-            .main-menu .nav.menu a,
-            .main-menu .nav.menu .dropdown-toggle { /* إضافة dropdown-toggle هنا */
-                text-decoration: none;
-                color: #333; /* لون النص الافتراضي */
-                padding: 10px 12px; /* تعديل الحشوة قليلاً */
-                border-radius: 5px;
-                display: inline-block;
-                transition: background-color 0.3s, color 0.3s;
-            }
-
-                .main-menu .nav.menu a:hover,
-                .main-menu .nav.menu .dropdown-toggle:hover {
-                    background-color: #f0f0f0; /* لون الخلفية عند المرور */
-                    color: #007bff; /* لون النص عند المرور */
-                }
-
-        /* تنسيقات القائمة المنسدلة */
-        .main-menu .dropdown-menu {
-            font-family: 'Cairo', sans-serif; /* ضمان استخدام نفس الخط */
-            border-radius: 5px;
-            box-shadow: 0 .5rem 1rem rgba(0,0,0,.15);
-            border: 1px solid rgba(0,0,0,.1);
-            padding: .5rem 0;
-            min-width: 200px; /* تحديد عرض أدنى للقائمة المنسدلة */
-        }
-
-        .main-menu .dropdown-item {
-            padding: .5rem 1rem; /* حشوة عناصر القائمة المنسدلة */
-            color: #333;
-            font-size: 14px; /* حجم خط عناصر القائمة المنسدلة */
-        }
-
-            .main-menu .dropdown-item:hover {
-                background-color: #007bff; /* لون خلفية العنصر عند المرور */
-                color: #fff; /* لون نص العنصر عند المرور */
-            }
-        /* لإظهار القائمة المنسدلة عند المرور (اختياري، Bootstrap يتطلب نقرة افتراضياً) */
-        /*
-                        .main-menu .nav.menu li.dropdown:hover > .dropdown-menu {
-                            display: block;
-                        }
-                        */
 
     </style>
-    @RenderSection("Styles", required: false)
-    <link rel="stylesheet" href="~/LayoutAjaxApp1.styles.css" asp-append-version="true" />
-    <!---------------Loader Overlay css-------------------->
-    <link href="~/css/loader.css" rel="stylesheet" />
-    <!----------------------------------------------------->
+
+    @await RenderSectionAsync("Styles", required: false)
 </head>
+<body>
 
-<body class="rtl">
-    <header class="header">
-        <div class="topbar">
-            <div class="container">
-                <div class="row">
-                    <div class="col-lg-6 col-md-5 col-12">
-                        @* يمكنك وضع عناصر هنا مثل معلومات الاتصال أو روابط تسجيل الدخول *@
-                    </div>
+    <header>
+        <nav class="navbar navbar-expand-lg navbar-custom">
+            <div class="container-fluid">
+                <!-- Logo -->
+                @* <a class="navbar-brand" asp-controller="Dashboard" asp-action="Index">
+                    <img src="@Url.Content(logoUrl)" alt="Logo @siteName" />
+                </a> *@
+
+                <a class="navbar-brand" asp-controller="Report" asp-action="Chart">
+                    <img src="@Url.Content(ViewBag.LogoUrl)" alt="Logo @ViewBag.SiteName" />
+                </a>
+                <!-- Hamburger Menu Button -->
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar" aria-controls="mainNavbar" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <!-- Navbar Links -->
+                <div class="collapse navbar-collapse" id="mainNavbar">
+                    <!-- me-auto لدفعه إلى اليمين و ms-auto لدفعه لليسار (في RTL) -->
+                    <ul class="navbar-nav mx-auto mb-2 mb-lg-0">
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="Report" asp-action="Chart">
+                                <i class="fa-solid fa-chart-pie fa-fw"></i> لوحة المعلومات
+                            </a>
+                        </li>
+
+                        <!-- قائمة التحكم -->
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fa-solid fa-users-cog fa-fw"></i> التحكم
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" asp-controller="Trainer" asp-action="Index"><i class="fa-solid fa-user-tie fa-fw"></i>المدربون</a></li>
+                                <li><a class="dropdown-item" asp-controller="Trainee" asp-action="Index"><i class="fa-solid fa-users fa-fw"></i>المتدربون</a></li>
+                                <li><a class="dropdown-item" asp-controller="Organizitions" asp-action="Index"><i class="fa-solid fa-building fa-fw"></i>الجهات</a></li>
+                                <li><a class="dropdown-item" asp-controller="Locations" asp-action="Index"><i class="fa-solid fa-map-marker-alt fa-fw"></i>أماكن التدريب</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" asp-controller="AuditLogs" asp-action="Index"><i class="fa-solid fa-history fa-fw"></i>سجل الحركة</a></li>
+                            </ul>
+                        </li>
+
+                        <!-- قائمة الدورات -->
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fa-solid fa-graduation-cap fa-fw"></i> الدورات
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" asp-controller="Courses" asp-action="Index"><i class="fa-solid fa-book fa-fw"></i>تسجيل الدورات</a></li>
+                                <li><a class="dropdown-item" asp-controller="CourseDetails" asp-action="Index"><i class="fa-solid fa-chalkboard-teacher fa-fw"></i>الدورات المنفذة</a></li>
+                                <li><a class="dropdown-item" asp-controller="CourseDetails" asp-action="AnnualPlan"><i class="fa-solid fa-file-invoice fa-fw"></i>تقرير ربع سنوي</a></li>
+                            </ul>
+                        </li>
+
+                        <!-- قائمة الخطة التدريبية -->
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fa-solid fa-calendar-alt fa-fw"></i> الخطة التدريبية
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" asp-controller="PlanCours" asp-action="Index"><i class="fa-solid fa-tasks fa-fw"></i>الخطة السنوية</a></li>
+                                <li><a class="dropdown-item" asp-controller="PlanHeaders" asp-action="Index"><i class="fa-solid fa-archive fa-fw"></i>أرشيف الخطط</a></li>
+                            </ul>
+                        </li>
+
+                        <!-- قائمة الإعدادات -->
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fa-solid fa-cogs fa-fw"></i> الإعدادات
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" asp-controller="Department" asp-action="Index"><i class="fa-solid fa-sitemap fa-fw"></i>الأقسام</a></li>
+                                <li><a class="dropdown-item" asp-controller="Qualification" asp-action="Index"><i class="fa-solid fa-certificate fa-fw"></i>المؤهلات</a></li>
+                                <li><a class="dropdown-item" asp-controller="Specialization" asp-action="Index"><i class="fa-solid fa-atom fa-fw"></i>التخصصات</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" asp-controller="CourseClassification" asp-action="Index"><i class="fa-solid fa-tags fa-fw"></i>المحاور</a></li>
+                                <li><a class="dropdown-item" asp-controller="Level" asp-action="Index"><i class="fa-solid fa-layer-group fa-fw"></i>المستويات</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+
+                    <!-- الجزء الأيسر من القائمة: المستخدم والصلاحيات -->
+                    <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fa-solid fa-user-shield fa-fw"></i> المستخدمين والصلاحيات
+                            </a>
+
+                          
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item"  asp-route-userId="@User" asp-controller="Account" asp-action="UserProfile"><i class="fa-solid fa-user-circle fa-fw"></i>الملف الشخصي</a></li>
+                                <li><a class="dropdown-item" asp-controller="Users" asp-action="Users"><i class="fa-solid fa-users fa-fw"></i>إدارة المستخدمين</a></li>
+                                <li><a class="dropdown-item" asp-controller="Roles" asp-action="Roles"><i class="fa-solid fa-user-tag fa-fw"></i>إدارة الصلاحيات</a></li>
+                            </ul>
+                        </li>
+                    </ul>
                 </div>
             </div>
-        </div>
-
-        <div class="header-inner">
-            <div class="container">
-                <div class="inner">
-                    <div class="row align-items-center">
-                        <div class="col-lg-3 col-md-3 col-12">
-                            <div class="logo" style="max-height: 150px;">
-                                <a href="/">
-                                    <img src="~/img/oo.png" alt="Logo @ViewBag.SiteName" style="max-height: 50px;" />
-                                </a>
-                            </div>
-                        </div>
-                        <div style="max-height: 150px;" class="col-lg-9 col-md-9 col-12">
-                            <div style="max-height: 150px;" class="main-menu">
-                                <nav style="max-height: 150px;" class="navbar navbar-expand-lg navbar-light bg-light rounded shadow-sm">
-                                    <div style="max-height: 150px;" class="container-fluid">
-                                        @* زر التبديل للشاشات الصغيرة (Hamburger Menu) *@
-                                        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbarSupportedContent" aria-controls="mainNavbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-                                            <span class="navbar-toggler-icon"></span>
-                                        </button>
-
-                                        <div style="max-height: 150px;" class="collapse navbar-collapse" id="mainNavbarSupportedContent">
-                                            @* تم تغيير me-auto إلى mx-auto *@
-                                            <ul class="navbar-nav mx-auto mb-2 mb-lg-0">
-                                                <li class="nav-item">
-                                                    <a class="nav-link" aria-current="page" asp-controller="Report" asp-action="Chart">
-                                                        <i class="fas fa-home me-1"></i> الرئيسية
-                                                    </a>
-                                                </li>
-
-                                                @* قائمة التحكم *@
-                                                <li class="nav-item dropdown">
-                                                    <a class="nav-link  dropdown-toggle" href="#" id="controlDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                                        <i class="fas fa-cogs me-1"></i> التحكم
-                                                    </a>
-                                                    <ul class="dropdown-menu" aria-labelledby="controlDropdown">
-                                                        <li><a class="dropdown-item" asp-controller="Trainer" asp-action="Index"><i class="fas fa-user-tie fa-fw me-2"></i>المدربون</a></li>
-                                                        <li><a class="dropdown-item" asp-controller="Trainee" asp-action="Index"><i class="fas fa-users fa-fw me-2"></i>المتدربون</a></li>
-                                                        <li><a class="dropdown-item" asp-controller="Organizitions" asp-action="Index"><i class="fas fa-users fa-fw me-2"></i>الجهات</a></li>
-                                                        <li><a class="dropdown-item" asp-controller="Locations" asp-action="Index"><i class="fas fa-users fa-fw me-2"></i>اماكن التدريب</a></li>
-                                                        <li><a class="dropdown-item" asp-controller="AuditLogs" asp-action="Index"><i class="fas fa-users fa-fw me-2"></i>حركة المستخدمين </a></li>
-                                                    </ul>
-                                                </li>
-
-
-                                                <li class="nav-item dropdown">
-                                                    <a class="nav-link  dropdown-toggle" href="#" id="controlDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                                        <i class="fas fa-cogs me-1"></i> الدورات
-                                                    </a>
-                                                    <ul class="dropdown-menu" aria-labelledby="controlDropdown">
-                                                        <li><a class="dropdown-item" asp-controller="Courses" asp-action="Index"><i class="fas fa-graduation-cap fa-fw me-2"></i>  تسجيل الدورات</a></li>
-                                                        <li><a class="dropdown-item" asp-controller="CourseDetails" asp-action="AnnualPlan"><i class="fas fa-chalkboard-teacher fa-fw me-2"></i>تقرير ربع سنوي</a></li>
-                                                        <li><a class="dropdown-item" asp-controller="CourseDetails" asp-action="Index"><i class="fas fa-chalkboard-teacher fa-fw me-2"></i>الدورات التدريبية </a></li>
-                                                    </ul>
-                                                </li>
-
-
-                                                <li class="nav-item dropdown">
-                                                    <a class="nav-link  dropdown-toggle" href="#" id="controlDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                                        <i class="fas fa-cogs me-1"></i> الخطة التدريبية
-                                                    </a>
-                                                    <ul class="dropdown-menu" aria-labelledby="controlDropdown">
-                                                        <li><a class="dropdown-item" asp-controller="PlanCours" asp-action="Index"><i class="fas fa-chalkboard-teacher fa-fw me-2"></i>الخطة السنوية </a></li>
-                                                        <li><a class="dropdown-item" asp-controller="PlanHeaders" asp-action="Index"><i class="fas fa-chalkboard-teacher fa-fw me-2"></i>الارشيف</a></li>
-                                                    </ul>
-                                                </li>
-
-
-                                                @* قائمة الإعدادات *@
-                                                <li class="nav-item dropdown">
-                                                    <a class="nav-link dropdown-toggle" href="#" id="settingsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                                        <i class="fas fa-tools me-1"></i> الإعدادات
-                                                    </a>
-                                                    <ul class="dropdown-menu" aria-labelledby="settingsDropdown">
-                                                        <li><a class="dropdown-item" asp-controller="Department" asp-action="Index"><i class="fas fa-building fa-fw me-2"></i>الأقسام</a></li>
-                                                        <li><a class="dropdown-item" asp-controller="Qualification" asp-action="Index"><i class="fas fa-certificate fa-fw me-2"></i>المؤهلات</a></li>
-                                                        <li><a class="dropdown-item" asp-controller="Specialization" asp-action="Index"><i class="fas fa-atom fa-fw me-2"></i>التخصصات</a></li>
-                                                        <li><hr class="dropdown-divider"></li>
-                                                        <li><a class="dropdown-item" asp-controller="CourseClassification" asp-action="Index"><i class="fas fa-tags fa-fw me-2"></i>المحاور</a></li>
-                                                        <li><a class="dropdown-item" asp-controller="Level" asp-action="Index"><i class="fas fa-layer-group fa-fw me-2"></i>المستويات</a></li>
-                                                    </ul>
-                                                </li>
-
-                                            <li class="nav-item dropdown">
-                                                <a class="nav-link  dropdown-toggle" href="#" id="controlDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                                    <i class="fas fa-cogs me-1"></i> المستخدمين
-                                                </a>
-                                                <ul class="dropdown-menu" aria-labelledby="controlDropdown">
-                                                    <li> <a class="dropdown-item" asp-controller="Account"  asp-action="UserProfile"><i class="fas fa-graduation-cap fa-fw me-2"></i>الملف الشخصي</a></li>
-                                                        <li><a class="dropdown-item" asp-controller="Users" asp-action="Users"><i class="fas fa-users fa-fw me-2"></i>Users</a></li>
-                                                        <li><a class="dropdown-item" asp-controller="Roles" asp-action="Roles"><i class="fas fa-users fa-fw me-2"></i>Roles</a></li>
-                                                </ul>
-                                            </li>
-
-                                            </ul>
-
-             
-                                        </div>
-                                    </div>
-                                </nav>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+        </nav>
     </header>
 
-    <div class="breadcrumbs overlay">
-        <div class="container">
-            <div class="bread-inner">
-                <div class="row">
-                    <div class="col-12">
+    <main role="main" class="pb-3">
+        @* @if (ViewData["Title"].ToString() != "لوحة المعلومات")
+        {
+            <div class="breadcrumbs">
+                <div class="container">
+                    <div class="d-flex justify-content-between align-items-center">
                         <h2>@ViewData["Title"]</h2>
-                        <ul class="bread-list">
-                            <li> <i class="fas fa-tachometer-alt"></i> لوحة التحكم</a></li>
-                            <li><i class="icofont-simple-left"></i></li>
+                        <ol class="bread-list">
+                            <li><a href="/" class="text-decoration-none"><i class="fa-solid fa-home"></i> الرئيسية</a></li>
                             <li class="active">@BreadcrumbHelper.GetControllerDisplayName(ViewContext)</li>
-                        </ul>
+                        </ol>
                     </div>
                 </div>
             </div>
+        } *@
+
+        <div class="container-fluid mt-4">
+            @RenderBody()
         </div>
-    </div>
+    </main>
 
-    <div class="">
-        @RenderBody()
-    </div>
+    @* <partial name="Partial/_footer" /> *@
 
-    <partial name="Partial/_footer" />
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
 
-    <!-- Scripts -->
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+    <!-- Bootstrap 5 Bundle (includes Popper.js) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
 
-    <script src="~/js/jquery-migrate.js"></script> <!-- للمساعدة في توافق الإضافات القديمة -->
-    @* سكربتات الإضافات التي تعتمد على jQuery *@
-    <script src="~/js/easing.js"></script>
-    <script src="~/js/bootstrap-datepicker.js"></script>
-    <script src="~/js/jquery.nav.js"></script>
-    <script src="~/js/slicknav.min.js"></script>
-    <script src="~/js/jquery.scrollUp.min.js"></script>
-    <script src="~/js/niceselect.js"></script>
-    <script src="~/js/tilt.jquery.min.js"></script>
-    <script src="~/js/owl-carousel.js"></script>
-    <script src="~/js/jquery.counterup.min.js"></script>
-    <script src="~/js/waypoints.min.js"></script>
-    <script src="~/js/steller.js"></script> @* تأكد أن هذا الملف موجود وسليم *@
-    <script src="~/js/wow.min.js"></script>
-    <script src="~/js/jquery.magnific-popup.min.js"></script>
+    <!-- DataTables -->
+    <script src="~/lib/datatables.net/js/jquery.dataTables.min.js"></script>
+    <script src="~/lib/datatables.net-bs5/js/dataTables.bootstrap5.min.js"></script>
 
-    <!--------------------SPA AJAX------------------------->
+    <!-- SPA AJAX Script -->
     <script src="~/js/layoutAjax-spa.js" asp-append-version="true"></script>
 
-    @* main.js يجب أن يكون من بين آخر السكربتات لأنه قد يقوم بتهيئة الإضافات المذكورة أعلاه *@
-    <script src="~/js/main.js" asp-append-version="true"></script>
-    <script src="~/lib/datatables.net-responsive/js/dataTables.responsive.min.js"></script>
-    <script src="~/lib/datatables.net-responsive-bs5/js/responsive.bootstrap5.min.js"></script>
-
-    @section Styles {
-        <style>
-            .navbar {
-                padding-top: 0.8rem;
-                padding-bottom: 0.8rem;
-            }
-
-                .navbar .nav-link {
-                    font-weight: 500;
-                    color: #495057; /* لون نص داكن قليلاً */
-                    padding-right: 1rem;
-                    padding-left: 1rem;
-                }
-
-                    .navbar .nav-link:hover,
-                    .navbar .nav-link.active {
-                        color: #007bff; /* لون أساسي للتحويم والعنصر النشط */
-                    }
-
-                    .navbar .nav-link.dropdown-toggle::after {
-                        margin-left: .255em; /* لـ RTL، يجب أن يكون السهم على اليسار */
-                        margin-right: 0;
-                    }
-
-
-            .dropdown-menu {
-                border: none;
-                box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
-                border-radius: 0.3rem;
-            }
-
-            .dropdown-item {
-                padding: 0.5rem 1.2rem;
-                font-weight: 400;
-            }
-
-                .dropdown-item:hover {
-                    background-color: #f8f9fa;
-                    color: #0056b3;
-                }
-
-                .dropdown-item i.fa-fw {
-                    width: 1.5em; /* لضمان محاذاة النص بعد الأيقونات ذات العرض الثابت */
-                    text-align: center;
-                }
-
-            .navbar-toggler {
-                border-color: rgba(0,0,0,.1);
-            }
-
-            .navbar-toggler-icon {
-                background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%280, 0, 0, 0.55%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
-            }
-
-            /* إذا كنت تريد تغيير لون الناف بار إلى لون أغمق مثلاً */
-            /*
-                            .navbar-custom {
-                                background-color: #343a40 !important;
-                            }
-                            .navbar-custom .nav-link {
-                                color: rgba(255,255,255,.75);
-                            }
-                            .navbar-custom .nav-link:hover,
-                            .navbar-custom .nav-link.active {
-                                color: #fff;
-                            }
-                            .navbar-custom .navbar-toggler-icon {
-                                background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%28255, 255, 255, 0.75%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
-                            }
-                            .navbar-custom .dropdown-menu {
-                                background-color: #343a40;
-                            }
-                            .navbar-custom .dropdown-item {
-                                color: rgba(255,255,255,.75);
-                            }
-                            .navbar-custom .dropdown-item:hover {
-                                background-color: #495057;
-                                color: #fff;
-                            }
-                            .navbar-custom .dropdown-divider {
-                                border-top: 1px solid rgba(255,255,255,.15);
-                            }
-                            */
-            /* لاستخدام الثيم المخصص أعلاه، غير الكلاس في <nav> إلى navbar-custom بدلاً من navbar-light bg-light */
-
-        </style>
-    }
-
-    @RenderSection("Scripts", required: false)
+    @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

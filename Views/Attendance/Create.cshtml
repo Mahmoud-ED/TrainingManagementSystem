@@ -1,0 +1,35 @@
+@model TrainingManagementSystem.Models.Entities.Attendance
+@{
+    ViewData["Title"] = "????? ????";
+}
+
+<h2>????? ???? ????</h2>
+<form asp-action="Create" method="post">
+    <div class="mb-3">
+        <label asp-for="CourseDetailsId" class="form-label"></label>
+        <select asp-for="CourseDetailsId" class="form-select" asp-items="ViewBag.CourseDetailsList"></select>
+    </div>
+    <div class="mb-3">
+        <label asp-for="TraineeId" class="form-label"></label>
+        <select asp-for="TraineeId" class="form-select" asp-items="ViewBag.TraineeList"></select>
+    </div>
+    <div class="mb-3">
+        <label asp-for="AttendanceDate" class="form-label"></label>
+        <input asp-for="AttendanceDate" class="form-control" type="date" />
+    </div>
+    <div class="mb-3">
+        <label asp-for="Status" class="form-label"></label>
+        <select asp-for="Status" class="form-select">
+            <option value="Present">????</option>
+            <option value="Absent">????</option>
+            <option value="Late">?????</option>
+            <option value="Excused">????</option>
+        </select>
+    </div>
+    <div class="mb-3">
+        <label asp-for="Notes" class="form-label"></label>
+        <input asp-for="Notes" class="form-control" />
+    </div>
+    <button type="submit" class="btn btn-success">???</button>
+    <a asp-action="Index" class="btn btn-secondary">????</a>
+</form>

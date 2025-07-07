@@ -10,6 +10,10 @@ namespace TrainingManagementSystem.Models.Entities
         [StringLength(200)]
         public string Name { get; set; }
 
+
+        [StringLength(100)]
+        public string NUM { get; set; }
+
         //-----------------------------------------------------------
         [ValidateNever]
         public Category Category { get; set; }
@@ -26,7 +30,6 @@ namespace TrainingManagementSystem.Models.Entities
         [StringLength(100)]
         public string ChiefTitle { get; set; }
 
-        [RegularExpression(@"^\d{14}$", ErrorMessage = "The phone number must consist of 14 digits.")]
         public string PhoneNo { get; set; }
 
         [EmailAddress]

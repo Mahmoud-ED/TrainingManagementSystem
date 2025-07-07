@@ -1,381 +1,382 @@
-﻿@model ReportChartViewModel
-
-@{
-    ViewData["Title"] = "لوحة تحكم التقارير";
+﻿@{
+    ViewData["Title"] = "لوحة المعلومات";
 }
 
 @section Styles {
-    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" />
+    <!-- لرموز الأيقونات في البطاقات -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
-        .chart-container {
-            position: relative;
-            margin: auto;
-            height: 350px; /* تعديل الارتفاع حسب الحاجة */
-            width: 100%;
-            background-color: #fff;
+        body {
+            background-color: #f4f7f6;
+        }
+
+        .kpi-card {
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            transition: transform 0.2s;
+        }
+
+            .kpi-card:hover {
+                transform: translateY(-5px);
+            }
+
+        .kpi-icon {
+            font-size: 2rem;
             padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-            margin-bottom: 2rem;
+            border-radius: 50%;
+            color: #fff;
         }
 
-        .filter-section {
-            background-color: #f8f9fa;
+        .chart-card {
+            background-color: #fff;
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
             padding: 1.5rem;
-            border-radius: .5rem;
-            margin-bottom: 2rem;
-            border: 1px solid #dee2e6;
         }
 
-        .select2-container--bootstrap-5 .select2-selection {
-            min-height: calc(1.5em + .75rem + 2px);
-            padding: .375rem .75rem;
-            font-size: 1rem;
-            font-weight: 400;
-            line-height: 1.5;
-        }
-
-        .loading-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: rgba(255, 255, 255, 0.7);
-            z-index: 10;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 8px; /* ليتناسب مع حاوية المخطط */
+        /* تخصيص ألوان ApexCharts (اختياري) */
+        .apexcharts-tooltip {
+            background: #2c3e50 !important;
+            color: white;
+            border: none !important;
         }
     </style>
 }
 
-<div class="container-fluid mt-4 mb-5">
-    <div class="page-header mb-4 d-flex justify-content-between align-items-center">
-        <h1 class="h3"><i class="fas fa-chart-line me-2"></i>@ViewData["Title"]</h1>
-        <button id="refreshChartsBtn" class="btn btn-outline-primary">
-            <i class="fas fa-sync-alt me-1"></i> تحديث الآن
-        </button>
+<div class="container-fluid py-4">
+    <!-- عنوان الصفحة -->
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">لوحة المعلومات</h1>
     </div>
 
-    <!-- قسم الفلاتر -->
-    <div class="filter-section shadow-sm">
-        <h5 class="mb-3"><i class="fas fa-filter me-2"></i>خيارات الفلترة</h5>
-        <form id="filterForm" method="get" asp-action="Chart">
-            <div class="row g-3">
-                <div class="col-md-3">
-                    <label asp-for="StartDateFilter" class="form-label"></label>
-                    <input asp-for="StartDateFilter" type="date" class="form-control form-control-sm" />
-                </div>
-                <div class="col-md-3">
-                    <label asp-for="EndDateFilter" class="form-label"></label>
-                    <input asp-for="EndDateFilter" type="date" class="form-control form-control-sm" />
-                </div>
-                <div class="col-md-3">
-                    <label asp-for="CourseClassificationIdFilter" class="form-label"></label>
-                    <select asp-for="CourseClassificationIdFilter" asp-items="Model.CourseClassifications" class="form-select form-select-sm select2-filter">
-                        <option value="">-- كل التصنيفات --</option>
-                    </select>
-                </div>
-                <div class="col-md-3">
-                    <label asp-for="StatusIdFilter" class="form-label"></label>
-                    <select asp-for="StatusIdFilter" asp-items="Model.Statuses" class="form-select form-select-sm select2-filter">
-                        <option value="">-- كل الحالات --</option>
-                    </select>
-                </div>
-                <div class="col-md-12 text-end mt-3">
-                    <button type="submit" class="btn btn-primary btn-sm">
-                        <i class="fas fa-check me-1"></i> تطبيق الفلاتر
-                    </button>
-                    <a asp-action="Chart" class="btn btn-outline-secondary btn-sm">
-                        <i class="fas fa-eraser me-1"></i> مسح الفلاتر
-                    </a>
-                </div>
-            </div>
-        </form>
+    <!-- صف مؤشرات الأداء الرئيسية (KPIs) -->
+    <div class="row" id="kpi-container">
+        <!-- سيتم ملء البطاقات هنا عبر JavaScript -->
     </div>
 
-    <!-- قسم المخططات -->
+    <!-- صف المخططات -->
     <div class="row mt-4">
-        <div class="col-lg-6">
-            <div class="chart-container" id="traineesPerStatusContainer">
-                <div class="loading-overlay" style="display:none;"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div></div>
-                <h5 class="text-center mb-3">عدد المتدربين حسب حالة الدورة</h5>
-                <canvas id="traineesPerStatusChart"></canvas>
+        <!-- مخطط الجهات -->
+        <div class="col-xl-6 col-lg-7 mb-4">
+            <div class="chart-card">
+                <h5 class="mb-3">أبرز الجهات المشاركة</h5>
+                <div id="top-organizations-chart-container">
+                    <div class="text-center p-5"><div class="spinner-border text-primary" role="status"></div></div>
+                </div>
             </div>
         </div>
-        <div class="col-lg-6">
-            <div class="chart-container" id="coursesPerClassificationContainer">
-                <div class="loading-overlay" style="display:none;"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div></div>
-                <h5 class="text-center mb-3">عدد الدورات حسب المحور</h5>
-                <canvas id="coursesPerClassificationChart"></canvas>
-            </div>
-        </div>
-        <div class="col-lg-12">
-            @* يمكن جعله أعرض *@
-            <div class="chart-container" id="averageGradePerCourseContainer">
-                <div class="loading-overlay" style="display:none;"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div></div>
-                <h5 class="text-center mb-3">متوسط الدرجات لكل دورة (أعلى 10)</h5>
-                <canvas id="averageGradePerCourseChart"></canvas>
-            </div>
-        </div>
-        @* أضف المزيد من حاويات المخططات هنا *@
 
-
-        <div class="col-lg-12">
-            <div class="chart-container" id="traineesPerCourseDetailContainer">
-                <div class="loading-overlay" style="display:none;"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div></div>
-                <h5 class="text-center mb-3">عدد المتدربين في كل دورة (أعلى 15)</h5>
-                <canvas id="traineesPerCourseDetailChart"></canvas>
+        <!-- مخطط المدربين -->
+        <div class="col-xl-6 col-lg-5 mb-4">
+            <div class="chart-card">
+                <h5 class="mb-3">أفضل المدربين أداءً (حسب تقييم المتدربين)</h5>
+                <div id="top-trainers-chart-container">
+                    <div class="text-center p-5"><div class="spinner-border text-primary" role="status"></div></div>
+                </div>
             </div>
         </div>
     </div>
+
+    <!-- مخطط تطور عدد المتدربين -->
+    <div class="row mt-2">
+        <div class="col-12">
+            <div class="chart-card">
+                <h5 class="mb-3">تطور عدد المتدربين المسجلين شهرياً</h5>
+                <div id="trainee-enrollment-chart-container">
+                    <div class="text-center p-5"><div class="spinner-border text-primary" role="status"></div></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="row mt-4">
+        <div class="col-12">
+            <h3 class="h4 mb-3 text-gray-800">تحليل الخطة التدريبية للعام الحالي</h3>
+        </div>
+
+        <!-- المخطط الدائري للمقارنة -->
+        <div class="col-lg-4 col-md-6 mb-4">
+            <div class="chart-card h-100">
+                <h5 class="mb-3">نسبة إنجاز الخطة</h5>
+                <div id="plan-analysis-chart-container">
+                    <div class="text-center p-5"><div class="spinner-border text-primary" role="status"></div></div>
+                </div>
+                <div class="mt-3 text-center" id="plan-analysis-summary">
+                    <!-- ملخص الأرقام سيظهر هنا -->
+                </div>
+            </div>
+        </div>
+
+        <!-- قائمة الدورات وحالتها -->
+        <div class="col-lg-8 col-md-6 mb-4">
+            <div class="chart-card h-100">
+                <h5 class="mb-3">تفاصيل الدورات المخطط لها</h5>
+                <div class="table-responsive" id="plan-details-table-container" style="max-height: 400px; overflow-y: auto;">
+                    <div class="text-center p-5"><div class="spinner-border text-primary" role="status"></div></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
 </div>
 
+
 @section Scripts {
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-    @* يمكنك إضافة Moment.js هنا إذا كنت بحاجة لتنسيقات تواريخ متقدمة في الـ tooltips
-    <script src="https://cdn.jsdelivr.net/npm/moment@2.29.4/moment.min.js"></script>
-    *@
-
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
     <script>
-        // استخدام كائن لتخزين جميع كائنات المخططات
-        const charts = {};
-        let autoRefreshTimerId; // لتخزين ID المؤقت لـ setTimeout
-        const autoRefreshInterval = 30000; // 30 ثانية للتحديث التلقائي
-
-        // دالة لتوليد الألوان
-        function generateColors(count, forSingleDataset = false) {
-            const baseColors = [ // لوحة ألوان أساسية ومحسنة قليلاً
-                'rgba(54, 162, 235, 0.8)', 'rgba(255, 99, 132, 0.8)', 'rgba(255, 206, 86, 0.8)',
-                'rgba(75, 192, 192, 0.8)', 'rgba(153, 102, 255, 0.8)', 'rgba(255, 159, 64, 0.8)',
-                'rgba(199, 199, 199, 0.8)', 'rgba(83, 102, 255, 0.8)', 'rgba(40, 159, 64, 0.8)',
-                'rgba(255, 102, 0, 0.8)', 'rgba(50, 205, 50, 0.8)', 'rgba(138, 43, 226, 0.8)'
-            ];
-            if (forSingleDataset && count > 0) { // لون واحد لمجموعة بيانات واحدة في مخطط شريطي/خطي
-                return [baseColors[0]]; // استخدام أول لون كافتراضي للمخططات الشريطية
-            }
-            const colors = [];
-            for (let i = 0; i < count; i++) {
-                colors.push(baseColors[i % baseColors.length]); // تدوير الألوان
-            }
-            return colors;
+        // دالة لعرض الأرقام مع فواصل الآلاف
+        function formatNumber(num) {
+            return num.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')
         }
 
-        function showLoading(containerId) {
-            $('#' + containerId + ' .loading-overlay').stop().fadeIn(200);
+        // 1. جلب بيانات مؤشرات الأداء الرئيسية
+        function loadKpiData() {
+            $.ajax({
+                url: '/Report/GetKpiData',
+                success: function (data) {
+                    const kpiHtml = `
+                        <div class="col-xl-3 col-md-6 mb-4">
+                            <div class="card kpi-card border-left-primary shadow h-100 py-2">
+                                <div class="card-body">
+                                    <div class="row no-gutters align-items-center">
+                                        <div class="col mr-2">
+                                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">دورات هذا العام</div>
+                                            <div class="h5 mb-0 font-weight-bold text-gray-800">${formatNumber(data.totalCourses)}</div>
+                                        </div>
+                                        <div class="col-auto"><i class="fas fa-calendar fa-2x text-gray-300"></i></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xl-3 col-md-6 mb-4">
+                            <div class="card kpi-card border-left-success shadow h-100 py-2">
+                                <div class="card-body">
+                                    <div class="row no-gutters align-items-center">
+                                        <div class="col mr-2">
+                                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">إجمالي المتدربين</div>
+                                            <div class="h5 mb-0 font-weight-bold text-gray-800">${formatNumber(data.totalTrainees)}</div>
+                                        </div>
+                                        <div class="col-auto"><i class="fas fa-users fa-2x text-gray-300"></i></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                         <div class="col-xl-3 col-md-6 mb-4">
+                            <div class="card kpi-card border-left-info shadow h-100 py-2">
+                                <div class="card-body">
+                                    <div class="row no-gutters align-items-center">
+                                        <div class="col mr-2">
+                                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">متوسط الحضور</div>
+                                            <div class="h5 mb-0 font-weight-bold text-gray-800">${data.averageAttendance}%</div>
+                                        </div>
+                                        <div class="col-auto"><i class="fas fa-clipboard-list fa-2x text-gray-300"></i></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xl-3 col-md-6 mb-4">
+                            <div class="card kpi-card border-left-warning shadow h-100 py-2">
+                                <div class="card-body">
+                                    <div class="row no-gutters align-items-center">
+                                        <div class="col mr-2">
+                                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">الجهات النشطة</div>
+                                            <div class="h5 mb-0 font-weight-bold text-gray-800">${formatNumber(data.activeOrganizations)}</div>
+                                        </div>
+                                        <div class="col-auto"><i class="fas fa-building fa-2x text-gray-300"></i></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    $('#kpi-container').html(kpiHtml);
+                }
+            });
         }
-        function hideLoading(containerId) {
-            $('#' + containerId + ' .loading-overlay').stop().fadeOut(200);
+
+        // 2. جلب ورسم مخطط الجهات
+        function loadTopOrganizationsChart() {
+             $.ajax({
+                url: '/Report/GetTopOrganizationsChart',
+                success: function (data) {
+                    if(data.series.length === 0){
+                         $('#top-organizations-chart-container').html('<p class="text-muted text-center p-5">لا توجد بيانات كافية لعرض المخطط.</p>');
+                         return;
+                    }
+                    var options = {
+                        chart: { type: 'donut', height: 350, fontFamily: 'Tajawal, sans-serif' },
+                        series: data.series,
+                        labels: data.labels,
+                        dataLabels: { enabled: true, formatter: (val) => val.toFixed(1) + '%' },
+                        legend: { position: 'bottom' },
+                        colors: ['#008FFB', '#00E396', '#FEB019', '#FF4560', '#775DD0', '#546E7A', '#26a69a', '#D10CE8', '#FF66C3', '#4ECDC4']
+                    };
+                    $('#top-organizations-chart-container').empty();
+                    var chart = new ApexCharts(document.querySelector("#top-organizations-chart-container"), options);
+                    chart.render();
+                }
+            });
         }
 
-        // دالة عامة لتحديث المخططات
-        function updateChart(chartKey, chartId, chartType, chartDataFromServer, defaultLabel) {
-            const ctx = document.getElementById(chartId).getContext('2d');
-            if (charts[chartKey]) {
-                charts[chartKey].destroy();
-            }
+        // 3. جلب ورسم مخطط المدربين
+        function loadTopTrainersChart() {
+            $.ajax({
+                url: '/Report/GetTopTrainersChart',
+                success: function (data) {
+                    if(data.series.length === 0){
+                         $('#top-trainers-chart-container').html('<p class="text-muted text-center p-5">لا توجد بيانات كافية لعرض المخطط.</p>');
+                         return;
+                    }
+                    var options = {
+                        series: [{ name: 'متوسط التقييم', data: data.series }],
+                        chart: { type: 'bar', height: 350, fontFamily: 'Tajawal, sans-serif' },
+                        plotOptions: { bar: { borderRadius: 4, horizontal: true, } },
+                        dataLabels: { enabled: true, formatter: (val) => val + ' / 100' },
+                        xaxis: { categories: data.labels, },
+                        tooltip: { y: { formatter: (val) => val + ' درجة' } },
+                        colors: ['#17a2b8']
+                    };
+                    $('#top-trainers-chart-container').empty();
+                    var chart = new ApexCharts(document.querySelector("#top-trainers-chart-container"), options);
+                    chart.render();
+                }
+            });
+        }
 
-            const isPieOrDoughnut = chartType === 'pie' || chartType === 'doughnut';
-            // تحديد إذا كان المخطط يجب أن يكون أفقيًا (خاصة للمخططات الشريطية ذات التسميات الطويلة)
-            let currentXAxis = 'x';
-            let currentYAxis = 'y';
-            let indexAxisOption = 'x';
+        // 4. جلب ورسم مخطط تطور المتدربين
+        function loadTraineeEnrollmentChart() {
+            $.ajax({
+                url: '/Report/GetTraineeEnrollmentChart',
+                success: function (data) {
+                     if(data.series.length === 0){
+                         $('#trainee-enrollment-chart-container').html('<p class="text-muted text-center p-5">لا توجد بيانات كافية لعرض المخطط.</p>');
+                         return;
+                    }
+                    var options = {
+                        series: [{ name: 'عدد المتدربين', data: data.series }],
+                        chart: { type: 'area', height: 350, fontFamily: 'Tajawal, sans-serif', zoom: { enabled: false } },
+                        dataLabels: { enabled: false },
+                        stroke: { curve: 'smooth' },
+                        xaxis: { type: 'category', categories: data.labels },
+                        tooltip: { x: { format: 'MMM yyyy' } },
+                        colors: ['#007bff']
+                    };
+                    $('#trainee-enrollment-chart-container').empty();
+                    var chart = new ApexCharts(document.querySelector("#trainee-enrollment-chart-container"), options);
+                    chart.render();
+                }
+            });
+        }
 
-            // اجعل المخططات الشريطية التي قد تحتوي على تسميات طويلة أفقية
-            if (chartType === 'bar' && (chartId === 'averageGradePerCourseChart' || chartId === 'traineesPerCourseDetailChart')) {
-                 indexAxisOption = 'y';
-            }
 
-            const backgroundColors = generateColors(chartDataFromServer.labels.length, !isPieOrDoughnut);
-            const borderColors = backgroundColors.map(c => c.replace('0.8', '1'));
+             function loadPlanAnalysis() {
+            $.ajax({
+                url: '/Report/GetPlanVsActualAnalysis',
+                success: function (data) {
+                    // تحقق من وجود بيانات
+                    if (data.details.length === 0) {
+                        $('#plan-analysis-chart-container').html('<p class="text-muted text-center p-5">لا توجد خطة تدريبية لهذا العام.</p>');
+                        $('#plan-details-table-container').html('<p class="text-muted text-center p-5">لا توجد بيانات لعرضها.</p>');
+                        return;
+                    }
 
-            charts[chartKey] = new Chart(ctx, {
-                type: chartType,
-                data: {
-                    labels: chartDataFromServer.labels,
-                    datasets: [{
-                        label: chartDataFromServer.label || defaultLabel,
-                        data: chartDataFromServer.data,
-                        backgroundColor: backgroundColors, // ستكون مصفوفة ألوان لـ pie/doughnut, أو لون واحد لـ bar/line
-                        borderColor: borderColors,
-                        borderWidth: 1,
-                        // يمكنك إضافة تخصيصات هنا مثل barThickness للمخططات الشريطية
-                        // barThickness: chartType === 'bar' ? 25 : undefined,
-                    }]
-                },
-                options: {
-                    indexAxis: indexAxisOption, // مهم للمخططات الشريطية الأفقية
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: (chartType === 'bar' || chartType === 'line') ? {
-                        // تحديد المحاور بناءً على indexAxis
-                        [indexAxisOption === 'x' ? 'y' : 'x']: { // هذا هو محور القيم
-                            beginAtZero: true,
-                            ticks: {
-                                precision: 0,
-                                // callback: function(value) { return Number.isInteger(value) ? value : null; } // لإخفاء العلامات غير الصحيحة
-                            }
+                    // 1. رسم المخطط الدائري (Radial Bar)
+                    var radialOptions = {
+                        chart: {
+                            height: 250,
+                            type: "radialBar",
                         },
-                        [indexAxisOption === 'x' ? 'x' : 'y']: { // هذا هو محور الفئات/التسميات
-                            ticks: {
-                                autoSkip: chartId === 'averageGradePerCourseChart' || chartId === 'traineesPerCourseDetailChart' ? false : true, // لا تتخطى التسميات إذا كانت أفقية
-                                maxRotation: indexAxisOption === 'x' ? 45 : 0, // تدوير التسميات إذا كانت عمودية وطويلة
-                                minRotation: indexAxisOption === 'x' ? 45 : 0
-                            }
-                        }
-                    } : {},
-                    plugins: {
-                        legend: {
-                            position: 'top',
-                            display: isPieOrDoughnut, // عرضها فقط للمخططات الدائرية بشكل افتراضي
-                        },
-                        tooltip: {
-                            backgroundColor: 'rgba(0,0,0,0.85)',
-                            titleColor: '#fff',
-                            bodyColor: '#fff',
-                            titleFont: { size: 14, weight: 'bold' },
-                            bodyFont: { size: 12 },
-                            padding: 10,
-                            cornerRadius: 4,
-                            callbacks: {
-                                title: function (tooltipItems) {
-                                    // يعرض الـ label من المحور مباشرة
-                                    return tooltipItems[0].label;
+                        series: [data.percentage],
+                        colors: ["#20E647"],
+                        plotOptions: {
+                            radialBar: {
+                                startAngle: -90,
+                                endAngle: 90,
+                                track: {
+                                    background: '#e7e7e7',
+                                    strokeWidth: '97%',
+                                    margin: 5,
                                 },
-                                label: function (context) {
-                                    let val = context.formattedValue;
-                                    let datasetLabel = context.dataset.label || '';
-                                    if (isPieOrDoughnut) {
-                                        // لـ Pie/Doughnut، الـ context.label هو التسمية من البيانات
-                                        return `${context.label}: ${val}`;
+                                dataLabels: {
+                                    name: { show: false },
+                                    value: {
+                                        offsetY: -2,
+                                        fontSize: "22px"
                                     }
-                                    // لـ Bar/Line، اسم مجموعة البيانات ثم القيمة
-                                    return `${datasetLabel}: ${val}`;
                                 }
                             }
-                        }
-                    }
+                        },
+                        fill: {
+                            type: "gradient",
+                            gradient: {
+                                shade: "light",
+                                shadeIntensity: 0.4,
+                                inverseColors: false,
+                                opacityFrom: 1,
+                                opacityTo: 1,
+                                stops: [0, 50, 53, 91]
+                            }
+                        },
+                        labels: ["نسبة الإنجاز"]
+                    };
+
+                    $('#plan-analysis-chart-container').empty();
+                    var radialChart = new ApexCharts(document.querySelector("#plan-analysis-chart-container"), radialOptions);
+                    radialChart.render();
+
+                    // إضافة ملخص الأرقام تحت المخطط
+                    const summaryHtml = `
+                        <span class="me-2"><i class="fas fa-check-circle text-success"></i> تم التنفيذ: <strong>${data.executedCount}</strong></span>
+                        <span class="me-2"><i class="fas fa-hourglass-start text-primary"></i> قادمة: <strong>${data.upcomingCount}</strong></span>
+                        <span class="me-2"><i class="fas fa-exclamation-circle text-danger"></i> لم تنفذ: <strong>${data.notExecutedCount}</strong></span>
+                    `;
+                    $('#plan-analysis-summary').html(summaryHtml);
+
+
+                    // 2. بناء الجدول التفصيلي
+                    let tableHtml = `
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>الدورة التدريبية</th>
+                                    <th>التاريخ المخطط</th>
+                                    <th>الحالة</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                    `;
+
+                    data.details.forEach(item => {
+                        tableHtml += `
+                            <tr>
+                                <td>${item.courseName}</td>
+                                <td>${item.plannedDate}</td>
+                                <td><span class="badge bg-${item.statusColor}">${item.status}</span></td>
+                            </tr>
+                        `;
+                    });
+
+                    tableHtml += '</tbody></table>';
+
+                    $('#plan-details-table-container').html(tableHtml);
+
+                },
+                error: function(error) {
+                    console.error("Error fetching plan analysis data:", error);
                 }
             });
         }
 
-        function loadAndRenderCharts() {
-            const startDate = $('#StartDateFilter').val();
-            const endDate = $('#EndDateFilter').val();
-            const classificationId = $('#CourseClassificationIdFilter').val();
-            const statusId = $('#StatusIdFilter').val();
-
-            const activeChartContainers = [
-                'traineesPerStatusContainer',
-                'coursesPerClassificationContainer',
-                'averageGradePerCourseContainer',
-                'traineesPerCourseDetailContainer' // إضافة الحاوية الجديدة
-            ];
-            activeChartContainers.forEach(id => showLoading(id));
-
-            // إلغاء المؤقت القديم إذا كان موجودًا قبل بدء طلب جديد
-            if (autoRefreshTimerId) clearTimeout(autoRefreshTimerId);
-
-            $.ajax({
-                url: '@Url.Action("GetChartData", "Report")',
-                type: 'GET',
-                data: {
-                    startDateFilter: startDate,
-                    endDateFilter: endDate,
-                    courseClassificationIdFilter: classificationId,
-                    statusIdFilter: statusId
-                },
-                success: function (response) {
-                    if (response) {
-                        // تحديث المخطط الأول: عدد المتدربين حسب حالة الدورة
-                        updateChart('traineesPerStatus', 'traineesPerStatusChart', 'doughnut', response.traineesPerCourseStatusData, 'عدد المتدربين حسب الحالة');
-
-                        // تحديث المخطط الثاني: عدد الدورات حسب المحور
-                        updateChart('coursesPerClassification', 'coursesPerClassificationChart', 'pie', response.coursesCountPerClassificationData, 'عدد الدورات حسب المحور');
-
-                        // تحديث المخطط الثالث: متوسط الدرجات لكل دورة
-                        updateChart('averageGradePerCourse', 'averageGradePerCourseChart', 'bar', response.averageGradePerCourseData, 'متوسط الدرجات لكل دورة');
-
-                        // تحديث المخطط الرابع (الجديد): عدد المتدربين في كل دورة
-                        if (response.traineesPerCourseDetailData) { // تحقق من وجود البيانات
-                             updateChart('traineesPerCourseDetail', 'traineesPerCourseDetailChart', 'bar', response.traineesPerCourseDetailData, 'عدد المتدربين في كل دورة');
-                        } else {
-                            console.warn("traineesPerCourseDetailData is missing in the response.");
-                            // يمكنك إخفاء حاوية المخطط أو عرض رسالة "لا توجد بيانات"
-                            $('#traineesPerCourseDetailContainer canvas').hide();
-                            $('#traineesPerCourseDetailContainer').append('<p class="text-center text-muted mt-5">لا توجد بيانات لهذا المخطط حاليًا.</p>');
-                        }
-
-                    } else {
-                         console.warn("AJAX response was empty or invalid.");
-                    }
-                },
-                error: function (xhr, status, error) {
-                    console.error("Error fetching chart data:", status, error, xhr.responseText);
-                    // استخدام نظام إشعارات أكثر احترافية (مثل Toastr) بدلاً من alert
-                    // مثال بسيط:
-                    $('#page-alerts').html('<div class="alert alert-danger alert-dismissible fade show" role="alert">حدث خطأ أثناء تحميل بيانات المخططات. يرجى المحاولة مرة أخرى.<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>');
-                },
-                complete: function() {
-                    activeChartContainers.forEach(id => hideLoading(id));
-                    // إعادة جدولة التحديث التلقائي
-                    scheduleAutoRefresh();
-                }
-            });
-        }
-
-        function scheduleAutoRefresh() {
-            if (autoRefreshInterval > 0 && document.visibilityState === 'visible') {
-                if (autoRefreshTimerId) clearTimeout(autoRefreshTimerId);
-                autoRefreshTimerId = setTimeout(loadAndRenderCharts, autoRefreshInterval);
-                console.log(`Auto-refresh scheduled in ${autoRefreshInterval/1000} seconds.`);
-            } else {
-                 console.log("Auto-refresh paused (page not visible or interval is 0).");
-            }
-        }
-
+        // ثم قم باستدعاء الدالة الجديدة داخل $(document).ready
         $(document).ready(function () {
-            // تهيئة Select2
-            $('.select2-filter').each(function () {
-                // $(this).select2({
-                //     // theme: "bootstrap-5",
-                //     // placeholder: $(this).find("option[value='']").text() || "-- اختر --",
-                //     // allowClear: true,
-                //     // dir: "rtl"
-                // });
-            });
-
-            // تحميل المخططات عند تحميل الصفحة
-            loadAndRenderCharts();
-
-            // زر التحديث اليدوي
-            $('#refreshChartsBtn').on('click', function () {
-                if (autoRefreshTimerId) clearTimeout(autoRefreshTimerId); // إلغاء التحديث المجدول
-                console.log("Manual refresh triggered.");
-                loadAndRenderCharts();
-            });
-
-            // مراقبة حالة ظهور الصفحة للتحديث التلقائي
-            document.addEventListener('visibilitychange', function() {
-                if (document.visibilityState === 'visible') {
-                    console.log("Page is visible, attempting to resume auto-refresh.");
-                    // قد ترغب في تحميل البيانات فورًا إذا كانت الصفحة مخفية لفترة طويلة
-                    // أو الاعتماد على scheduleAutoRefresh ليعمل في الدورة التالية
-                    loadAndRenderCharts(); // تحميل فوري عند العودة للرؤية
-                } else {
-                    console.log("Page is hidden, pausing auto-refresh.");
-                    if (autoRefreshTimerId) clearTimeout(autoRefreshTimerId);
-                }
-            });
-
-            // لإضافة حاوية رسائل الأخطاء في أعلى الصفحة إذا أردت
-            if ($('#page-alerts').length === 0) {
-                $('.page-header').after('<div id="page-alerts" class="mb-3"></div>');
-            }
+            loadKpiData();
+            loadTopOrganizationsChart();
+            loadTopTrainersChart();
+            loadTraineeEnrollmentChart();
+            loadPlanAnalysis(); // <-- أضف هذا السطر
         });
+
     </script>
 }

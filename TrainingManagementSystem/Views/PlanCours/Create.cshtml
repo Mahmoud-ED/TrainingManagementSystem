@@ -114,7 +114,7 @@
             $("#addPlanEntryButton").click(function () {
                 const currentIndex = $("#planEntriesContainer .plan-entry").length;
                 $.ajax({
-                    url: '@Url.Action("GetPlanCourseEntryPartial")', // افترض أن لديك هذا الـ Action في الكنترولر
+                    url: '@Url.Action("GetCourseDetailEntryPartial")', // افترض أن لديك هذا الـ Action في الكنترولر
                     type: 'GET',
                     data: { index: currentIndex },
                     success: function (result) {

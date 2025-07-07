@@ -15,6 +15,11 @@ namespace TrainingManagementSystem.Models.Entities
         [Required]
         public string ArName { get; set; }
 
+
+        [StringLength(100)]
+        public string? NUM { get; set; }
+
+
         [StringLength(100)]
         public string EnName { get; set; } // قد يكون اختياريًا
 

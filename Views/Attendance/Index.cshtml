@@ -1,0 +1,37 @@
+﻿@model IEnumerable<Attendance>
+@{
+    ViewData["Title"] = "سجلات الحضور";
+}
+
+<h2>سجلات الحضور</h2>
+<a asp-action="Create" class="btn btn-success mb-2">إضافة حضور جديد</a>
+<a asp-action="Report" class="btn btn-primary mb-2">تقرير الحضور</a>
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>الدورة</th>
+            <th>المتدرب</th>
+            <th>التاريخ</th>
+            <th>الحالة</th>
+            <th>ملاحظات</th>
+            <th>إجراءات</th>
+        </tr>
+    </thead>
+    <tbody>
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>@item.CourseDetails?.Name</td>
+            <td>@item.Trainee?.ArName</td>
+            <td>@item.AttendanceDate.ToString("yyyy-MM-dd")</td>
+            <td>@item.Status</td>
+            <td>@item.Notes</td>
+            <td>
+                <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-info btn-sm">تفاصيل</a>
+                <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-warning btn-sm">تعديل</a>
+                <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-danger btn-sm">حذف</a>
+            </td>
+        </tr>
+    }
+    </tbody>
+</table>

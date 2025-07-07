@@ -17,6 +17,9 @@ namespace TrainingManagementSystem.ViewModels
         [Display(Name = "الاسم (عربي)")]
         public string ArName { get; set; }
 
+
+        public string? NUM { get; set; }
+
         [StringLength(100)]
         [Display(Name = "الاسم (إنجليزي)")]
         public string? EnName { get; set; }

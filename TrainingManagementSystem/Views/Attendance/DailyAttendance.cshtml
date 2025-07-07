@@ -1,0 +1,69 @@
+﻿@model DailyAttendanceViewModel
+@using TrainingManagementSystem.Models.Entities
+
+@{
+    ViewData["Title"] = $"تسجيل حضور يوم: {Model.AttendanceDate:dddd, dd MMMM yyyy}";
+    var courseDetailsReturnUrl = Url.Action("Details", "CourseDetails", new { id = Model.CourseDetailsId });
+}
+
+<h4>@Model.CourseName</h4>
+<h3>@ViewData["Title"]</h3>
+
+<form asp-action="DailyAttendance" method="post">
+    @Html.AntiForgeryToken()
+    <input type="hidden" asp-for="CourseDetailsId" />
+    <input type="hidden" asp-for="AttendanceDate" />
+
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <thead class="thead-light">
+                <tr>
+                    <th>المتدرب</th>
+                    <th class="text-center" style="width: 350px;">الحالة</th>
+                    <th>ملاحظات</th>
+                </tr>
+            </thead>
+            <tbody>
+                @for (int i = 0; i < Model.TraineeItems.Count; i++)
+                {
+                    <tr>
+                        <td class="align-middle">
+                            @Model.TraineeItems[i].TraineeName
+                            <input type="hidden" asp-for="TraineeItems[i].TraineeId" />
+                            <input type="hidden" asp-for="TraineeItems[i].TraineeName" />
+                        </td>
+                        <td class="align-middle">
+                            <!-- استخدام Radio Buttons لتجربة أفضل -->
+                            <div class="btn-group btn-group-toggle" data-toggle="buttons">
+                                @foreach (AttendanceStatus status in Enum.GetValues(typeof(AttendanceStatus)))
+                                {
+                                    var statusText = status.ToString(); // يمكنك ترجمتها هنا
+                                                                        <label class="btn btn-outline-secondary @(Model.TraineeItems[i].Status == status ? "active" : "")">
+                                                                            <input type="radio" asp-for="TraineeItems[i].Status" value="@status" /> @statusText
+                                                                        </label>
+                                }
+                            </div>
+                        </td>
+                        <td class="align-middle">
+                            <input asp-for="TraineeItems[i].Notes" class="form-control" placeholder="أضف ملاحظة..." />
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <div class="form-group mt-3">
+        <button type="submit" class="btn btn-success btn-lg">
+            <i class="fas fa-save"></i> حفظ سجل الحضور
+        </button>
+        <a asp-controller="CourseDetails" asp-action="Index" asp-route-courseDetailsId="@Model.CourseDetailsId" class="btn btn-secondary">إلغاء</a>
+       
+        <a href="@courseDetailsReturnUrl" class="btn btn-secondary">
+            <i class="fas fa-times me-1"></i> رجوع الى الدورة 
+        </a>
+
+
+
+    </div>
+</form>

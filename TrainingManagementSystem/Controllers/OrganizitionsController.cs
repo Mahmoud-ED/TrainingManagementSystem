@@ -61,7 +61,7 @@ namespace TrainingManagementSystem.Controllers
         // POST: Organizitions/Create (حفظ الجهة الجديدة)
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Name,CategoryId,ChiefName,ChiefTitle,PhoneNo,Email,StreetAddress")] Organizition organizition)
+        public async Task<IActionResult> Create([Bind("Name,CategoryId,NUM,ChiefName,ChiefTitle,PhoneNo,Email,StreetAddress")] Organizition organizition)
         {
             // إزالة Category من الـ ModelState لأننا لا نرسلها من الفورم مباشرة
             ModelState.Remove("Category");
@@ -99,7 +99,7 @@ namespace TrainingManagementSystem.Controllers
         // POST: Organizitions/Edit/5 (حفظ التعديلات)
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(Guid id, [Bind("Id,Name,CategoryId,ChiefName,ChiefTitle,PhoneNo,Email,StreetAddress")] Organizition organizition)
+        public async Task<IActionResult> Edit(Guid id, [Bind("Id,Name,NUM,CategoryId,ChiefName,ChiefTitle,PhoneNo,Email,StreetAddress")] Organizition organizition)
         {
             if (id != organizition.Id)
             {

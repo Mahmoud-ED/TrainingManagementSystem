@@ -112,6 +112,7 @@ builder.Services.AddHttpContextAccessor(); //AsyncActionFilter áÅÓÊÚãÇá�
 
 
 builder.Services.AddSingleton<UserSessionTracker>();
+builder.Services.AddHostedService<CourseStatusUpdaterService>();
 
 var app = builder.Build();
 

@@ -20,6 +20,15 @@
                         <span asp-validation-for="Name" class="text-danger"></span>
                     </div>
                 </div>
+
+                <div class="col-md-6">
+                    <div class="form-floating mb-3">
+                        <input asp-for="NUM" class="form-control" placeholder="رمز الجهة" />
+                        <label asp-for="NUM">رمز الجهة</label>
+                        <span asp-validation-for="NUM" class="text-danger"></span>
+                    </div>
+                </div>
+
                 <div class="col-md-6">
                     <div class="form-floating mb-3">
                         <select asp-for="CategoryId" class="form-select" asp-items="ViewBag.CategoryId">

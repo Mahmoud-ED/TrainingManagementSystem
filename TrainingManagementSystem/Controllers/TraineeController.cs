@@ -180,11 +180,60 @@ namespace TrainingManagementSystem.Controllers
                 ModelState.AddModelError("NationalNo", "الرقم الوطني مستخدم مسبقًا.");
 
 
+            // --- الخطوة 1: جلب رقم الجهة بشكل صحيح ---
+            // استخدم FirstOrDefault() للحصول على قيمة واحدة نصية وليس IQueryable
+            var orgNum = _organizationUoW.Entity
+                .GetWhere(c => c.Id == viewModel.OrganizationId)
+                .Select(c => c.NUM)
+                .FirstOrDefault();
+
+            // تحقق من أن الجهة موجودة ولها رقم
+            if (string.IsNullOrEmpty(orgNum))
+            {
+                // يمكنك هنا إما إرجاع خطأ أو استخدام قيمة افتراضية
+                // ModelState.AddModelError("", "Organization not found or has no NUM.");
+                // return View(viewModel);
+                // أو إلقاء استثناء
+                throw new InvalidOperationException("Organization not found or does not have a NUM assigned.");
+            }
+
+            // --- الخطوة 2: تحديد البادئة (Prefix) للسنة الحالية ---
+            var yearPart = (DateTime.Now.Year - 2000).ToString();
+            var prefix = $"{orgNum}#{yearPart}#"; // مثال: "Tax-24-"
+
+            // --- الخطوة 3: البحث عن أعلى رقم تسلسلي مستخدم حالياً ---
+            // سنبحث عن كل المتدربين في نفس الجهة والذين يبدأ رقمهم بنفس البادئة
+            var lastSequence = _traineeUoW.Entity
+                .GetWhere(t =>
+                    t.OrganizationId == viewModel.OrganizationId &&
+                    t.NUM.StartsWith(prefix)
+                )
+                .Select(t => t.NUM)  // اختر الأرقام الكاملة مثل "Tax-24-1", "Tax-24-10"
+                .AsEnumerable()      // مهم جداً: للقيام بالعمليات التالية في الذاكرة وليس في قاعدة البيانات
+                .Select(num => {
+                    // افصل الرقم للحصول على الجزء الأخير (الرقم التسلسلي)
+                    var parts = num.Split('-');
+                    int.TryParse(parts.LastOrDefault(), out int sequence);
+                    return sequence;
+                })
+                .DefaultIfEmpty(0)   // إذا لم يتم العثور على أي متدرب (هذا هو أول متدرب)، ستكون القيمة الافتراضية 0
+                .Max();              // احصل على أعلى قيمة
+
+            // --- الخطوة 4: حساب الرقم التسلسلي الجديد ---
+            var newSequence = lastSequence + 1;
+
+            // --- الخطوة 5: تجميع الرقم النهائي وتعيينه للـ viewModel ---
+            viewModel.NUM = $"{prefix}{newSequence}"; // سيصبح "Tax-24-1"
+
+            // الآن viewModel.NUM جاهز للحفظ في قاعدة البيانات
+            // ... استكمل عملية الحفظ
+
             if (ModelState.IsValid)
             {
                 var trainee = new Trainee
                 {
                     Id = Guid.NewGuid(),
+                    NUM= viewModel.NUM,
                     ArName = viewModel.ArName,
                     EnName = viewModel.EnName,
                     PhoneNo = viewModel.PhoneNo,

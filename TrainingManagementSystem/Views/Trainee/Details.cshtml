@@ -1,83 +1,271 @@
-﻿@model Trainee // أو TraineeVM إذا جهزته للتفاصيل
+﻿@model Trainee // أو TraineeVM
 
 @{
-    ViewData["Title"] = "تفاصيل المتدرب";
+    ViewData["Title"] = "الملف الشخصي للمتدرب";
     string profileImageUrl = string.IsNullOrEmpty(Model.ProfileImageUrl) ? Url.Content("~/img/OIP.jpeg") : Url.Content($"~/pictures/trainees_profiles/{Model.ProfileImageUrl}");
 }
 
 @section Styles {
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
     <style>
-        .profile-image-md { /* تعديل الحجم ليتناسب مع التصميم الأفقي */
-            width: 120px;
-            height: 120px;
+        /* === الخطوط والألوان الأساسية === */
+        body {
+            background-color: #f4f7f6; /* لون خلفية الصفحة أفتح وأكثر راحة */
+        }
+
+        .section {
+            background-color: transparent; /* إزالة خلفية السكشن ليعتمد على خلفية الصفحة */
+        }
+
+        /* === بطاقة التعريف العلوية (Hero Header) === */
+        .profile-header {
+            background: linear-gradient(135deg, #ffffff 0%, #eef2f3 100%);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2.5rem;
+            box-shadow: 0 10px 30px -15px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap; /* للسماح بالالتفاف على الشاشات الصغيرة */
+        }
+
+        .profile-image-xl {
+            width: 140px;
+            height: 140px;
             border-radius: 50%;
             object-fit: cover;
-            border: 3px solid #eee;
-            margin-bottom: 15px;
+            border: 5px solid #fff;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            margin-right: 2rem;
         }
 
-        .detail-label {
-            font-weight: 600; /* زيادة طفيفة في الوزن */
-            color: #495057; /* لون أغمق قليلاً */
-            margin-bottom: 0.3rem;
+        .profile-info h2 {
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 0.5rem;
+        }
+
+        .trainee-id-badge {
+            display: inline-block;
+            background-color: #e8f9f5; /* أخضر فاتح جداً */
+            color: #1DC792;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-weight: 600;
             font-size: 0.9rem;
+            border: 1px solid #cceee4;
+            margin-right: 1rem;
         }
 
-        .detail-value {
-            color: #212529;
-            font-size: 0.95rem;
-            margin-bottom: 0.8rem; /* مسافة بين كل معلومة */
+        .trainee-org {
+            color: #7f8c8d;
+            font-size: 1.1rem;
+            font-weight: 500;
         }
 
-        .info-section .row > div {
-            padding-bottom: 0.5rem; /* مسافة بين الصفوف الداخلية للمعلومات */
+        .profile-actions {
+            margin-left: auto; /* يدفع الأزرار إلى اليمين */
         }
 
-        .courses-section {
-            background-color: #f8f9fa;
-            padding: 1.5rem;
-            border-radius: 8px;
-            border: 1px solid #e9ecef;
-            min-height: 400px; /* ارتفاع مبدئي لقسم الدورات */
-        }
-
-        .course-card-item {
+        /* === بطاقات المعلومات (Info Widgets) === */
+        .info-widget {
             background-color: #fff;
-            border: 1px solid #dee2e6;
-            border-radius: 0.375rem; /* Bootstrap's default border-radius */
-            margin-bottom: 1rem;
-            padding: 1rem;
-            transition: box-shadow .15s ease-in-out;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            margin-bottom: 1.5rem;
+            border: none;
+            overflow: hidden; /* لإخفاء أي زوائد */
         }
 
-            .course-card-item:hover {
-                box-shadow: 0 .5rem 1rem rgba(0,0,0,.075);
+            .info-widget .widget-header {
+                padding: 1rem 1.5rem;
+                background-color: #f8f9fa;
+                border-bottom: 1px solid #e9ecef;
             }
 
-            .course-card-item h6 {
-                margin-bottom: 0.25rem;
-                font-weight: 600;
+                .info-widget .widget-header h5 {
+                    margin-bottom: 0;
+                    font-size: 1.1rem;
+                    font-weight: 600;
+                    color: #34495e;
+                }
+
+            .info-widget .widget-body {
+                padding: 1.5rem;
             }
 
-            .course-card-item p {
-                font-size: 0.85rem;
-                color: #6c757d;
-                margin-bottom: 0.3rem;
+        .info-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+            .info-list li {
+                display: flex;
+                align-items: center;
+                padding: 0.75rem 0;
+                border-bottom: 1px solid #f1f1f1;
+                font-size: 0.95rem;
             }
 
-            .course-card-item .badge {
-                font-size: 0.75rem;
+                .info-list li:last-child {
+                    border-bottom: none;
+                }
+
+            .info-list .info-label {
+                color: #8492a6;
+                width: 120px; /* عرض ثابت للعنوان */
+                flex-shrink: 0;
             }
+
+                .info-list .info-label i {
+                    margin-right: 8px;
+                    color: #1DC792;
+                    width: 20px; /* لتوحيد المسافات */
+                    text-align: center;
+                }
+
+            .info-list .info-value {
+                color: #2c3e50;
+                font-weight: 500;
+                word-break: break-all;
+            }
+
+        /* === تصميم الخط الزمني للدورات === */
+        .courses-timeline {
+            position: relative;
+        }
+
+        .timeline-header h5 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 2rem;
+        }
+
+        .timeline-header .badge {
+            font-size: 1rem;
+            vertical-align: middle;
+        }
+
+        .course-entry {
+            background: #fff;
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            position: relative;
+            border: 1px solid #e9ecef;
+            transition: all 0.3s ease;
+            padding-left: 3.5rem; /* مسافة للخط الزمني */
+        }
+
+            .course-entry:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 10px 20px -10px rgba(29, 199, 146, 0.4);
+                border-color: #1DC792;
+            }
+
+            /* الخط العمودي للتايم لاين */
+            .course-entry::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 1.75rem;
+                height: 100%;
+                width: 2px;
+                background-color: #e9ecef;
+                z-index: 1;
+            }
+
+            /* الدائرة على الخط */
+            .course-entry::after {
+                content: '';
+                position: absolute;
+                top: 28px; /* ليكون في منتصف العنوان تقريباً */
+                left: 1.25rem; /* ليكون في منتصف الخط العمودي */
+                width: 20px;
+                height: 20px;
+                border-radius: 50%;
+                background-color: #fff;
+                border: 3px solid #1DC792;
+                z-index: 2;
+            }
+
+        .courses-timeline > div:last-child .course-entry::before {
+            display: none; /* إخفاء الخط من آخر عنصر */
+        }
+
+        .course-entry-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.75rem;
+        }
+
+            .course-entry-header h6 a {
+                font-weight: 700;
+                font-size: 1.1rem;
+                color: #34495e;
+                text-decoration: none;
+            }
+
+                .course-entry-header h6 a:hover {
+                    color: #1DC792;
+                }
+
+        .course-meta-data, .course-results {
+            font-size: 0.9rem;
+            color: #526484;
+            margin-bottom: 0.75rem;
+        }
+
+            .course-meta-data span, .course-results span {
+                margin-right: 1.5rem;
+            }
+
+            .course-meta-data i, .course-results i {
+                color: #8492a6;
+                margin-right: 5px;
+            }
+
+        .course-actions {
+            text-align: left; /* لغة عربية، سيكون اليسار هو النهاية */
+            border-top: 1px dashed #e9ecef;
+            padding-top: 1rem;
+            margin-top: 1rem;
+        }
+
+        /* تعديلات للشاشات الصغيرة */
+        @@media (max-width: 991px) {
+            .profile-header {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .profile-image-xl {
+                margin-right: 0;
+                margin-bottom: 1.5rem;
+            }
+
+            .profile-actions {
+                margin-left: 0;
+                margin-top: 1.5rem;
+            }
+
+            .courses-timeline {
+                margin-top: 2rem;
+            }
+        }
     </style>
 }
 
-<!-- Breadcrumbs (كما هي) -->
+<!-- Breadcrumbs (لا تغيير هنا) -->
 <div class="breadcrumbs overlay">
     <div class="container">
         <div class="bread-inner">
             <div class="row">
                 <div class="col-12">
-                    <h2>@ViewData["Title"]: @Model.ArName</h2>
+                    <h2>@ViewData["Title"]</h2>
                     <ul class="bread-list">
                         <li><a asp-controller="Admin" asp-action="Index">لوحة التحكم</a></li>
                         <li><i class="icofont-simple-right"></i></li>
@@ -92,184 +280,194 @@
 </div>
 
 <section class="section py-5">
-    @* تعديل الـ padding للـ section *@
     <div class="container">
-        <div class="card shadow-sm">
-            <div class="card-header bg-light py-3">
-                <h4 class="mb-0">
-                    <i class="icofont-user-alt-4 me-2"></i>@Model.ArName
-                    @if (!string.IsNullOrEmpty(Model.EnName))
+
+        <!-- بطاقة التعريف العلوية -->
+        <div class="profile-header animate__animated animate__fadeInDown">
+            <img src="@profileImageUrl" alt="صورة المتدرب @Model.ArName" class="profile-image-xl"
+                 onerror="this.onerror=null; this.src='@Url.Content("~/img/OIP.jpeg")';" />
+
+            <div class="profile-info">
+                <h2>@Model.ArName <small class="text-muted">/ @Model.EnName</small></h2>
+                <div>
+                    @if (!string.IsNullOrEmpty(Model.NUM))
                     {
-                        <small class="text-muted">/ @Model.EnName</small>
+                        <span class="trainee-id-badge"><i class="icofont-qr-code"></i> @Model.NUM</span>
                     }
-                </h4>
+                    @if (Model.Organizition != null)
+                    {
+                        <span class="trainee-org"><i class="icofont-building-alt"></i> @Model.Organizition.Name</span>
+                    }
+                </div>
             </div>
-            <div class="card-body p-4">
-                <div class="row">
-                    <!-- عمود المعلومات الشخصية -->
-                    <div class="col-lg-5 col-md-6 mb-4 mb-md-0 info-section">
-                        <div class="text-center mb-4">
-                            <img src="@profileImageUrl" alt="صورة المتدرب @Model.ArName" class="profile-image-md"
-                                 onerror="this.onerror=null; this.src='@Url.Content("~/img/OIP.jpeg")';" />
-                        </div>
 
-                        <h5 class="mb-3 border-bottom pb-2">المعلومات الأساسية</h5>
-                        <div class="row">
-                            <div class="col-sm-5 detail-label">رقم الهاتف:</div>
-                            <div class="col-sm-7 detail-value">@Model.PhoneNo</div>
+            <div class="profile-actions">
+                <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary" style="background-color: #1DC792; border-color: #1DC792;">
+                    <i class="icofont-edit"></i> تعديل
+                </a>
+                <a asp-action="Index" class="btn btn-outline-secondary ms-2">
+                    <i class="icofont-arrow-left"></i> عودة
+                </a>
+            </div>
+        </div>
 
-                            <div class="col-sm-5 detail-label">البريد الإلكتروني:</div>
-                            <div class="col-sm-7 detail-value">@Model.Email</div>
-
+        <div class="row">
+            <!-- ========== العمود الأيمن: معلومات المتدرب ========== -->
+            <div class="col-lg-5 animate__animated animate__fadeInLeft">
+                <!-- widget: المعلومات الأساسية -->
+                <div class="info-widget">
+                    <div class="widget-header">
+                        <h5><i class="icofont-id-card me-2"></i>المعلومات الأساسية</h5>
+                    </div>
+                    <div class="widget-body">
+                        <ul class="info-list">
+                            <li>
+                                <span class="info-label"><i class="icofont-phone"></i>رقم الهاتف</span>
+                                <span class="info-value">@Model.PhoneNo</span>
+                            </li>
+                            <li>
+                                <span class="info-label"><i class="icofont-email"></i>البريد الإلكتروني</span>
+                                <span class="info-value">@Model.Email</span>
+                            </li>
                             @if (!string.IsNullOrEmpty(Model.NationalNo))
                             {
-                                <div class="col-sm-5 detail-label">الرقم الوطني:</div>
-                                <div class="col-sm-7 detail-value">@Model.NationalNo</div>
+                                <li>
+                                    <span class="info-label"><i class="icofont-finger-print"></i>الرقم الوطني</span>
+                                    <span class="info-value">@Model.NationalNo</span>
+                                </li>
                             }
                             @if (!string.IsNullOrEmpty(Model.Address))
                             {
-                                <div class="col-sm-5 detail-label">العنوان:</div>
-                                <div class="col-sm-7 detail-value">@Model.Address</div>
+                                <li>
+                                    <span class="info-label"><i class="icofont-location-pin"></i>العنوان</span>
+                                    <span class="info-value">@Model.Address</span>
+                                </li>
                             }
-                        </div>
-
-                        <h5 class="mt-4 mb-3 border-bottom pb-2">المؤهلات والمؤسسة</h5>
-                        <div class="row">
-                            <div class="col-sm-5 detail-label">المؤهل العلمي:</div>
-                            <div class="col-sm-7 detail-value">@(Model.Qualification?.Name ?? "غير محدد")</div>
-
-                            <div class="col-sm-5 detail-label">التخصص:</div>
-                            <div class="col-sm-7 detail-value">@(Model.Specialization?.Name ?? "غير محدد")</div>
-
-                            @if (Model.Organizition != null)
-                            {
-                                <div class="col-sm-5 detail-label">المؤسسة:</div>
-                                <div class="col-sm-7 detail-value">@Model.Organizition.Name</div>
-                            }
-                            @if (Model.Department != null)
-                            {
-                                <div class="col-sm-5 detail-label">القسم:</div>
-                                <div class="col-sm-7 detail-value">@Model.Department.Name</div>
-                            }
-                        </div>
-
-                        @if (Model.ApplicationUser != null)
-                        {
-                            <h5 class="mt-4 mb-3 border-bottom pb-2">معلومات الحساب</h5>
-                            <div class="row">
-                                <div class="col-sm-5 detail-label">اسم المستخدم:</div>
-                                <div class="col-sm-7 detail-value">@Model.ApplicationUser.UserName</div>
-                                <div class="col-sm-5 detail-label">بريد الحساب:</div>
-                                <div class="col-sm-7 detail-value">@Model.ApplicationUser.Email</div>
-                            </div>
-                        }
-
-                        <h5 class="mt-4 mb-3 border-bottom pb-2">سجل النظام</h5>
-                        <div class="row">
-                            <div class="col-sm-5 detail-label">تاريخ الإنشاء:</div>
-                            <div class="col-sm-7 detail-value">@Model.Created.ToLocalTime().ToString("dd/MM/yyyy hh:mm tt")</div>
-
-                            @if (Model.Modified.HasValue)
-                            {
-                                <div class="col-sm-5 detail-label">آخر تعديل:</div>
-                                <div class="col-sm-7 detail-value">@Model.Modified.Value.ToLocalTime().ToString("dd/MM/yyyy hh:mm tt")</div>
-                            }
-                        </div>
-                    </div>
-
-                    <!-- عمود الدورات المسجل بها -->
-                    <div class="col-lg-7 col-md-6 courses-section">
-                        <h5 class="mb-3"><i class="icofont-learn me-2"></i>الدورات المسجل بها المتدرب</h5>
-                        @if (Model.CourseTrainees != null && Model.CourseTrainees.Any())
-                        {
-                            <div>
-                                @* استخدام div بدلاً من list-group لتصميم مرن أكثر *@
-                                @foreach (var courseReg in Model.CourseTrainees.OrderByDescending(ct => ct.Created)) // ترتيب حسب الأحدث
-                                {
-                                    if (courseReg.CourseDetails?.Course != null) // التأكد من وجود تفاصيل الدورة والكورس الرئيسي
-                                    {
-                                        <div class="course-card-item">
-                                            <h6>
-                                                <a asp-controller="Courses" asp-action="Details" asp-route-id="@courseReg.CourseDetails.CourseId" class="text-decoration-none text-primary">
-                                                    <i class="icofont-certificate-alt-1 me-1"></i> @courseReg.CourseDetails.Course.Name
-                                                </a>
-                                            </h6>
-                                            <p>
-                                                <i class="icofont-calendar me-1"></i> تاريخ البدء: @courseReg.CourseDetails.StartDate.ToString("dd/MM/yyyy")
-                                                @if (courseReg.CourseDetails.EndDate.HasValue)
-                                                {
-                                                    <span>   تاريخ الانتهاء :  @courseReg.CourseDetails.EndDate</span>
-                                                                     
-                                                }
-                                            </p>
-                                            <p>
-                                                <i class="icofont-clock-time me-1"></i> المدة: @courseReg.CourseDetails.DurationHours ساعة
-                                                <span class="mx-1">|</span> <i class="icofont-location-pin me-1"></i> الموقع: @(courseReg.CourseDetails.Locations?.Name ?? "غير محدد")
-                                            </p>
-                                            <p>
-                                                <i class="icofont-clock-time me-1"></i> العدد المستهدف: @courseReg.CourseDetails.Numberoftargets 
-                                            </p>
-                                            <p>
-                                                <i class="icofont-info-square me-1"></i> الحالة:
-                                                <span class="badge bg-@(GetStatusBadgeClass(courseReg.CourseDetails.Status?.Name))">
-                                                    @(courseReg.CourseDetails.Status?.Name ?? "غير محدد")
-                                                </span>
-                                                <span class="ms-2"><i class="icofont-ui-user me-1"></i> تسجيل في: @courseReg.Created.ToLocalTime().ToString("dd/MM/yyyy")</span>
-                                            </p>
-                                            @if (courseReg.Grade.HasValue || !string.IsNullOrEmpty(courseReg.CertificateNumber))
-                                            {
-                                                <hr class="my-2">
-                                                <p>
-                                                    @if (courseReg.Grade.HasValue)
-                                                    {
-                                                        <span><i class="icofont-star me-1"></i> الدرجة: @courseReg.Grade</span>
-                                                    }
-                                                    @if (!string.IsNullOrEmpty(courseReg.CertificateNumber))
-                                                    {
-                                                        <span class="ms-3"><i class="icofont-id me-1"></i> رقم الشهادة: @courseReg.CertificateNumber</span>
-                                                    }
-                                                </p>
-                                            }
-                                            <div class="mt-2 text-end">
-                                                <a asp-controller="CourseDetails" asp-action="EditEnrollment" asp-route-courseTraineeId="@courseReg.Id" class="btn btn-sm btn-outline-success">
-                                                    <i class="icofont-edit-alt"></i> تعديل التسجيل
-                                                </a>
-
-                                                <a asp-controller="CourseDetails" asp-action="PrintCertificate" asp-route-id="@courseReg.Id" class="btn btn-sm btn-outline-success">
-                                                    <i class="icofont-edit-alt"></i> اصدار شهادة
-                                                </a>
-                                            </div>
-                                        </div>
-                                    }
-                                    else
-                                    {
-                                        <div class="alert alert-warning course-card-item">
-                                            بيانات دورة غير مكتملة (معرف التسجيل: @courseReg.Id).
-                                        </div>
-                                    }
-                                }
-                            </div>
-                        }
-                        else
-                        {
-                            <div class="text-center py-5">
-                                <i class="icofont-ban icofont-3x text-muted mb-3"></i>
-                                <p class="text-muted">المتدرب غير مسجل في أي دورات حاليًا.</p>
-                            </div>
-                        }
+                        </ul>
                     </div>
                 </div>
 
-                <!-- أزرار الإجراءات -->
-                <div class="row mt-4 pt-3 border-top">
-                    <div class="col-12 text-center">
-                        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary btn-lg" style="background-color: #1DC792; border-color: #1DC792;">
-                            <i class="icofont-edit"></i> تعديل بيانات المتدرب
-                        </a>
-                        <a asp-action="Index" class="btn btn-outline-secondary btn-lg ms-2">
-                            <i class="icofont-arrow-left"></i> العودة إلى القائمة
-                        </a>
+                <!-- widget: الانتماء الوظيفي والأكاديمي -->
+                <div class="info-widget">
+                    <div class="widget-header">
+                        <h5><i class="icofont-briefcase-1 me-2"></i>الانتماء الوظيفي والأكاديمي</h5>
                     </div>
+                    <div class="widget-body">
+                        <ul class="info-list">
+                            <li>
+                                <span class="info-label"><i class="icofont-graduate-alt"></i>المؤهل</span>
+                                <span class="info-value">@(Model.Qualification?.Name ?? "غير محدد")</span>
+                            </li>
+                            <li>
+                                <span class="info-label"><i class="icofont-atom"></i>التخصص</span>
+                                <span class="info-value">@(Model.Specialization?.Name ?? "غير محدد")</span>
+                            </li>
+                            @if (Model.Department != null)
+                            {
+                                <li>
+                                    <span class="info-label"><i class="icofont-company"></i>القسم</span>
+                                    <span class="info-value">@Model.Department.Name</span>
+                                </li>
+                            }
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- widget: سجل النظام -->
+                <div class="info-widget">
+                    <div class="widget-header">
+                        <h5><i class="icofont-history me-2"></i>سجل النظام</h5>
+                    </div>
+                    <div class="widget-body">
+                        <ul class="info-list">
+                            <li>
+                                <span class="info-label"><i class="icofont-ui-add"></i>تاريخ الإنشاء</span>
+                                <span class="info-value">@Model.Created.ToLocalTime().ToString("dd/MM/yyyy hh:mm tt")</span>
+                            </li>
+                            @if (Model.Modified.HasValue)
+                            {
+                                <li>
+                                    <span class="info-label"><i class="icofont-ui-edit"></i>آخر تعديل</span>
+                                    <span class="info-value">@Model.Modified.Value.ToLocalTime().ToString("dd/MM/yyyy hh:mm tt")</span>
+                                </li>
+                            }
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ========== العمود الأيسر: الدورات المسجلة ========== -->
+            <div class="col-lg-7 animate__animated animate__fadeInRight">
+                <div class="timeline-header">
+                    <h5>
+                        <i class="icofont-learn me-2"></i>السجل التدريبي
+                        @if (Model.CourseTrainees != null)
+                        {
+                            <span class="badge rounded-pill" style="background-color: #1DC792;">@Model.CourseTrainees.Count</span>
+                        }
+                    </h5>
+                </div>
+                <div class="courses-timeline">
+                    @if (Model.CourseTrainees != null && Model.CourseTrainees.Any())
+                    {
+                        @foreach (var courseReg in Model.CourseTrainees.OrderByDescending(ct => ct.CourseDetails.StartDate))
+                        {
+                            <div>
+                                <!-- Div container for timeline pseudo-elements -->
+                                @if (courseReg.CourseDetails?.Course != null)
+                                {
+                                    <div class="course-entry">
+                                        <div class="course-entry-header">
+                                            <h6>
+                                                <a asp-controller="Courses" asp-action="Details" asp-route-id="@courseReg.CourseDetails.CourseId">
+                                                    @courseReg.CourseDetails.Course.Name
+                                                </a>
+                                            </h6>
+                                            <span class="badge bg-@(GetStatusBadgeClass(courseReg.CourseDetails.Status?.Name))">
+                                                @(courseReg.CourseDetails.Status?.Name ?? "غير محدد")
+                                            </span>
+                                        </div>
+
+                                        <div class="course-meta-data">
+                                            <span><i class="icofont-calendar"></i> @courseReg.CourseDetails.StartDate.ToString("dd MMM yyyy") - @(courseReg.CourseDetails.EndDate?.ToString("dd MMM yyyy") ?? "...")</span>
+                                            <span><i class="icofont-clock-time"></i> @courseReg.CourseDetails.DurationHours ساعة</span>
+                                            <span><i class="icofont-location-pin"></i> @(courseReg.CourseDetails.Locations?.Name ?? "غير محدد")</span>
+                                        </div>
+
+                                        @if (courseReg.Grade.HasValue || !string.IsNullOrEmpty(courseReg.CertificateNumber))
+                                        {
+                                            <div class="course-results">
+                                                @if (courseReg.Grade.HasValue)
+                                                {
+                                                    <span><i class="icofont-star"></i>الدرجة: <strong>@courseReg.Grade</strong></span>
+                                                }
+                                                @if (!string.IsNullOrEmpty(courseReg.CertificateNumber))
+                                                {
+                                                    <span><i class="icofont-id"></i>رقم الشهادة: <strong>@courseReg.CertificateNumber</strong></span>
+                                                }
+                                            </div>
+                                        }
+
+                                        <div class="course-actions">
+                                            <a asp-controller="CourseDetails" asp-action="PrintCertificate" asp-route-id="@courseReg.Id" class="btn btn-sm btn-outline-info">
+                                                <i class="icofont-printer"></i> طباعة شهادة
+                                            </a>
+                                            <a asp-controller="CourseDetails" asp-action="EditEnrollment" asp-route-courseTraineeId="@courseReg.Id" class="btn btn-sm btn-outline-success ms-2">
+                                                <i class="icofont-edit-alt"></i> تعديل التسجيل
+                                            </a>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <div class="text-center py-5 info-widget">
+                            <i class="icofont-ban icofont-4x text-muted mb-3"></i>
+                            <h5 class="text-muted">المتدرب غير مسجل في أي دورات حاليًا.</h5>
+                        </div>
+                    }
                 </div>
             </div>
         </div>
@@ -277,7 +475,6 @@
 </section>
 
 @functions {
-    // نفس دالة GetStatusBadgeClass من صفحة قائمة تفاصيل الدورات
     string GetStatusBadgeClass(string statusName)
     {
         if (string.IsNullOrEmpty(statusName)) return "secondary";

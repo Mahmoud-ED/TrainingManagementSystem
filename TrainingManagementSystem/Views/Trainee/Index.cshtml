@@ -82,6 +82,7 @@
                 <thead>
                     <tr>
                         <th>المتدرب</th>
+                        <th>الرقم التدريبي</th>
                         <th>الرقم الوطني</th>
                         <th>القسم</th>
                         @* **التعديل الأول: تطبيق الفئة على خلية الرأس وإزالة العرض الثابت** *@
@@ -119,6 +120,7 @@
                                 <td class="trainee-info">
                                     <div>@item.ArName</div>
                                 </td>
+                                <td class="text-center">@item.NUM</td>
                                 <td class="text-center">@item.NationalNo</td>
                                 <td class="text-center">@(item.Department?.Name ?? "N/A")</td>
 

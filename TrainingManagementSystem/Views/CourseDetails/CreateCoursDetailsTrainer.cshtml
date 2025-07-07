@@ -1,6 +1,6 @@
 ﻿@model AssignTrainerViewModel
 @{
-    ViewData["Title"] = "تعيين مدرب جديد للدورة";
+    ViewData["Title"] = "تعيين مدرب / مشرف";
     var courseDetailsReturnUrl = Url.Action("Details", "CourseDetails", new { id = Model.CourseDetailsId });
 }
 
@@ -8,17 +8,18 @@
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a asp-controller="CourseDetails" asp-action="Index">قائمة البرامج التدريبية</a></li>
-            <li class="breadcrumb-item"><a href="@courseDetailsReturnUrl">تفاصيل البرنامج: @Model.CourseDetailsName</a></li>
+            <li class="breadcrumb-item"><a href="@courseDetailsReturnUrl">تفاصيل البرنامج</a></li>
             <li class="breadcrumb-item active" aria-current="page">@ViewData["Title"]</li>
         </ol>
     </nav>
 
     <div class="card shadow-sm">
-        <div class="card-header bg-primary text-white">
-            <h4 class="mb-0">@ViewData["Title"]</h4>
-            <small>للبرنامج التدريبي: @Model.CourseDetailsName</small>
+        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+            <h4 class="mb-0">@ViewData["Title"]: <span class="fw-light">@Model.CourseDetailsName</span></h4>
         </div>
-        <div class="card-body">
+        <div class="card-body p-4">
+            <p class="text-muted mb-4">استخدم النموذج التالي للبحث عن شخص وتحديد صفته (مدرب أو مشرف) لتعيينه في هذا البرنامج التدريبي.</p>
+
             <form asp-action="CreateCoursDetailsTrainer" method="post">
                 @Html.AntiForgeryToken()
                 <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
@@ -26,19 +27,44 @@
                 <input type="hidden" asp-for="CourseDetailsId" />
                 <input type="hidden" asp-for="CourseDetailsName" />
 
-                <div class="mb-3">
-                    <label asp-for="SelectedTrainerId" class="form-label"></label>
-                    <select asp-for="SelectedTrainerId" class="form-select" id="trainerSearchSelect"></select>
-                    <span asp-validation-for="SelectedTrainerId" class="text-danger"></span>
+                <div class="row g-4">
+                    <!-- الخطوة 1: اختيار المدرب -->
+                    <div class="col-md-7">
+                        <h5><span class="badge bg-primary me-2">1</span>اختر الشخص</h5>
+                        <div class="mb-3">
+                            <label asp-for="SelectedTrainerId" class="form-label visually-hidden"></label>
+                            <select asp-for="SelectedTrainerId" class="form-select" id="trainerSearchSelect"></select>
+                            <span asp-validation-for="SelectedTrainerId" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <!-- الخطوة 2: تحديد الصفة -->
+                    <div class="col-md-5">
+                        <h5><span class="badge bg-primary me-2">2</span>حدد الصفة</h5>
+                        <div class="d-flex align-items-center border rounded p-3 h-75">
+                            <div class="form-check form-check-inline me-4">
+                                <input class="form-check-input" type="radio" asp-for="IsTrainer" id="roleTrainer" value="true">
+                                <label class="form-check-label h5 mb-0" for="roleTrainer">
+                                    <i class="fas fa-chalkboard-teacher text-primary me-1"></i> مدرب
+                                </label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" asp-for="IsTrainer" id="roleSupervisor" value="false">
+                                <label class="form-check-label h5 mb-0" for="roleSupervisor">
+                                    <i class="fas fa-user-shield text-secondary me-1"></i> مشرف
+                                </label>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
-                <hr />
+                <hr class="my-4" />
                 <div class="d-flex justify-content-end">
-                    <a href="@courseDetailsReturnUrl" class="btn btn-outline-secondary me-2">
+                    <a href="@courseDetailsReturnUrl" class="btn btn-secondary me-2">
                         <i class="fas fa-times me-1"></i> إلغاء
                     </a>
-                    <button type="submit" class="btn btn-primary">
-                        <i class="fas fa-user-plus me-1"></i> حفظ وتعيين المدرب
+                    <button type="submit" class="btn btn-primary px-4">
+                        <i class="fas fa-check me-1"></i> حفظ التعيين
                     </button>
                 </div>
             </form>
@@ -50,20 +76,11 @@
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" />
     <style>
-        .select2-container--bootstrap-5 .select2-selection--single {
-            height: calc(1.5em + .75rem + 2px);
-            padding: .375rem .75rem;
+        .select2-container--bootstrap-5 .select2-selection {
+            min-height: 48px;
+            display: flex;
+            align-items: center;
         }
-
-            .select2-container--bootstrap-5 .select2-selection--single .select2-selection__rendered {
-                padding-left: 0;
-                padding-right: 0;
-                line-height: 1.5;
-            }
-
-            .select2-container--bootstrap-5 .select2-selection--single .select2-selection__arrow {
-                height: calc(1.5em + .75rem);
-            }
     </style>
 }
 
@@ -78,9 +95,13 @@
         $(document).ready(function () {
             $('#trainerSearchSelect').select2({
                 theme: "bootstrap-5",
-                placeholder: "-- ابدأ الكتابة للبحث عن مدرب --",
+                //  --== السطر التالي هو الحل للمشكلة ==--
+                //  يخبر القائمة المنسدلة بأن تظهر ضمن نطاق جسم البطاقة لتجنب مشاكل التداخل
+                dropdownParent: $('#trainerSearchSelect').closest('.card-body'),
+                //  --== نهاية سطر الحل ==--
+                placeholder: "-- ابدأ الكتابة للبحث بالاسم أو الرقم الوظيفي --",
                 allowClear: true,
-                minimumInputLength: 1, // ابدأ البحث بعد كتابة حرف واحد
+                minimumInputLength: 1,
                 language: "ar",
                 ajax: {
                     url: "@Url.Action("SearchTrainers", "CourseDetails")",
@@ -88,14 +109,12 @@
                     delay: 250,
                     data: function (params) {
                         return {
-                            term: params.term, // نص البحث
-                            courseDetailsIdToExclude: "@Model.CourseDetailsId" // لتمرير ID الدورة الحالية لاستبعاد المدربين المسجلين
+                            term: params.term,
+                            courseDetailsIdToExclude: "@Model.CourseDetailsId"
                         };
                     },
-                    processResults: function (data, params) {
-                        return {
-                            results: data.results
-                        };
+                    processResults: function (data) {
+                        return { results: data.results };
                     },
                     cache: true
                 }

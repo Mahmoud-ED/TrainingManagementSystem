@@ -1,0 +1,40 @@
+﻿@model AttendanceIndexModel
+@{
+    ViewData["Title"] = "تسجيل الحضور";
+}
+
+<h2>تسجيل الحضور للدورة: @Model.CourseDetails.Name</h2>
+<form method="post">
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>المتدرب</th>
+                @foreach (var day in Model.Days)
+                {
+                    <th>@day.ToString("dddd dd/MM")</th>
+                }
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var trainee in Model.Trainees)
+            {
+                <tr>
+                    <td>@trainee.ArName</td>
+                    @foreach (var day in Model.Days)
+                    {
+                        <td>
+                            <select name="Attendance[@trainee.Id][@day.ToString("yyyy-MM-dd")]">
+                                <option value="Present">حاضر</option>
+                                <option value="Absent">غائب</option>
+                                <option value="Late">متأخر</option>
+                                <option value="Excused">مبرر</option>
+                            </select>
+                        </td>
+                    }
+                </tr>
+            }
+        </tbody>
+    </table>
+    <button type="submit" class="btn btn-success">حفظ الحضور</button>
+    <button type="button" class="btn btn-primary" onclick="window.print()">طباعة الجدول</button>
+</form>

@@ -107,21 +107,22 @@ namespace TrainingManagementSystem.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(CreateCourseViewModel viewModel)
         {
-            if (ModelState.IsValid)
-            {
+            //if (ModelState.IsValid)
+            //{
                 // استخدام Transaction لضمان حفظ الدورة ومدربيها معاً أو لا شيء
                 using (var transaction = await _context.Database.BeginTransactionAsync())
                 {
                     try
                     {
-                        // الخطوة 1: إنشاء وحفظ الدورة أولاً للحصول على ID
+
+                   
                         var course = new Course
                         {
                             Days= viewModel.Days,
                             DurationHours = viewModel.DurationHours,
                             Name = viewModel.Name,
                             Code = viewModel.Code,
-                            Description = viewModel.Description,
+                            Description = viewModel.Description?? " ",
                             CourseClassificationId = viewModel.CourseClassificationId,
                             LevelId = viewModel.LevelId,
                             CourseParentId = viewModel.CourseParentId,
@@ -159,16 +160,14 @@ namespace TrainingManagementSystem.Controllers
                         // في حالة حدوث أي خطأ، تراجع عن كل التغييرات
                         await transaction.RollbackAsync();
 
-                        // سجل الخطأ (مهم جداً لتصحيح الأخطاء لاحقاً)
-                        // _logger.LogError(ex, "An error occurred while creating a course.");
 
                         // أضف رسالة خطأ للمستخدم
                         ModelState.AddModelError("", "حدث خطأ غير متوقع أثناء حفظ الدورة. يرجى المحاولة مرة أخرى.");
                     }
                 }
-            }
+            //}
 
-            // إذا كان النموذج غير صالح، أعد ملء القوائم وأرجع المستخدم لنفس الصفحة
+            //// إذا كان النموذج غير صالح، أعد ملء القوائم وأرجع المستخدم لنفس الصفحة
             await PopulateDropdownsAsync(viewModel);
             return View(viewModel);
         }

@@ -180,8 +180,8 @@ namespace TrainingManagementSystem.Controllers
                 return View(viewModel);
             }
 
-            if (ModelState.IsValid)
-            {
+            //if (ModelState.IsValid)
+            //{
                 foreach (var detailEntry in viewModel.CourseDetailsEntries)
                 {
                     var planCours = new PlanCours
@@ -200,10 +200,10 @@ namespace TrainingManagementSystem.Controllers
                 await _context.SaveChangesAsync();
                 TempData["SuccessMessage"] = "تم إنشاء الخطة بنجاح!";
                 return RedirectToAction("Index");
-            }
+            //}
 
-            await PopulateViewModelDataAsync(viewModel);
-            return View(viewModel);
+            //await PopulateViewModelDataAsync(viewModel);
+            //return View(viewModel);
         }
 
         [Audit("تفاصيل", "خطة تدريبية")]
@@ -280,7 +280,7 @@ namespace TrainingManagementSystem.Controllers
             ViewData["ParentViewModel"] = parentViewModelForDropdowns;
             ViewData["ParentListSize"] = new List<CourseDetailFormEntryViewModel>();
 
-            return PartialView("_CourseDetailFormEntry", new CourseDetailFormEntryViewModel { StartDate = DateTime.Today });
+            return PartialView("_PlanCourseEntryPartial", new CourseDetailFormEntryViewModel { StartDate = DateTime.Today });
         }
 
         private async Task PopulateViewModelDataAsync(CourseFormViewModel viewModel)

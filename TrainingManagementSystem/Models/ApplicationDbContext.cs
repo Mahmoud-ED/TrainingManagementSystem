@@ -49,6 +49,7 @@ namespace TrainingManagementSystem.Models
         public DbSet<Employee> Employees { get; set; }
         public DbSet<SiteInfo> SiteInfo { get; set; }
         public DbSet<PlanCours> PlanCours { get; set; }
+        public DbSet<Attendance> Attendances { get; set; }
 
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

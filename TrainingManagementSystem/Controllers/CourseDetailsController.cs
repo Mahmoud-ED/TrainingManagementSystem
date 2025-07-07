@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 using TrainingManagementSystem.Classes;
+using TrainingManagementSystem.Migrations;
 using TrainingManagementSystem.Models;
 using TrainingManagementSystem.Models.Entities;
 using TrainingManagementSystem.ViewModels;
@@ -26,7 +27,51 @@ namespace TrainingManagementSystem.Controllers
         // GET: Courses
         public async Task<IActionResult> Index()
         {
-            // 1. جلب البيانات من قاعدة البيانات كما فعلت سابقاً
+            // ================== [جديد] بداية منطق التحديث التلقائي للحالات ==================
+
+            var inPlanStatusId = new Guid("07057281-82e6-4789-a740-e30d1022d4f6");          // مستهدفة
+            var inRegistrationStatusId = new Guid("07057281-82e6-4789-a740-e30d1029d4f6");  // قيد التسجيل
+            var inExecutionStatusId = new Guid("07057281-82e6-4789-a740-e30d1129d4f6");     // قيد التنفيذ
+            var notExecutedStatusId = new Guid("07057281-82e6-4789-a740-e31d1129d4f6");     // لم يتم التنفيذ
+
+            // 2. جلب كل الدورات التي لم تبدأ بعد ولكن حان وقتها
+            // (حالتها إما "مستهدفة" أو "قيد التسجيل" وتاريخ بدئها قد حان أو فات)
+            var statusesToReview = new List<Guid> { inPlanStatusId, inRegistrationStatusId };
+
+            var coursesToReview = await _context.CourseDetails
+                .Include(cd => cd.CourseTrainees) // مهم لجلب عدد المسجلين
+                .Where(cd => cd.StartDate <= DateTime.Today)
+                .ToListAsync();
+
+            bool hasChanges = false;
+
+            // 3. المرور على كل دورة وتطبيق المنطق الصحيح
+            foreach (var course in coursesToReview)
+            {
+                // التحقق من وجود مسجلين
+                bool hasEnrollments = course.CourseTrainees.Any();
+
+                // السيناريو الأول: الدورة حان وقتها ولا يوجد بها مسجلون
+                // (تطبق على حالتي "مستهدفة" و "قيد التسجيل")
+                if (!hasEnrollments)
+                {
+                    course.StatusId = notExecutedStatusId;
+                    hasChanges = true;
+                }
+                // السيناريو الثاني: الدورة حان وقتها، ويوجد مسجلون، وحالتها كانت "قيد التسجيل"
+                else if (hasEnrollments && course.StatusId == inRegistrationStatusId)
+                {
+                    course.StatusId = inExecutionStatusId;
+                    hasChanges = true;
+                }
+            }
+
+            // 4. حفظ التغييرات في قاعدة البيانات فقط إذا كان هناك تغييرات
+            if (hasChanges)
+            {
+                await _context.SaveChangesAsync();
+            }
+
             var courseDetailsList = await _context.CourseDetails
                                         .Include(cd => cd.Course)
                                         .ThenInclude(cd => cd.CourseClassification)
@@ -37,32 +82,25 @@ namespace TrainingManagementSystem.Controllers
                                         .OrderByDescending(cd => cd.Created)
                                         .ToListAsync();
 
-            // 2. حساب الإحصائيات المطلوبة
             var upcomingCourses = courseDetailsList
                                     .Where(cd => cd.Status?.Name == "Open" && cd.StartDate >= DateTime.Today)
-                                   .OrderByDescending(cd => cd.Created)
+                                    .OrderByDescending(cd => cd.Created)
                                     .ToList();
 
             var viewModel = new CourseDetailsIndexViewModel
             {
-                // أ. تعبئة القائمة الرئيسية
                 CourseDetailsList = courseDetailsList,
-
-                // ب. تعبئة بيانات التقرير
                 ActiveCoursesCount = courseDetailsList.Count(cd => cd.Status?.Name == "Open"),
                 CompletedCoursesCount = courseDetailsList.Count(cd => cd.Status?.Name == "Close"),
                 PostponedCoursesCount = courseDetailsList.Count(cd => cd.Status?.Name == "Next"),
                 CancelledCoursesCount = courseDetailsList.Count(cd => cd.Status?.Name == "Cansel"),
-                UpcomingCoursesCount = upcomingCourses.Count, // نستخدم القائمة المحسوبة مسبقاً
-                NextUpcomingCourse = upcomingCourses.FirstOrDefault(), // أقرب دورة قادمة
+                UpcomingCoursesCount = upcomingCourses.Count,
+                NextUpcomingCourse = upcomingCourses.FirstOrDefault(),
                 TotalRegisteredTrainees = courseDetailsList.Sum(cd => cd.CourseTrainees?.Count ?? 0)
             };
 
-            // 3. إرسال الـ ViewModel إلى الـ View
             return View(viewModel);
         }
-
-
         public async Task<IActionResult> AnnualPlan()
         {
             // 1. تحديد السنة الحالية
@@ -179,7 +217,6 @@ namespace TrainingManagementSystem.Controllers
                 ModelState.AddModelError("CourseDetailsEntries", "يجب إضافة تفصيل واحد على الأقل للدورة.");
             }
 
-
             if (viewModel.Id==null)
             {
               
@@ -205,7 +242,7 @@ namespace TrainingManagementSystem.Controllers
                             EndDate = entryVm.EndDate,
                             Name = name,
                             LocationId = entryVm.LocationId,
-                            CourseTypeId = entryVm.CourseTypeId,
+                            CourseTypeId = null,
                             StatusId = entryVm.StatusId,
                             Numberoftargets = entryVm.Numberoftargets, // نقل عدد الأهداف من الفورم الرئيسي
                             CourseId = viewModel.Id, // ربط الدورة بالتفاصيل
@@ -234,11 +271,7 @@ namespace TrainingManagementSystem.Controllers
 
             var parentViewModelForDropdowns = new CourseFormViewModel
             {
-                // القوائم الأخرى تبقى كما هي
-                CourseTypes = (await _context.CourseTypes
-                    .OrderBy(ct => ct.Name)
-                    .Select(ct => new SelectListItem { Value = ct.Id.ToString(), Text = ct.Name })
-                    .ToListAsync()),
+             
 
                 Statuses = (await _context.Statuses
                     .OrderBy(s => s.Name)
@@ -350,19 +383,7 @@ namespace TrainingManagementSystem.Controllers
       })
       .ToListAsync());
 
-            viewModel.CourseTypes.Insert(0, new SelectListItem
-            {
-                Value = "",
-                Text = "-- اختر نوع الدورة --"
-            });
-            viewModel.Statuses = (await _context.Statuses
-      .OrderBy(s => s.Name)
-      .Select(s => new SelectListItem
-      {
-          Value = s.Id.ToString(),
-          Text = s.Name
-      })
-      .ToListAsync());
+       
 
             viewModel.Statuses.Insert(0, new SelectListItem
             {
@@ -500,15 +521,13 @@ namespace TrainingManagementSystem.Controllers
         // POST: CourseDetails/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(Guid id, [Bind("Id,Name,CourseId,DurationHours,StartDate,EndDate,LocationId,CourseTypeId,StatusId,Numberoftargets")] CourseDetails courseDetails)
+        public async Task<IActionResult> Edit(Guid id, [Bind("Id,Name,CourseId,DurationHours,StartDate,EndDate,LocationId,StatusId,Numberoftargets")] CourseDetails courseDetails)
         {
             if (id != courseDetails.Id)
             {
                 return NotFound();
             }
 
-            if (ModelState.IsValid)
-            {
                 try
                 {
                     courseDetails.Modified = DateTime.Now; // تعيين تاريخ التعديل
@@ -526,13 +545,8 @@ namespace TrainingManagementSystem.Controllers
                         throw;
                     }
                 }
-                // بعد الحفظ بنجاح، قم بإعادة التوجيه إلى صفحة القائمة الرئيسية
                 return RedirectToAction(nameof(Index));
-            }
-
-            // في حال وجود خطأ في الإدخال، أعد تعبئة القوائم المنسدلة وأعد عرض الفورم
-            await PopulateDropdownsAsync(courseDetails);
-            return View(courseDetails);
+        
         }
 
         // دالة مساعدة لتجنب تكرار الكود
@@ -541,7 +555,6 @@ namespace TrainingManagementSystem.Controllers
             // لاحظ أننا نمرر القيمة المختارة (Selected Value) لكل قائمة منسدلة
             ViewData["CourseId"] = new SelectList(await _context.Courses.ToListAsync(), "Id", "Name", courseDetails?.CourseId);
             ViewData["LocationId"] = new SelectList(await _context.Locations.ToListAsync(), "Id", "Name", courseDetails?.LocationId);
-            ViewData["CourseTypeId"] = new SelectList(await _context.CourseTypes.ToListAsync(), "Id", "Name", courseDetails?.CourseTypeId);
             ViewData["StatusId"] = new SelectList(await _context.Statuses.ToListAsync(), "Id", "Name", courseDetails?.StatusId);
         }
 
@@ -595,7 +608,7 @@ namespace TrainingManagementSystem.Controllers
                 Numberoftargets = courseDetails.Numberoftargets,
                 DurationHours = courseDetails.DurationHours,
                 LocationName = courseDetails.Locations?.Name ?? "N/A",
-                CourseTypeName = courseDetails.CourseType?.Name ?? "N/A",
+                CourseTypeName = "N/A",
                 StatusName = courseDetails.Status?.Name ?? "N/A",
                 Trainers = courseDetails.CoursDetailsTrainer.Select(ct => new Trainer
                 {
@@ -663,9 +676,6 @@ namespace TrainingManagementSystem.Controllers
                 return RedirectToAction(nameof(Delete), new { id = id });
             }
         }
-
-
-
 
         [HttpPost, ActionName("DeleteTrainer")]
         [ValidateAntiForgeryToken]
@@ -741,7 +751,7 @@ namespace TrainingManagementSystem.Controllers
                 Numberoftargets = courseDetails.Numberoftargets,
                 DurationHours = courseDetails.DurationHours,
                 LocationName = courseDetails.Locations?.Name ?? "N/A",
-                CourseTypeName = courseDetails.CourseType?.Name ?? "N/A",
+                CourseTypeName = "N/A",
                 StatusName = courseDetails.Status?.Name ?? "N/A",
                 Trainers = courseDetails.CoursDetailsTrainer.Select(ct => new Trainer
                 {
@@ -831,7 +841,33 @@ namespace TrainingManagementSystem.Controllers
                     }).ToList();
 
                     _context.CourseTrainees.AddRange(newEnrollments);
-                    await _context.SaveChangesAsync();
+
+
+                var targetedStatusId = new Guid("07057281-82e6-4789-a740-e30d1022d4f6"); // حالة "مستهدفة"
+                var underRegistrationStatusId = new Guid("07057281-82e6-4789-a740-e30d1029d4f6"); // حالة "قيد التسجيل"
+
+                // 2. جلب الدورة نفسها من قاعدة البيانات للتحقق من حالتها وتحديثها
+                var courseToUpdate = await _context.CourseDetails.FindAsync(viewModel.CourseDetailsId);
+
+                // تأكد من أن الدورة موجودة
+                if (courseToUpdate == null)
+                {
+                    return NotFound("البرنامج التدريبي المحدد غير موجود.");
+                }
+
+                // 3. التحقق من عدد المسجلين حالياً في الدورة
+                var currentEnrollmentCount = await _context.CourseTrainees
+                    .CountAsync(ct => ct.CourseDetailsId == viewModel.CourseDetailsId);
+
+                // 4. تطبيق الشرط: إذا كان عدد المسجلين صفر (0) وكانت حالة الدورة هي "مستهدفة"
+                if (currentEnrollmentCount == 0  )
+                {
+                    // قم بتغيير حالة الدورة إلى "قيد التسجيل"
+                    courseToUpdate.StatusId = underRegistrationStatusId;
+                }
+
+
+                await _context.SaveChangesAsync();
                     TempData["SuccessMessage"] = $"تم تسجيل عدد ({newEnrollments.Count}) متدرب بنجاح!";
                 }
                 else
@@ -841,27 +877,12 @@ namespace TrainingManagementSystem.Controllers
 
                 return RedirectToAction("Details", "CourseDetails", new { id = viewModel.CourseDetailsId });
             }
-
-            // إذا فشل الـ validation، أعد ملء البيانات اللازمة للعرض
-            //await PopulateViewModelData(viewModel, viewModel.CourseDetailsId);
-            //return View("Details", viewModel);
-        //}
-
+        
         // POST: /Enrollment/AddAndEnrollTrainee
         [HttpPost]
         public async Task<IActionResult> AddAndEnrollTrainee([FromBody] QuickAddTraineeViewModel model)
         {
-            // الخيار الموصى به: السماح للمسؤول بتجاوز المتطلبات عند إضافة متدرب جديد
-            // إذا كنت تريد المنع، قم بإلغاء التعليق عن الكود التالي
-            /*
-            var courseDetails = await _context.CourseDetails.FindAsync(model.CourseDetailsId);
-            var hasPrerequisites = await _context.CoursePrerequisites.AnyAsync(p => p.CourseId == courseDetails.CourseId);
-            if (hasPrerequisites)
-            {
-                ModelState.AddModelError("", "لا يمكن تسجيل متدرب جديد مباشرة في هذه الدورة لأنها تتطلب متطلبات مسبقة.");
-                return BadRequest(ModelState);
-            }
-            */
+         
 
             if (!ModelState.IsValid)
             {
@@ -888,7 +909,6 @@ namespace TrainingManagementSystem.Controllers
             };
 
             _context.Trainees.Add(newTrainee);
-            // لا تحفظ هنا بعد، سنحفظ كل شيء في transaction واحدة
 
             var enrollment = new CourseTrainee
             {
@@ -901,6 +921,35 @@ namespace TrainingManagementSystem.Controllers
 
             var orgName = (await _context.Organizitions.FindAsync(newTrainee.OrganizationId))?.Name ?? "غير محدد";
 
+
+            var targetedStatusId = new Guid("07057281-82e6-4789-a740-e30d1022d4f6"); // حالة "مستهدفة"
+            var underRegistrationStatusId = new Guid("07057281-82e6-4789-a740-e30d1029d4f6"); // حالة "قيد التسجيل"
+
+            // 2. جلب الدورة نفسها من قاعدة البيانات للتحقق من حالتها وتحديثها
+            var courseToUpdate = await _context.CourseDetails.FindAsync(model.CourseDetailsId);
+
+            // تأكد من أن الدورة موجودة
+            if (courseToUpdate == null)
+            {
+                return NotFound("البرنامج التدريبي المحدد غير موجود.");
+            }
+
+            // 3. التحقق من عدد المسجلين حالياً في الدورة
+            var currentEnrollmentCount = await _context.CourseTrainees
+                .CountAsync(ct => ct.CourseDetailsId == model.CourseDetailsId);
+
+            // 4. تطبيق الشرط: إذا كان عدد المسجلين صفر (0) وكانت حالة الدورة هي "مستهدفة"
+            if (currentEnrollmentCount == 0 && courseToUpdate.StatusId == targetedStatusId)
+            {
+                // قم بتغيير حالة الدورة إلى "قيد التسجيل"
+                courseToUpdate.StatusId = underRegistrationStatusId;
+                await _context.SaveChangesAsync(); 
+            }
+
+
+
+
+
             var result = new
             {
                 id = newTrainee.Id,
@@ -912,10 +961,7 @@ namespace TrainingManagementSystem.Controllers
 
             return Ok(result);
         }
-
-        /// <summary>
-        /// دالة مساعدة لملء بيانات ViewModel وتطبيق منطق العمل.
-        /// </summary>
+       
         private async Task PopulateViewModelData(EnrollMultipleTraineesViewModel viewModel, Guid courseDetailsId)
         {
             // --- الخطوة 1: جلب معلومات الكورس الحالي ومتطلباته ---
@@ -980,24 +1026,51 @@ namespace TrainingManagementSystem.Controllers
             viewModel.NewTrainee.AvailableOrganizations = new SelectList(organizations, "Id", "Name");
             viewModel.NewTrainee.AvailableQualifications = new SelectList(qualifications, "Id", "Name");
         }
-        //[HttpPost]
-
-
 
         // GET: /EditEnrollment/{courseTraineeId}
-        [HttpGet] // <-- هادي هي الإضافة الأهم في الموضوع كله
+        [HttpGet]
         public async Task<IActionResult> EditEnrollment(Guid courseTraineeId)
         {
             var courseTrainee = await _context.CourseTrainees
-                                        .Include(ct => ct.Trainee)
-                                        .Include(ct => ct.CourseDetails)
-                                            .ThenInclude(cd => cd.Course)
-                                        .FirstOrDefaultAsync(ct => ct.Id == courseTraineeId);
+      .Include(ct => ct.CourseDetails)
+          .ThenInclude(cd => cd.Course)
+      .AsNoTracking()
+      .FirstOrDefaultAsync(ct => ct.Id == courseTraineeId);
+
 
             if (courseTrainee == null)
             {
                 return NotFound();
             }
+
+
+            decimal calculatedAttendancePercentage = 0;
+
+            // 2. حساب إجمالي الأيام الدراسية التي تم تسجيل حضور لها في هذه الدورة
+            // نستخدم `Select` و `Distinct` لنحصل على قائمة فريدة بالتواريخ
+            var totalCourseDaysRecorded = await _context.Attendances
+                .Where(a => a.CourseDetailsId == courseTrainee.CourseDetailsId)
+                .Select(a => a.AttendanceDate.Date)
+                .Distinct()
+                .CountAsync();
+
+            if (totalCourseDaysRecorded > 0)
+            {
+                // 3. حساب عدد أيام حضور هذا المتدرب المحدد (حاضر أو متأخر)
+                // نعتبر "Present" و "Late" كحضور. "Excused" لا يُحتسب.
+                var traineePresentDays = await _context.Attendances
+                    .CountAsync(a => a.CourseDetailsId == courseTrainee.CourseDetailsId &&
+                                     a.TraineeId == courseTrainee.TraineeId &&
+                                     (a.Status == AttendanceStatus.Present || a.Status == AttendanceStatus.Late));
+
+                // 4. حساب النسبة المئوية مع التأكد من عدم القسمة على صفر
+                calculatedAttendancePercentage = ((decimal)traineePresentDays / totalCourseDaysRecorded) * 100;
+            }
+
+            // =============================================================
+            //                          <<<--- نهاية الجزء الجديد --->>>
+            // =============================================================
+
 
             var viewModel = new EditEnrollmentViewModel
             {
@@ -1005,7 +1078,11 @@ namespace TrainingManagementSystem.Controllers
                 CourseDetailsId = courseTrainee.CourseDetailsId,
                 CourseName = courseTrainee.CourseDetails.Course?.Name ?? "N/A",
                 TraineeName = courseTrainee.Trainee?.ArName ?? "N/A",
-                AttendancePercentage = courseTrainee.AttendancePercentage,
+
+                // هنا نستخدم القيمة المحسوبة بدلاً من القيمة المخزنة
+                AttendancePercentage = calculatedAttendancePercentage,
+
+                // باقي الحقول تبقى كما هي، قد تكون معدلة يدويًا سابقًا
                 Grade = courseTrainee.Grade,
                 CertificateNumber = courseTrainee.CertificateNumber,
                 CertificateUrl = courseTrainee.CertificateUrl,
@@ -1013,61 +1090,37 @@ namespace TrainingManagementSystem.Controllers
                 Notes = courseTrainee.Notes
             };
 
-            // تأكد أن اسم الـ View مطابق لاسم الأكشن أو حدده صراحة
-            // return View("EditEnrollment", viewModel);
             return View(viewModel);
         }
-        // POST: /EditEnrollment
+
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> EditEnrollment(EditEnrollmentViewModel viewModel)
+        public async Task<IActionResult> EditEnrollment(EditEnrollmentViewModel model)
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
-                var courseTraineeToUpdate = await _context.CourseTrainees
-      .Include(ct => ct.CourseDetails) // هذا الجزء هو الذي يقوم بالـ Include
-      .FirstOrDefaultAsync(ct => ct.Id == viewModel.CourseTraineeId); // نبحث عن الكيان المطلوب باستخدام الشرط
-                if (courseTraineeToUpdate == null)
-                {
-                    return NotFound();
-                }
-
-                courseTraineeToUpdate.AttendancePercentage = viewModel.AttendancePercentage;
-                courseTraineeToUpdate.Grade = viewModel.Grade;
-                courseTraineeToUpdate.CertificateNumber = viewModel.CertificateNumber;
-                courseTraineeToUpdate.CertificateUrl = viewModel.CertificateUrl;
-                courseTraineeToUpdate.CertificateIssueDate = viewModel.CertificateIssueDate;
-                courseTraineeToUpdate.Notes = viewModel.Notes;
-                // UpdateDate, etc.
-
-                try
-                {
-
-
-                    _context.Update(courseTraineeToUpdate);
-                    await _context.SaveChangesAsync();
-                    TempData["SuccessMessage"] = "تم تحديث بيانات تسجيل المتدرب بنجاح!";
-                    return RedirectToAction(nameof(Details), new { id = courseTraineeToUpdate.CourseDetails.Id });
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    // معالجة خطأ التزامن
-                    ModelState.AddModelError("", "لم يتم حفظ البيانات. ربما تم تعديلها بواسطة مستخدم آخر.");
-                }
+                return View(model);
             }
-            // إذا فشل، أعد ملء بعض البيانات للعرض
-            var courseTrainee = await _context.CourseTrainees
-                                        .Include(ct => ct.Trainee)
-                                        .Include(ct => ct.CourseDetails)
-                                        .ThenInclude(cd => cd.Course)
-                                        .AsNoTracking() // مهم عند إعادة عرض الفورم بعد فشل التحديث
-                                        .FirstOrDefaultAsync(ct => ct.Id == viewModel.CourseTraineeId);
-            if (courseTrainee != null)
+
+            var courseTraineeToUpdate = await _context.CourseTrainees.FindAsync(model.CourseTraineeId);
+            if (courseTraineeToUpdate == null)
             {
-                viewModel.CourseName = courseTrainee.CourseDetails.Course?.Name ?? "N/A";
-                viewModel.TraineeName = courseTrainee.Trainee?.ArName ?? "N/A";
+                return NotFound();
             }
-            return View(viewModel);
+
+            // تحديث كل الحقول بما فيها نسبة الحضور الجديدة
+            courseTraineeToUpdate.AttendancePercentage = model.AttendancePercentage;
+            courseTraineeToUpdate.Grade = model.Grade;
+            courseTraineeToUpdate.CertificateNumber = model.CertificateNumber;
+            courseTraineeToUpdate.CertificateUrl = model.CertificateUrl;
+            courseTraineeToUpdate.CertificateIssueDate = model.CertificateIssueDate;
+            courseTraineeToUpdate.Notes = model.Notes;
+
+            _context.Update(courseTraineeToUpdate);
+            await _context.SaveChangesAsync();
+
+            TempData["SuccessMessage"] = $"تم تحديث بيانات تسجيل المتدرب '{model.TraineeName}' بنجاح.";
+            return RedirectToAction("Details", "CourseDetails", new { id = model.CourseDetailsId });
         }
 
 
@@ -1084,14 +1137,14 @@ namespace TrainingManagementSystem.Controllers
 
             var courseDetailsId = courseTrainee.CourseDetailsId; // احفظ الـ ID للـ redirect
 
-            var CourseDetails = await _context.CourseDetails.FindAsync(courseDetailsId);
+            //var CourseDetails = await _context.CourseDetails.FindAsync(courseDetailsId);
 
 
             _context.CourseTrainees.Remove(courseTrainee);
             await _context.SaveChangesAsync();
 
             TempData["SuccessMessage"] = "تم إلغاء تسجيل المتدرب بنجاح.";
-            return RedirectToAction(nameof(Details), new { id = CourseDetails.CourseId });
+            return RedirectToAction(nameof(Details), new { id = courseDetailsId });
         }
 
         public async Task<IActionResult> PrintCertificate(Guid id)
@@ -1173,7 +1226,7 @@ namespace TrainingManagementSystem.Controllers
                 DurationHours = courseDetails.DurationHours,
                 Numberoftargets = courseDetails.Numberoftargets,
                 LocationName = courseDetails.Locations?.Name ?? "غير محدد",
-                CourseTypeName = courseDetails.CourseType?.Name ?? "غير محدد",
+                CourseTypeName =  "غير محدد",
                 StatusName = courseDetails.Status.Name ?? "غير محدد",
                 CourseName = courseDetails.Course.Name, // اسم الكورس الرئيسي
                                                         // تأكد من تعبئة هذه الخصائص إذا كنت ستعرضها في الـ PDF View
@@ -1259,41 +1312,39 @@ namespace TrainingManagementSystem.Controllers
         }
 
 
-        //===========  POST: CourseDetailsTrainers/Create  ===========//
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> CreateCoursDetailsTrainer (AssignTrainerViewModel viewModel)
+        public async Task<IActionResult> CreateCoursDetailsTrainer(AssignTrainerViewModel model)
         {
-            // التحقق من أن المدرب لم يتم إضافته مسبقاً لهذه الدورة
-            var trainerExists = await _context.CoursDetailsTrainer
-                .AnyAsync(cdt => cdt.CourseDetailsId == viewModel.CourseDetailsId && cdt.TrainerId == viewModel.SelectedTrainerId);
-
-            if (trainerExists)
-            {
-                ModelState.AddModelError(nameof(viewModel.SelectedTrainerId), "هذا المدرب معين بالفعل لهذه الدورة.");
-            }
-
             if (ModelState.IsValid)
             {
-                var entity = new CoursDetailsTrainer
+                // ابحث عن المدربين المسجلين بالفعل لتجنب التكرار
+                var isAlreadyAssigned = await _context.CoursDetailsTrainer
+                    .AnyAsync(cdt => cdt.CourseDetailsId == model.CourseDetailsId && cdt.TrainerId == model.SelectedTrainerId);
+
+                if (isAlreadyAssigned)
                 {
-                    Id = Guid.NewGuid(),
-                    CourseDetailsId = viewModel.CourseDetailsId,
-                    TrainerId = viewModel.SelectedTrainerId
+                    ModelState.AddModelError("SelectedTrainerId", "هذا الشخص معين بالفعل في هذا البرنامج التدريبي.");
+                    // يجب إعادة تهيئة المودل قبل إرساله مرة أخرى
+                    return View(model);
+                }
+
+                var courseDetailsTrainer = new CoursDetailsTrainer
+                {
+                    CourseDetailsId = model.CourseDetailsId,
+                    TrainerId = model.SelectedTrainerId,
+                    //State = model.IsTrainer // <-- هنا نستخدم القيمة الجديدة
                 };
 
-                _context.Add(entity);
+                _context.Add(courseDetailsTrainer);
                 await _context.SaveChangesAsync();
 
-                TempData["SuccessMessage"] = "تم التسجيل بنجاح!";
-                return RedirectToAction(nameof(Details), new { id = viewModel.CourseDetailsId });
+                TempData["SuccessMessage"] = "تم تعيين الشخص بنجاح.";
+                return RedirectToAction("Details", "CourseDetails", new { id = model.CourseDetailsId });
             }
 
-            // إذا فشل الحفظ، أعد تحميل اسم الدورة وأعد عرض الصفحة
-            var courseDetails = await _context.CourseDetails.Include(cd => cd.Course).FirstOrDefaultAsync(cd => cd.Id == viewModel.CourseDetailsId);
-            viewModel.CourseDetailsName = courseDetails?.Course?.Name ?? "دورة غير محددة";
-
-            return View(viewModel);
+            // إذا فشل الـ validation، ارجع إلى نفس الصفحة
+            return View(model);
         }
 
 

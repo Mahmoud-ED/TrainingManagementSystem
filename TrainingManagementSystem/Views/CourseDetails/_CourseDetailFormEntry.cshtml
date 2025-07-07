@@ -71,12 +71,7 @@
 
             <span asp-validation-for="LocationId" data-valmsg-for="@($"CourseDetailsEntries[{index}].LocationId")" class="text-danger"></span>
         </div>
-        <div class="col-md-4 mb-3">
-            <label asp-for="CourseTypeId" class="form-label">نوع الدورة<span class="text-danger">*</span></label>
-            <select asp-for="CourseTypeId" name="@($"CourseDetailsEntries[{index}].CourseTypeId")" id="@($"CourseDetailsEntries_{index}__CourseTypeId")" class="form-select" asp-items="courseTypesList">
-            </select>
-            <span asp-validation-for="CourseTypeId" data-valmsg-for="@($"CourseDetailsEntries[{index}].CourseTypeId")" class="text-danger"></span>
-        </div>
+       
         <div class="col-md-4 mb-3">
             <label asp-for="StatusId" class="form-label">الحالة<span class="text-danger">*</span></label>
             <select asp-for="StatusId" name="@($"CourseDetailsEntries[{index}].StatusId")" id="@($"CourseDetailsEntries_{index}__StatusId")" class="form-select" asp-items="statusesList">

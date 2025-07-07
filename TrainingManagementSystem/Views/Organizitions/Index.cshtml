@@ -17,6 +17,7 @@
                 <thead class="table-dark">
                     <tr>
                         <th>اسم الجهة</th>
+                        <th>رمز الجهة</th>
                         <th>الفئة</th>
                         <th>اسم المسؤول</th>
                         <th>رقم الهاتف</th>
@@ -30,6 +31,9 @@
                             <td>@Html.DisplayFor(modelItem => item.Name)</td>
                             <td>
                                 <span class="badge bg-secondary">@Html.DisplayFor(modelItem => item.Category.Name)</span>
+                            </td>
+                            <td>
+                                <span class="badge bg-secondary">@Html.DisplayFor(modelItem => item.NUM)</span>
                             </td>
                             <td>@Html.DisplayFor(modelItem => item.ChiefName)</td>
                             <td>@Html.DisplayFor(modelItem => item.PhoneNo)</td>

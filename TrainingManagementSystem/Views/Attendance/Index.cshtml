@@ -1,0 +1,132 @@
+﻿@model CourseAttendanceIndexViewModel
+@using TrainingManagementSystem.Models.Entities
+
+@{
+    ViewData["Title"] = $"سجل حضور دورة: {Model.CourseName}";
+    var courseDetailsReturnUrl = Url.Action("Details", "CourseDetails", new { id = Model.CourseDetailsId });
+}
+
+<!-- لإظهار أيقونات وحالات الحضور (بدون تغيير) -->
+@functions {
+    public static (string Icon, string Color, string Text) GetStatusVisuals(AttendanceStatus status)
+    {
+        return status switch
+        {
+            AttendanceStatus.Present => ("fa-check-circle", "text-success", "حاضر"),
+            AttendanceStatus.Late => ("fa-clock", "text-warning", "متأخر"),
+            AttendanceStatus.Excused => ("fa-file-alt", "text-info", "معذور"),
+            _ => ("fa-times-circle", "text-danger", "غائب"),
+        };
+    }
+}
+
+<!-- تحسين 1: إضافة حاوية رئيسية لإعطاء هوامش وفصل المحتوى عن حواف الصفحة والـ Navbar/Footer -->
+<div class="container my-5">
+
+    <!-- تحسين 2: استخدام بطاقة Bootstrap لتجميع المحتوى بشكل أنيق ومنظم -->
+    <div class="card shadow-sm">
+
+        <!-- رأس البطاقة: يحتوي على العنوان والأزرار -->
+        <div class="card-header bg-light py-3">
+            <div class="d-flex justify-content-between align-items-center flex-wrap">
+                <h4 class="mb-0">@ViewData["Title"]</h4>
+                <div class="mt-2 mt-md-0">
+                    <a asp-action="DailyAttendance" asp-route-courseDetailsId="@Model.CourseDetailsId" asp-route-date="@DateTime.Today.ToString("yyyy-MM-dd")" class="btn btn-primary">
+                        <i class="fas fa-edit"></i> تسجيل حضور اليوم
+                    </a>
+                    <a asp-action="PrintableSheet" asp-route-courseDetailsId="@Model.CourseDetailsId" class="btn btn-secondary" target="_blank">
+                        <i class="fas fa-print"></i> طباعة كشف يدوي
+                    </a>
+                    
+<a asp-action="Details"
+                       asp-controller="CourseDetails"
+                       asp-route-id="@Model.CourseDetailsId" 
+   class="btn btn-info">
+    <i class="fas fa-arrow-left"></i> الرجوع للتفاصيل
+</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- جسم البطاقة: يحتوي على الجدول ورسائل التنبيه -->
+        <div class="card-body">
+            @if (TempData["SuccessMessage"] != null)
+            {
+                <div class="alert alert-success">@TempData["SuccessMessage"]</div>
+            }
+
+            <div class="table-responsive">
+                <table class="table table-bordered table-striped text-center">
+                    <thead class="thead-light">
+                        <tr>
+                            <th style="width: 200px; vertical-align: middle;">المتدرب</th>
+                            @foreach (var day in Model.DatesInRange)
+                            {
+                                <th class="date-header">
+                                    <a asp-action="DailyAttendance" asp-route-courseDetailsId="@Model.CourseDetailsId" asp-route-date="@day.ToString("yyyy-MM-dd")" class="text-dark d-block p-2">
+                                        @day.ToString("dd MMM")
+                                        <br>
+                                        <small>@day.ToString("ddd", new System.Globalization.CultureInfo("ar-SA"))</small>
+                                    </a>
+                                </th>
+                            }
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var trainee in Model.Trainees)
+                        {
+                            <tr>
+                                <td class="text-right align-middle px-3">@trainee.Name</td>
+                                @foreach (var day in Model.DatesInRange)
+                                {
+                                    <td>
+                                        @if (Model.AttendanceRecords.TryGetValue((trainee.Id, day.Date), out var record))
+                                        {
+                                            var visuals = GetStatusVisuals(record.Status);
+                                            <i class="fas @visuals.Icon @visuals.Color fa-2x" title="@visuals.Text: @record.Notes"></i>
+                                        }
+                                        else
+                                        {
+                                            <i class="fas fa-question-circle text-muted fa-2x" title="لم يتم التسجيل"></i>
+                                        }
+                                    </td>
+                                }
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- تحسين 3: إضافة مفتاح دلالي للأيقونات في تذييل البطاقة -->
+        <div class="card-footer text-muted">
+            <strong>مفتاح دلالي:</strong>
+            <span class="mx-2"><i class="fas fa-check-circle text-success"></i> حاضر</span>
+            <span class="mx-2"><i class="fas fa-clock text-warning"></i> متأخر</span>
+            <span class="mx-2"><i class="fas fa-file-alt text-info"></i> معذور</span>
+            <span class="mx-2"><i class="fas fa-times-circle text-danger"></i> غائب</span>
+            <span class="mx-2"><i class="fas fa-question-circle text-muted"></i> لم يسجل</span>
+        </div>
+    </div>
+</div>
+
+
+<!-- تحسين 4: تفعيل وتحسين الـ CSS لجعل تجربة تعديل التاريخ أفضل -->
+@section Styles {
+    <style>
+        .date-header a {
+            text-decoration: none;
+            transition: background-color 0.2s ease-in-out;
+            border-radius: 5px;
+        }
+
+            .date-header a:hover {
+                background-color: #e9ecef; /* لون خفيف يتناسب مع رأس الجدول */
+                cursor: pointer;
+            }
+
+        .table td, .table th {
+            vertical-align: middle; /* للتأكد من توسط كل شيء عمودياً */
+        }
+    </style>
+}

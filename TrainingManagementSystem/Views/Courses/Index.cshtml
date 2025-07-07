@@ -158,12 +158,15 @@
                             </div>
 
                             <div class="course-card-actions">
-                                <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-info" title="تفاصيل"><i class="icofont-eye-alt"></i> تفاصيل</a>
-                                <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary" title="تعديل"><i class="icofont-edit"></i> تعديل</a>
-                                <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-outline-danger" title="حذف" onclick="return confirm('هل أنت متأكد من حذف هذا التصنيف؟');"><i class="icofont-trash"></i> حذف</a>
+                                <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-info" title="تفاصيل"><i class="icofont-eye-alt"></i> تفاصيل</a>
+                                <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-warning" title="تعديل"><i class="icofont-edit"></i> تعديل</a>
+                                <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-danger" title="حذف" onclick="return confirm('هل أنت متأكد من حذف هذا التصنيف؟');"><i class="icofont-trash"></i> حذف</a>
                                 <a asp-action="ManagePrerequisites" asp-route-id="@item.Id" class="btn btn-sm btn-outline-success">
                                     <i class="fas fa-sitemap me-1"></i> المتطلبات
                                 </a>
+
+
+
                             </div>
                         </div>
                     </div>

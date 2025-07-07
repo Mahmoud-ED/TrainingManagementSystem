@@ -1,4 +1,5 @@
 ﻿// Controllers/ReportController.cs
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -11,54 +12,8 @@ using TrainingManagementSystem.Classes;
 using TrainingManagementSystem.Models;
 using TrainingManagementSystem.Models.Entities; // استبدل هذا بمساحة اسم Entities الخاصة بك
 
-// ViewModel للمخططات في صفحة التقرير
-public class ReportChartViewModel
-{
-    // فلاتر
-    [Display(Name = "من تاريخ")]
-    [DataType(DataType.Date)]
-    public DateTime? StartDateFilter { get; set; }
-
-    [Display(Name = "إلى تاريخ")]
-    [DataType(DataType.Date)]
-    public DateTime? EndDateFilter { get; set; }
-
-    [Display(Name = "تصنيف الدورة")]
-    public Guid? CourseClassificationIdFilter { get; set; }
-    public SelectList CourseClassifications { get; set; }
-
-    [Display(Name = "حالة الدورة")]
-    public Guid? StatusIdFilter { get; set; }
-    public SelectList Statuses { get; set; }
-
-
-    // بيانات المخططات (يمكنك إضافة المزيد حسب الحاجة)
-    public ChartData TraineesPerCourseStatusData { get; set; } // عدد المتدربين حسب حالة الدورة
-    public ChartData CoursesCountPerClassificationData { get; set; } // عدد الدورات حسب المحور
-    public ChartData AverageGradePerCourseData { get; set; } // متوسط الدرجات لكل دورة (مثال)
-
-    public ReportChartViewModel()
-    {
-        TraineesPerCourseStatusData = new ChartData();
-        CoursesCountPerClassificationData = new ChartData();
-        AverageGradePerCourseData = new ChartData();
-    }
-}
-
-public class ChartData
-{
-    public List<string> Labels { get; set; } = new List<string>();
-    public List<int> Data { get; set; } = new List<int>(); // أو List<decimal> للقيم العشرية
-    public List<string> BackgroundColors { get; set; } = new List<string>(); // ألوان للمخططات الدائرية/الشريطية
-    public string Label { get; set; } // عنوان مجموعة البيانات في المخطط
-}
-
 [ViewLayout("_LayoutDashboard")]
-[Display(Name = "التقارير")] // ✅ Controller title
-
-// Controllers/ReportController.cs
-// ... (باقي using statements و class ReportChartViewModel و ChartData كما هي) ...
-
+[Authorize(Roles = "Admin,Prog")]
 public class ReportController : Controller
 {
     private readonly ApplicationDbContext _context;
@@ -68,97 +23,176 @@ public class ReportController : Controller
         _context = context;
     }
 
-    public async Task<IActionResult> Chart(DateTime? startDateFilter, DateTime? endDateFilter, Guid? courseClassificationIdFilter, Guid? statusIdFilter)
-    {
-        var viewModel = new ReportChartViewModel
-        {
-            StartDateFilter = startDateFilter,
-            EndDateFilter = endDateFilter,
-            CourseClassificationIdFilter = courseClassificationIdFilter,
-            StatusIdFilter = statusIdFilter,
-            CourseClassifications = new SelectList(await _context.CourseClassifications.OrderBy(c => c.Name).ToListAsync(), "Id", "Name", courseClassificationIdFilter),
-            Statuses = new SelectList(await _context.Statuses.OrderBy(s => s.Name).ToListAsync(), "Id", "Name", statusIdFilter)
-        };
-        return View(viewModel);
-    }
-
     [HttpGet]
-    public async Task<IActionResult> GetChartData(DateTime? startDateFilter, DateTime? endDateFilter, Guid? courseClassificationIdFilter, Guid? statusIdFilter)
+    public IActionResult Chart()
     {
-        IQueryable<CourseDetails> query = _context.CourseDetails
-                                                .AsNoTracking() // جيد للأداء
-                                                .Include(cd => cd.Course)
-                                                .Include(cd => cd.Status)
-                                                .Include(cd => cd.Course.CourseClassification)
-                                                .Include(cd => cd.CourseTrainees); // مهم لحساب المتدربين
+        return View();
+    }
+    [HttpGet]
+    public async Task<JsonResult> GetKpiData()
+    {
+        var currentYear = DateTime.Now.Year;
 
-        // ... (تطبيق الفلاتر كما هو) ...
-        if (startDateFilter.HasValue)
-        {
-            query = query.Where(cd => cd.StartDate >= startDateFilter.Value);
-        }
-        if (endDateFilter.HasValue)
-        {
-            query = query.Where(cd => cd.StartDate <= endDateFilter.Value.AddDays(1).AddTicks(-1));
-        }
-        if (courseClassificationIdFilter.HasValue)
-        {
-            query = query.Where(cd => cd.Course.CourseClassificationId == courseClassificationIdFilter.Value);
-        }
-        if (statusIdFilter.HasValue)
-        {
-            query = query.Where(cd => cd.StatusId == statusIdFilter.Value);
-        }
+        var totalCourses = await _context.CourseDetails
+            .Where(cd => cd.StartDate.Year == currentYear)
+            .CountAsync();
 
+        var totalTrainees = await _context.CourseTrainees
+            .Where(ct => ct.CourseDetails.StartDate.Year == currentYear)
+            .CountAsync();
 
-        var filteredCourseDetails = await query.ToListAsync();
+        var averageAttendance = await _context.CourseTrainees
+            .Where(ct => ct.AttendancePercentage.HasValue && ct.CourseDetails.StartDate.Year == currentYear)
+            .AverageAsync(ct => (decimal?)ct.AttendancePercentage) ?? 0;
 
-        // 1. مخطط عدد المتدربين حسب حالة الدورة (كما هو)
-        var traineesPerStatus = filteredCourseDetails
-            .GroupBy(cd => cd.Status?.Name ?? "غير محددة")
-            .Select(g => new { StatusName = g.Key, TraineeCount = g.Sum(cd => cd.CourseTrainees?.Count ?? 0) })
-            .OrderBy(x => x.StatusName);
-        var traineesPerCourseStatusData = new ChartData { Label = "عدد المتدربين", Labels = traineesPerStatus.Select(x => x.StatusName).ToList(), Data = traineesPerStatus.Select(x => x.TraineeCount).ToList() };
-
-        // 2. مخطط عدد الدورات حسب المحور (كما هو)
-        var coursesPerClassification = filteredCourseDetails
-            .Where(cd => cd.Course?.CourseClassification != null)
-            .GroupBy(cd => cd.Course.CourseClassification.Name)
-            .Select(g => new { ClassificationName = g.Key, CourseCount = g.Count() })
-            .OrderBy(x => x.ClassificationName);
-        var coursesCountPerClassificationData = new ChartData { Label = "عدد الدورات", Labels = coursesPerClassification.Select(x => x.ClassificationName).ToList(), Data = coursesPerClassification.Select(x => x.CourseCount).ToList() };
-
-        // 3. مخطط متوسط الدرجات لكل دورة مع عرض الفترة (كما هو)
-        var averageGradePerCourse = filteredCourseDetails
-            .Where(cd => cd.CourseTrainees != null && cd.CourseTrainees.Any(ct => ct.Grade.HasValue))
-            .Select(cd => new { CourseName = cd.Course?.Name ?? "دورة غير محددة", StartDate = cd.StartDate, EndDate = cd.EndDate, AverageGrade = cd.CourseTrainees.Where(ct => ct.Grade.HasValue).Average(ct => ct.Grade.Value) })
-            .OrderByDescending(x => x.AverageGrade).Take(10);
-        var averageGradePerCourseData = new ChartData { Label = "متوسط الدرجات", Labels = averageGradePerCourse.Select(x => $"{x.CourseName} ({x.StartDate:dd/MM/yy} - {(x.EndDate.HasValue ? x.EndDate.Value.ToString("dd/MM/yy") : "مستمرة")})").ToList(), Data = averageGradePerCourse.Select(x => (int)Math.Round(x.AverageGrade)).ToList() };
-
-        // 4. مخطط جديد: عدد المتدربين في كل تفصيل دورة (CourseDetails)
-        var traineesPerCourseDetail = filteredCourseDetails
-            .Select(cd => new
-            {
-                CourseDetailIdentifier = $"{cd.Course?.Name ?? "دورة غير محددة"} ({cd.StartDate:dd/MM/yy})", // معرّف فريد لكل تفصيل دورة
-                TraineeCount = cd.CourseTrainees?.Count ?? 0
-            })
-            .Where(x => x.TraineeCount > 0) // عرض الدورات التي بها متدربون فقط (اختياري)
-            .OrderByDescending(x => x.TraineeCount) // ترتيب تنازلي لعرض الأكثر تسجيلاً أولاً
-            .Take(15); // خذ أفضل 15 مثلاً لتجنب ازدحام المخطط
-
-        var traineesPerCourseDetailData = new ChartData
-        {
-            Label = "عدد المتدربين",
-            Labels = traineesPerCourseDetail.Select(x => x.CourseDetailIdentifier).ToList(),
-            Data = traineesPerCourseDetail.Select(x => x.TraineeCount).ToList()
-        };
+        var activeOrganizations = await _context.Trainees
+            .Where(t => t.OrganizationId.HasValue && t.CourseTrainees.Any(ct => ct.CourseDetails.StartDate.Year == currentYear))
+            .Select(t => t.OrganizationId)
+            .Distinct()
+            .CountAsync();
 
         return Json(new
         {
-            traineesPerCourseStatusData,
-            coursesCountPerClassificationData,
-            averageGradePerCourseData,
-            traineesPerCourseDetailData // إضافة البيانات الجديدة هنا
+            totalCourses,
+            totalTrainees,
+            averageAttendance = Math.Round(averageAttendance, 2),
+            activeOrganizations
         });
     }
+
+    // Action لجلب بيانات أبرز الجهات
+    [HttpGet]
+    public async Task<JsonResult> GetTopOrganizationsChart()
+    {
+        var data = await _context.Trainees
+            .Where(t => t.OrganizationId != null && t.Organizition != null)
+            .GroupBy(t => t.Organizition.Name)
+            .Select(g => new { Name = g.Key, Count = g.Count() })
+            .OrderByDescending(x => x.Count)
+            .Take(10)
+            .ToListAsync();
+
+        return Json(new { series = data.Select(d => d.Count), labels = data.Select(d => d.Name) });
+    }
+
+    // Action لجلب بيانات أداء المدربين
+    [HttpGet]
+    public async Task<JsonResult> GetTopTrainersChart()
+    {
+        // هذا الاستعلام معقد قليلاً لأنه يمر عبر عدة جداول
+        var data = await _context.Trainers
+            .Where(t => t.CoursDetailsTrainer.Any(cdt => cdt.CourseDetails.CourseTrainees.Any(ct => ct.Grade.HasValue))) // مدربون لديهم دورات بها تقييمات
+            .Select(t => new {
+                TrainerName = t.ArName,
+                // حساب متوسط التقييمات لكل الدورات التي دربها
+                AverageGrade = t.CoursDetailsTrainer
+                                .SelectMany(cdt => cdt.CourseDetails.CourseTrainees)
+                                .Where(ct => ct.Grade.HasValue)
+                                .Average(ct => (decimal?)ct.Grade) ?? 0
+            })
+            .Where(t => t.AverageGrade > 0)
+            .OrderByDescending(t => t.AverageGrade)
+            .Take(10)
+            .ToListAsync();
+
+        return Json(new { series = data.Select(d => Math.Round(d.AverageGrade, 2)), labels = data.Select(d => d.TrainerName) });
+    }
+
+    // Action لجلب بيانات تطور عدد المتدربين
+    [HttpGet]
+    public async Task<JsonResult> GetTraineeEnrollmentChart()
+    {
+        var data = await _context.CourseTrainees
+            .Where(ct => ct.CourseDetails != null)
+            .GroupBy(ct => new { ct.CourseDetails.StartDate.Year, ct.CourseDetails.StartDate.Month })
+            .Select(g => new {
+                Year = g.Key.Year,
+                Month = g.Key.Month,
+                Count = g.Count()
+            })
+            .OrderBy(g => g.Year).ThenBy(g => g.Month)
+            .Take(12) // آخر 12 شهر من النشاط
+            .ToListAsync();
+
+        // تحويل البيانات لشكل مناسب للمخطط
+        var labels = data.Select(d => new DateTime(d.Year, d.Month, 1).ToString("MMM yyyy")).ToList();
+        var series = data.Select(d => d.Count).ToList();
+
+        return Json(new { series, labels });
+    }
+
+
+    // أضف هذا الـ Action الجديد إلى DashboardController.cs
+
+    [HttpGet]
+    public async Task<JsonResult> GetPlanVsActualAnalysis()
+    {
+        // 1. جلب كل الدورات المخطط لها لهذا العام (كمثال)
+        var currentYear = DateTime.Now.Year;
+        var plannedCourses = await _context.PlanCours
+            .Include(p => p.Course) // نحتاج اسم الدورة من الجدول الرئيسي
+            .Where(p => p.StartDate.Year == currentYear)
+            .ToListAsync();
+
+        // 2. جلب كل الدورات المنفذة فعلياً التي لها أصل في الخطة
+        var executedCourseIds = await _context.CourseDetails
+            .Where(cd => cd.StartDate.Year == currentYear)
+            .Select(cd => cd.CourseId) // نفترض أن الربط يتم عبر CourseId
+            .Distinct()
+            .ToListAsync();
+
+        // 3. تحليل البيانات
+        var totalPlanned = plannedCourses.Count;
+        if (totalPlanned == 0)
+        {
+            // لا يوجد شيء للمقارنة
+            return Json(new { percentage = 0, executedCount = 0, upcomingCount = 0, notExecutedCount = 0, details = new List<object>() });
+        }
+
+        var executedCount = plannedCourses.Count(p => executedCourseIds.Contains(p.CourseId));
+        var upcomingCount = plannedCourses.Count(p => p.StartDate > DateTime.Now && !executedCourseIds.Contains(p.CourseId));
+        var notExecutedCount = plannedCourses.Count(p => p.StartDate <= DateTime.Now && !executedCourseIds.Contains(p.CourseId));
+
+        // حساب النسبة المئوية للإنجاز
+        var percentage = (double)executedCount / totalPlanned * 100;
+
+        // 4. تجهيز قائمة تفصيلية
+        var details = plannedCourses.Select(p => {
+            string status;
+            string statusColor;
+            if (executedCourseIds.Contains(p.CourseId))
+            {
+                status = "تم التنفيذ";
+                statusColor = "success"; // لون أخضر
+            }
+            else if (p.StartDate > DateTime.Now)
+            {
+                status = "قادمة";
+                statusColor = "primary"; // لون أزرق
+            }
+            else
+            {
+                status = "لم تنفذ (متأخرة)";
+                statusColor = "danger"; // لون أحمر
+            }
+            return new
+            {
+                CourseName = p.Course?.Name ?? "اسم غير محدد",
+                PlannedDate = p.StartDate.ToString("dd MMM yyyy"),
+                Status = status,
+                StatusColor = statusColor
+            };
+        }).OrderBy(d => d.PlannedDate).ToList();
+
+
+        return Json(new
+        {
+            percentage = Math.Round(percentage, 1),
+            executedCount,
+            upcomingCount,
+            notExecutedCount,
+            details
+        });
+    }
+
 }
