@@ -4,17 +4,18 @@ using Microsoft.AspNetCore.Identity; // لـ UserManager إذا كنت تتعا�
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using QRCoder; // لاستخدام مكتبة QR
 using System;
-using System.Collections.Generic;
-using System.Linq;
+using System.ComponentModel.DataAnnotations; // For Path
+using System.Drawing; // قد تحتاج لإضافة مرجع System.Drawing.Common
+using System.IO;
+using System.IO;
 using System.Threading.Tasks;
 using TrainingManagementSystem.Classes;
 using TrainingManagementSystem.Models; // ApplicationDbContext
 using TrainingManagementSystem.Models.Entities;
 using TrainingManagementSystem.Models.Interfaces;
 using TrainingManagementSystem.ViewModels;
-using System.IO;
-using System.ComponentModel.DataAnnotations; // For Path
 
 namespace TrainingManagementSystem.Controllers
 {
@@ -169,12 +170,12 @@ namespace TrainingManagementSystem.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(TraineeVM viewModel, string? isImg1) // isImg1 من الـ View لمعالجة الصورة
         {
-        
+
             if (_traineeUoW.Entity.GetWhere(t => t.Email == viewModel.Email).Any())
                 ModelState.AddModelError("Email", "البريد الإلكتروني مستخدم مسبقًا.");
-            if ( _traineeUoW.Entity.GetWhere(t => t.Email == viewModel.Email).Any())
+            if (_traineeUoW.Entity.GetWhere(t => t.Email == viewModel.Email).Any())
                 ModelState.AddModelError("Email", "البريد الإلكتروني مستخدم مسبقًا.");
-            if ( _traineeUoW.Entity.GetWhere(t => t.PhoneNo == viewModel.PhoneNo).Any())
+            if (_traineeUoW.Entity.GetWhere(t => t.PhoneNo == viewModel.PhoneNo).Any())
                 ModelState.AddModelError("PhoneNo", "رقم الهاتف مستخدم مسبقًا.");
             if (_traineeUoW.Entity.GetWhere(t => t.NationalNo == viewModel.NationalNo).Any())
                 ModelState.AddModelError("NationalNo", "الرقم الوطني مستخدم مسبقًا.");
@@ -233,7 +234,7 @@ namespace TrainingManagementSystem.Controllers
                 var trainee = new Trainee
                 {
                     Id = Guid.NewGuid(),
-                    NUM= viewModel.NUM,
+                    NUM = viewModel.NUM,
                     ArName = viewModel.ArName,
                     EnName = viewModel.EnName,
                     PhoneNo = viewModel.PhoneNo,
@@ -307,11 +308,11 @@ namespace TrainingManagementSystem.Controllers
             if (id != viewModel.Id) return NotFound();
 
             // التحقق من البريد الإلكتروني ورقم الهاتف المكررين (مع استثناء السجل الحالي)
-            if ( _traineeUoW.Entity.GetWhere(t => t.Email == viewModel.Email && t.Id != viewModel.Id).Any())
+            if (_traineeUoW.Entity.GetWhere(t => t.Email == viewModel.Email && t.Id != viewModel.Id).Any())
                 ModelState.AddModelError("Email", "البريد الإلكتروني مستخدم مسبقًا لمتدرب آخر.");
-            if ( _traineeUoW.Entity.GetWhere(t => t.PhoneNo == viewModel.PhoneNo && t.Id != viewModel.Id).Any())
+            if (_traineeUoW.Entity.GetWhere(t => t.PhoneNo == viewModel.PhoneNo && t.Id != viewModel.Id).Any())
                 ModelState.AddModelError("PhoneNo", "رقم الهاتف مستخدم مسبقًا لمتدرب آخر.");
-            if (viewModel.NationalNo != null &&  _traineeUoW.Entity.GetWhere(t => t.NationalNo == viewModel.NationalNo && t.Id != viewModel.Id).Any())
+            if (viewModel.NationalNo != null && _traineeUoW.Entity.GetWhere(t => t.NationalNo == viewModel.NationalNo && t.Id != viewModel.Id).Any())
                 ModelState.AddModelError("NationalNo", "الرقم الوطني مستخدم مسبقًا لمتدرب آخر.");
 
 
@@ -466,7 +467,7 @@ namespace TrainingManagementSystem.Controllers
                 (t.Email != null && t.Email.ToLower().Contains(searchTermLower)) ||
                 // (t.NationalId != null && t.NationalId.Contains(term)) || // مثال إذا كان لديك NationalId
                 (t.PhoneNo != null && t.PhoneNo.Contains(term)) // مثال إذا كان لديك PhoneNumber
-                                                                        // أضف أي حقول أخرى تريد البحث فيها
+                                                                // أضف أي حقول أخرى تريد البحث فيها
             );
 
             // استبعاد المتدربين المسجلين بالفعل في الدورة المحددة (إذا تم تمرير courseDetailsIdToExclude)
@@ -510,5 +511,28 @@ namespace TrainingManagementSystem.Controllers
                 pagination = new { more = (page * pageSize) < totalCount }
             });
         }
+
+      public async Task<IActionResult> GenerateIdCard(Guid? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            // جلب المتدرب مع تضمين الكيانات المرتبطة لعرض أسمائها في البطاقة
+            var trainee = await _context.Trainees
+                .Include(t => t.Organizition)   // جلب المؤسسة
+                .Include(t => t.Specialization) // جلب التخصص
+                .FirstOrDefaultAsync(m => m.Id == id);
+
+            if (trainee == null)
+            {
+                return NotFound();
+            }
+         
+
+            return View(trainee);
+        }
+
     }
 }

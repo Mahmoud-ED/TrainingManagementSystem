@@ -200,7 +200,7 @@ namespace TrainingManagementSystem.Controllers
         {
             if (_signInManager.IsSignedIn(User))
             {
-                return Task.FromResult<IActionResult>(RedirectToAction("Register", "Account"));
+                return Task.FromResult<IActionResult>(RedirectToAction("Login", "Account"));
             }
 
             var loginViewModel = new LoginVM
@@ -371,7 +371,7 @@ namespace TrainingManagementSystem.Controllers
         {
             await _signInManager.SignOutAsync();
             _userSessionTracker.Decrement();
-            return RedirectToAction("Index", "Home");
+            return RedirectToAction("Login", "Account");
         }
 
         [HttpPost]
@@ -459,7 +459,7 @@ namespace TrainingManagementSystem.Controllers
         {
             if (_signInManager.IsSignedIn(User))
             {
-                return RedirectToAction("Index", "Home");
+                return RedirectToAction("login", "Account");
             }
             return View();
         }

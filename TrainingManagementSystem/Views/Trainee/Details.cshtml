@@ -260,28 +260,12 @@
 }
 
 <!-- Breadcrumbs (لا تغيير هنا) -->
-<div class="breadcrumbs overlay">
-    <div class="container">
-        <div class="bread-inner">
-            <div class="row">
-                <div class="col-12">
-                    <h2>@ViewData["Title"]</h2>
-                    <ul class="bread-list">
-                        <li><a asp-controller="Admin" asp-action="Index">لوحة التحكم</a></li>
-                        <li><i class="icofont-simple-right"></i></li>
-                        <li><a asp-action="Index">المتدربين</a></li>
-                        <li><i class="icofont-simple-right"></i></li>
-                        <li class="active">@Model.ArName</li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
 
 <section class="section py-5">
     <div class="container">
-
+        <a asp-action="GenerateIdCard" asp-route-id="@Model.Id" class="btn btn-info btn-sm" target="_blank">
+            <i class="fa-solid fa-id-card"></i> طباعة بطاقة
+        </a>
         <!-- بطاقة التعريف العلوية -->
         <div class="profile-header animate__animated animate__fadeInDown">
             <img src="@profileImageUrl" alt="صورة المتدرب @Model.ArName" class="profile-image-xl"

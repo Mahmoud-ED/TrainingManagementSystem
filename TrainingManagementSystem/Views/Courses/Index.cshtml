@@ -132,24 +132,11 @@
                                         <i class="icofont-tag"></i> @item.CourseClassification.Name
                                     </span>
                                 }
-                                @if (item.Level != null)
-                                {
-                                    <span class="badge bg-secondary course-badge">
-                                        <i class="icofont-filter"></i> @item.Level.Name
-                                    </span>
-                                }
+                             
                             </div>
 
                             <div class="course-card-info">
-                                @if (item.CourseParent != null && !string.IsNullOrEmpty(item.CourseParent.Name))
-                                {
-                                    <p><i class="icofont-link"></i> <strong>الدورة السابقة:</strong> @item.CourseParent.Name</p>
-                                }
-                                else
-                                {
-                                    <p><i class="icofont-link"></i> <strong>الدورة السابقة:</strong> لا يوجد</p>
-                                }
-                                <!-- You can add more info here if brief, e.g., number of modules -->
+                               
                                 @if (item.CourseDetails != null && item.CourseDetails.Any())
                                 {
                                     <p><i class="icofont-listing-number"></i> @item.CourseDetails.Count @(item.CourseDetails.Count == 1 ? "محور" : (item.CourseDetails.Count == 2 ? "محورين" : (item.CourseDetails.Count > 2 && item.CourseDetails.Count < 11 ? "محاور" : "محور"))) </p>
@@ -164,8 +151,6 @@
                                 <a asp-action="ManagePrerequisites" asp-route-id="@item.Id" class="btn btn-sm btn-outline-success">
                                     <i class="fas fa-sitemap me-1"></i> المتطلبات
                                 </a>
-
-
 
                             </div>
                         </div>

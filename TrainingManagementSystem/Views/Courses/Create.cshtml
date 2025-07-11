@@ -158,29 +158,6 @@
                     <span asp-validation-for="CourseClassificationId" class="text-danger small mt-1"></span>
                 </div>
 
-                <div class="col-md-6">
-                    <label asp-for="LevelId" class="form-label"><i class="fas fa-layer-group"></i>مستوى التصنيف</label>
-                    <select asp-for="LevelId" class="form-select" required>
-                        <option></option> <!-- فارغ للـ placeholder -->
-                        @foreach (var item in Model.Levels)
-                        {
-                            <option value="@item.Value">@item.Text</option>
-                        }
-                    </select>
-                    <span asp-validation-for="LevelId" class="text-danger small mt-1"></span>
-                </div>
-
-                <div class="col-12">
-                    <label asp-for="CourseParentId" class="form-label"><i class="fas fa-link"></i>التصنيف المرجعية (إن وجدت)</label>
-                    <select asp-for="CourseParentId" class="form-select">
-                        <option></option> <!-- فارغ للـ placeholder -->
-                        @foreach (var item in Model.ParentCourses)
-                        {
-                            <option value="@item.Value">@item.Text</option>
-                        }
-                    </select>
-                    <span asp-validation-for="CourseParentId" class="text-danger small mt-1"></span>
-                </div>
 
                 <div class="mb-4">
                     <label asp-for="SelectedTrainerIds" class="form-label"><i class="fas fa-users"></i> Assign Users (Hold Ctrl/Cmd to select multiple)</label>

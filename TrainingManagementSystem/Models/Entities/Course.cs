@@ -14,10 +14,9 @@ namespace TrainingManagementSystem.Models.Entities
 
         //---------------------------------------------------------------
         [ValidateNever]
-        public Level Level { get; set; } // مفرد
-        [Required(ErrorMessage = "المستوى مطلوب")] // تم تصحيح رسالة الخطأ
+        public Level? Level { get; set; } // مفرد
         [Display(Name = "المستوى")]
-        public Guid LevelId { get; set; }
+        public Guid? LevelId { get; set; }
 
         //---------------------------------------------------------------
         [StringLength(100)]
@@ -62,6 +61,8 @@ namespace TrainingManagementSystem.Models.Entities
 
         // خاصية التنقل: قائمة بالمتطلبات المسبقة لهذا الكورس
         public virtual ICollection<CoursePrerequisite> RequiredPrerequisites { get; set; }
+
+        
 
         public Course()
         {
