@@ -5,7 +5,7 @@ public class CertificateViewModel
 {
     // بيانات المتدرب
     [Display(Name = "اسم المتدرب")]
-    public string TraineeName { get; set; }
+    public string? TraineeName { get; set; }
 
     // بيانات الدورة
     [Display(Name = "اسم الدورة")]

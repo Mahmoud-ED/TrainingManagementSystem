@@ -1,4 +1,4 @@
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 namespace TrainingManagementSystem.Models.Entities
 {
     public class Attendance : BaseEntity
@@ -28,4 +28,32 @@ public enum AttendanceStatus
     Absent,
     Late,
     Excused
+}
+public static class EnumExtensions
+{
+    // هذا التابع يترجم الـ enum إلى نص عربي
+    public static string ToArabic(this AttendanceStatus status)
+    {
+        return status switch
+        {
+            AttendanceStatus.Present => "حاضر",
+            AttendanceStatus.Absent => "غائب",
+            AttendanceStatus.Late => "متأخر",
+            AttendanceStatus.Excused => "بعذر",
+            _ => status.ToString() // في حال وجود قيمة غير متوقعة
+        };
+    }
+
+    // هذا التابع يعطي كلاس Bootstrap لوني لكل حالة
+    public static string GetBootstrapClass(this AttendanceStatus status)
+    {
+        return status switch
+        {
+            AttendanceStatus.Present => "btn-success",
+            AttendanceStatus.Absent => "btn-danger",
+            AttendanceStatus.Late => "btn-warning",
+            AttendanceStatus.Excused => "btn-info",
+            _ => "btn-secondary"
+        };
+    }
 }
