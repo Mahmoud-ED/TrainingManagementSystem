@@ -4,16 +4,15 @@
     ViewData["Title"] = "الملف الشخصي للمدرب";
     string profileImageUrl = string.IsNullOrEmpty(Model.ProfileImageUrl) ? Url.Content("~/img/OIP.jpeg") : Url.Content($"~/pictures/trainers/{Model.ProfileImageUrl}");
     var specializations = Model.TrainerSpecializations?.Select(ts => ts.Specialization?.Name).Where(s => !string.IsNullOrEmpty(s)).ToList() ?? new List<string>();
-    // افترض أن الموديل يحتوي على قائمة بالدورات التي قدمها المدرب. إذا لم يكن كذلك، يمكنك تجاهل هذا الجزء.
-    // var coursesTaught = Model.CoursesTaught ?? new List<CourseDetails>();
 }
 
 @section Styles {
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
+
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
     <style>
-        /* === إعدادات الصفحة الأساسية === */
         body {
-            background-color: #f8f9fa; /* خلفية رمادية فاتحة جداً */
+            background-color: #f8f9fa;
         }
 
         .widget {
@@ -22,7 +21,6 @@
             border-radius: 12px;
             margin-bottom: 1.5rem;
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.04);
-            transition: all 0.3s ease;
         }
 
         .widget-header {
@@ -44,12 +42,10 @@
             padding: 1.5rem;
         }
 
-        /* === بطاقة الملف الشخصي العلوية === */
         .profile-widget {
-            position: relative;
             text-align: center;
-            padding-top: 40px; /* مساحة للخلفية العلوية */
-            overflow: hidden;
+            padding-top: 40px;
+            position: relative;
         }
 
         .profile-bg {
@@ -58,7 +54,7 @@
             left: 0;
             right: 0;
             height: 120px;
-            background: linear-gradient(135deg, #1DC792 0%, #17A2B8 100%);
+            background: linear-gradient(135deg, #0d6efd 0%, #1DC792 100%);
             border-radius: 12px 12px 0 0;
         }
 
@@ -68,8 +64,7 @@
             border-radius: 50%;
             object-fit: cover;
             border: 5px solid #fff;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.15);
-            margin-top: 45px; /* لسحبها للأسفل قليلاً */
+            margin-top: 45px;
             position: relative;
             z-index: 2;
         }
@@ -102,24 +97,16 @@
                 color: #526484;
                 font-size: 0.9rem;
                 text-decoration: none;
-                transition: color 0.3s ease;
             }
-
-                .profile-contact a:hover {
-                    color: #1DC792;
-                }
 
             .profile-contact i {
                 margin-right: 5px;
             }
 
         .profile-actions .btn {
-            border-radius: 20px;
-            padding: 8px 20px;
-            font-weight: 600;
+            margin: 5px;
         }
 
-        /* === قائمة المعلومات والتخصصات === */
         .info-list-styled {
             list-style: none;
             padding: 0;
@@ -138,23 +125,22 @@
 
             .info-list-styled i {
                 font-size: 1.2rem;
-                color: #1DC792;
+                color: #0d6efd;
                 width: 30px;
                 margin-right: 15px;
                 margin-top: 2px;
             }
 
-            .info-list-styled .info-label {
-                font-weight: 600;
-                color: #526484;
-                margin-bottom: 3px;
-            }
+        .info-label {
+            font-weight: 600;
+            color: #526484;
+            margin-bottom: 3px;
+        }
 
-            .info-list-styled .info-value {
-                color: #2c3e50;
-            }
+        .info-value {
+            color: #2c3e50;
+        }
 
-        /* === بطاقات التخصصات === */
         .specializations-list {
             display: flex;
             flex-wrap: wrap;
@@ -162,39 +148,28 @@
         }
 
         .spec-badge {
-            background-color: #e8f9f5;
-            color: #1DC792;
+            background-color: #e8f0fe;
+            color: #0d6efd;
             padding: 8px 15px;
             border-radius: 20px;
             font-weight: 500;
             font-size: 0.9rem;
-            border: 1px solid #cceee4;
         }
 
-        /* === قائمة الدورات (إذا وجدت) === */
         .course-taught-item {
             display: flex;
             align-items: center;
             padding: 1rem 0;
             border-bottom: 1px solid #f1f1f1;
-            transition: background-color 0.3s;
         }
-
-            .course-taught-item:hover {
-                background-color: #fcfcfc;
-            }
-
-            .course-taught-item:last-child {
-                border-bottom: none;
-            }
 
         .course-icon-container {
             width: 50px;
             height: 50px;
-            background-color: #e8f9f5;
-            color: #1DC792;
+            background-color: #e8f0fe;
+            color: #0d6efd;
             border-radius: 10px;
-            display: inline-flex;
+            display: flex;
             align-items: center;
             justify-content: center;
             font-size: 1.5rem;
@@ -212,159 +187,158 @@
             margin: 0;
         }
 
-        /* === الكود المُحسَّن لطباعة البطاقة === */
         .printable-card-area {
-            display: none; /* إخفاء منطقة الطباعة في العرض العادي */
+            display: none;
         }
 
-        @@media print {
-            /* 1. إخفاء كل شيء في الصفحة ما عدا منطقة الطباعة */
-            body > *:not(.printable-card-area) {
-                display: none !important;
+        media print {
+            body > *:not(.printable-card-area)
+
+        {
+            display: none !important;
+        }
+
+        .printable-card-area {
+            display: block !important;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+        }
+
+        .trainer-print-card {
+            width: 85mm;
+            height: 55mm;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            margin: 20mm auto;
+            padding: 5mm;
+            box-sizing: border-box;
+            text-align: center;
+            font-family: sans-serif;
+        }
+
+            .trainer-print-card img {
+                width: 25mm;
+                height: 25mm;
+                border-radius: 50%;
+                object-fit: cover;
+                border: 1.5mm solid #eee;
             }
-            /* 2. إظهار منطقة الطباعة وتجهيزها لتأخذ كامل المساحة */
-            .printable-card-area {
-                display: block !important;
-                position: absolute;
-                top: 0;
-                left: 0;
-                width: 100%;
-            }
-            /* 3. تصميم البطاقة نفسها للطباعة (هذا الجزء سليم لديك) */
-            .trainer-print-card {
-                width: 85mm;
-                height: 55mm;
-                border: 1px solid #ccc;
-                border-radius: 5px;
-                margin: 20mm auto; /* توسيط البطاقة في الصفحة */
-                padding: 5mm;
-                box-sizing: border-box;
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                text-align: center;
-                font-family: sans-serif;
-                page-break-inside: avoid; /* مهم لمنع انقسام البطاقة بين صفحتين */
+
+            .trainer-print-card h4 {
+                font-size: 11pt;
+                margin: 2mm 0 1mm 0;
+                color: #000;
             }
 
-                .trainer-print-card img {
-                    width: 25mm;
-                    height: 25mm;
-                    border-radius: 50%;
-                    object-fit: cover;
-                    border: 1.5mm solid #eee;
-                }
+            .trainer-print-card p {
+                font-size: 8pt;
+                color: #444;
+                margin: 0.5mm 0;
+            }
 
-                .trainer-print-card h4 {
-                    font-size: 11pt;
-                    margin: 2mm 0 1mm 0;
-                    color: #000;
-                }
+            .trainer-print-card .print-specs {
+                font-size: 7pt;
+                color: #666;
+                margin-top: 2mm;
+            }
 
-                .trainer-print-card p {
-                    font-size: 8pt;
-                    color: #444;
-                    margin: 0.5mm 0;
-                }
-
-                .trainer-print-card .print-specs {
-                    font-size: 7pt;
-                    color: #666;
-                    margin-top: 2mm;
-                }
         }
     </style>
 }
 
 <section class="section py-5 main-content">
     <div class="container">
+        <div class="page-header mb-4 d-flex justify-content-between align-items-center border-bottom pb-2">
+            <h3><i class="fas fa-user me-2"></i> @ViewData["Title"]</h3>
+            <a asp-action="Index" class="btn btn-secondary d-flex align-items-center">
+                <span class="ms-2"> رجوع إلى القائمة </span>
+                <i class="fas fa-arrow-left"></i>
+            </a>
+        </div>
         <div class="row">
-            <!-- ================= العمود الأيمن: بطاقة الملف الشخصي ================= -->
             <div class="col-lg-4 animate__animated animate__fadeInLeft">
                 <div class="widget profile-widget">
                     <div class="profile-bg"></div>
-                    <img src="@profileImageUrl" alt="صورة المدرب" class="profile-pic-lg"
-                         onerror="this.onerror=null; this.src='@Url.Content("~/img/OIP.jpeg")';" />
+                    <img src="@profileImageUrl" alt="صورة المدرب" class="profile-pic-lg" />
                     <div class="profile-info">
                         <h3>@Model.ArName</h3>
                         <p class="qualification">@Model.Qualification?.Name</p>
                         <div class="profile-contact">
-                            <a href="mailto:@Model.Email"><i class="icofont-email"></i> تواصل عبر البريد</a>
-                            <a href="tel:@Model.PhoneNo"><i class="icofont-phone"></i> اتصال</a>
+                            <a href="mailto:@Model.Email"><i class="fas fa-envelope"></i> بريد إلكتروني</a>
+                            <a href="tel:@Model.PhoneNo"><i class="fas fa-phone"></i> اتصال</a>
                         </div>
                         <div class="profile-actions">
-                            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn" style="background-color: #1DC792; color: #fff;">
-                                <i class="icofont-edit"></i> تعديل
+                            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-sm btn-outline-primary">
+                                <i class="fas fa-edit"></i> تعديل
                             </a>
                             @if (!string.IsNullOrEmpty(Model.CVUrl))
                             {
-                                <a href="@Url.Content("~/pictures/cvs/" + Model.CVUrl)" target="_blank" class="btn btn-outline-secondary">
-                                    <i class="icofont-download"></i> السيرة الذاتية
+                                <a href="@Url.Content("~/pictures/cvs/" + Model.CVUrl)" target="_blank" class="btn btn-secondary">
+                                    <i class="fas fa-download"></i> السيرة الذاتية
                                 </a>
                             }
                         </div>
                     </div>
                 </div>
 
-                <!-- widget: التخصصات -->
                 <div class="widget">
                     <div class="widget-header">
-                        <h5><i class="icofont-star me-2" style="color:#1DC792;"></i>التخصصات</h5>
+                        <h5><i class="fas fa-star me-2 text-primary"></i> التخصصات</h5>
                         <span class="badge bg-light text-dark">@specializations.Count</span>
                     </div>
-                    @if (specializations.Any())
-                    {
-                        <div class="widget-body">
+                    <div class="widget-body">
+                        @if (specializations.Any())
+                        {
                             <div class="specializations-list">
                                 @foreach (var spec in specializations)
                                 {
                                     <span class="spec-badge">@spec</span>
                                 }
                             </div>
-                        </div>
-                    }
-                    else
-                    {
-                        <div class="widget-body text-center text-muted">
-                            <p>لم يتم تحديد تخصصات بعد.</p>
-                        </div>
-                    }
+                        }
+                        else
+                        {
+                            <p class="text-muted text-center mb-0">لا توجد تخصصات مسجلة.</p>
+                        }
+                    </div>
                 </div>
             </div>
 
-            <!-- ================= العمود الأيسر: المعلومات التفصيلية ================= -->
             <div class="col-lg-8 animate__animated animate__fadeInRight">
-                <!-- widget: المعلومات التفصيلية -->
                 <div class="widget">
                     <div class="widget-header">
-                        <h5><i class="icofont-user-alt-7 me-2" style="color:#1DC792;"></i>معلومات المدرب</h5>
-                        <button onclick="printTrainerCard()" class="btn btn-sm btn-outline-primary"><i class="icofont-print"></i> طباعة بطاقة تعريفية</button>
+                        <h5><i class="fas fa-user-alt me-2 text-primary"></i> معلومات المدرب</h5>
+                        <button onclick="printTrainerCard()" class="btn btn-sm btn-primary d-flex align-items-center">
+                            <i class="fas fa-print me-2"></i> <span>طباعة بطاقة تعريفية</span>
+                        </button>
                     </div>
                     <div class="widget-body">
                         <ul class="info-list-styled">
                             <li>
-                                <i class="icofont-user"></i>
+                                <i class="fas fa-user"></i>
                                 <div>
                                     <div class="info-label">الاسم بالإنجليزية</div>
-                                    <div class="info-value">@(Model.EnName ?? "غير متوفر")</div>
+                                    <div class="info-value">@Model.EnName ?? "غير متوفر"</div>
                                 </div>
                             </li>
                             <li>
-                                <i class="icofont-finger-print"></i>
+                                <i class="fas fa-id-card"></i>
                                 <div>
                                     <div class="info-label">الرقم الوطني</div>
-                                    <div class="info-value">@(Model.NationalNo ?? "غير متوفر")</div>
+                                    <div class="info-value">@Model.NationalNo ?? "غير متوفر"</div>
                                 </div>
                             </li>
                             <li>
-                                <i class="icofont-building-alt"></i>
+                                <i class="fas fa-building"></i>
                                 <div>
                                     <div class="info-label">جهة العمل</div>
-                                    <div class="info-value">@(Model.Employer ?? "غير متوفر")</div>
+                                    <div class="info-value">@Model.Employer ?? "غير متوفر"</div>
                                 </div>
                             </li>
                             <li>
-                                <i class="icofont-ui-calendar"></i>
+                                <i class="fas fa-calendar-alt"></i>
                                 <div>
                                     <div class="info-label">تاريخ الانضمام</div>
                                     <div class="info-value">@Model.Created.ToString("dd MMMM, yyyy")</div>
@@ -374,24 +348,17 @@
                     </div>
                 </div>
 
-                <!-- widget: الدورات التي قدمها المدرب (مثال) -->
                 <div class="widget">
                     <div class="widget-header">
-                        <h5><i class="icofont-black-board me-2" style="color:#1DC792;"></i>الدورات التي قدمها</h5>
+                        <h5><i class="fas fa-chalkboard-teacher me-2 text-primary"></i> الدورات التي قدمها</h5>
                     </div>
                     <div class="widget-body">
-                        @*
-                          هذا الجزء يعتمد على وجود قائمة بالدورات في الموديل الخاص بك
-                          مثال: Model.CoursesTaught 
-                          إذا لم يكن موجوداً، يمكنك إزالة هذا القسم أو عرض رسالة بديلة.
-                        *@
                         @{
-                            // مثال وهمي للبيانات - استبدله بالبيانات الحقيقية
                             var coursesTaught = new[] {
-                                                new { Name = "مقدمة في البرمجة بلغة C#", Date = "مارس 2024", Location = "قاعة 1" },
-                                                new { Name = "إدارة المشاريع الاحترافية PMP", Date = "فبراير 2024", Location = "عبر الإنترنت" },
-                                                new { Name = "أساسيات تصميم قواعد البيانات", Date = "ديسمبر 2023", Location = "قاعة 3" }
-                                                };
+                        new { Name = "مقدمة في C#", Date = "مارس 2024", Location = "قاعة 1" },
+                        new { Name = "PMP", Date = "فبراير 2024", Location = "أونلاين" },
+                        new { Name = "تصميم قواعد البيانات", Date = "ديسمبر 2023", Location = "قاعة 3" }
+                        };
                         }
 
                         @if (coursesTaught.Any())
@@ -399,22 +366,17 @@
                             @foreach (var course in coursesTaught)
                             {
                                 <div class="course-taught-item">
-                                    <div class="course-icon-container">
-                                        <i class="icofont-certificate-alt-1"></i>
-                                    </div>
+                                    <div class="course-icon-container"><i class="fas fa-certificate"></i></div>
                                     <div class="course-taught-info">
-                                        <h6><a href="#" class="text-dark text-decoration-none">@course.Name</a></h6>
-                                        <p>@course.Date <span class="mx-2">|</span> <i class="icofont-location-pin"></i> @course.Location</p>
+                                        <h6>@course.Name</h6>
+                                        <p>@course.Date | <i class="fas fa-map-marker-alt"></i> @course.Location</p>
                                     </div>
                                 </div>
                             }
                         }
                         else
                         {
-                            <div class="text-center text-muted p-4">
-                                <i class="icofont-ban icofont-3x"></i>
-                                <p class="mt-2">لم يقدم هذا المدرب أي دورات بعد.</p>
-                            </div>
+                            <p class="text-muted text-center">لا توجد دورات مسجلة.</p>
                         }
                     </div>
                 </div>
@@ -423,10 +385,9 @@
     </div>
 </section>
 
-<!-- ================= منطقة طباعة البطاقة التعريفية ================= -->
 <div class="printable-card-area">
     <div class="trainer-print-card" id="trainerPrintCard">
-        <img src="@profileImageUrl" alt="صورة المدرب" onerror="this.onerror=null; this.src='@Url.Content("~/img/OIP.jpeg")';" />
+        <img src="@profileImageUrl" alt="صورة المدرب" />
         <h4>@Model.ArName</h4>
         <p>@Model.Qualification?.Name</p>
         <p>@Model.Email</p>

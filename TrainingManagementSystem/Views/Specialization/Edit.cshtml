@@ -4,24 +4,6 @@
     ViewData["Title"] = "تعديل التخصص: " + Model.Name;
 }
 
-<div class="breadcrumbs overlay" >
-    <div class="container">
-        <div class="bread-inner">
-            <div class="row">
-                <div class="col-12">
-                    <h2>@ViewData["Title"]</h2>
-                    <ul class="bread-list">
-                        <li><a asp-controller="Admin" asp-action="Index">لوحة التحكم</a></li>
-                        <li><i class="icofont-simple-right"></i></li>
-                        <li><a asp-controller="Specializations" asp-action="Index">التخصصات</a></li>
-                        <li><i class="icofont-simple-right"></i></li>
-                        <li class="active">تعديل تخصص</li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
 
 <section class="appointment single-page section">
     <div class="container">
@@ -38,26 +20,24 @@
                         <input type="hidden" asp-for="Id" />
                         <input type="hidden" asp-for="Created" /> @* Preserve Created date *@
 
-
                         <div asp-validation-summary="ModelOnly" class="alert alert-danger text-center p-2 mb-3" role="alert"></div>
 
-                        <div class="form-group mb-3">
-                            <label asp-for="Name" class="form-label"></label>
+                        <div class="form-group mb-4">
+                            <label asp-for="Name" class="form-label">اسم التخصص</label>
                             <input asp-for="Name" class="form-control" placeholder="اسم التخصص" />
                             <span asp-validation-for="Name" class="text-danger d-block mt-1 small"></span>
                         </div>
 
-
                         <div class="row mt-4">
                             <div class="col-12">
                                 <div class="form-group">
-                                    <div class="button d-flex justify-content-center gap-2">
-                                        <a asp-action="Index" class="btn btn-secondary">
-                                            <i class="icofont-close-line-circled"></i> إلغاء
-                                        </a>
-                                        <button type="submit" class="btn btn-primary">
-                                            <i class="icofont-save"></i> حفظ التعديلات
+                                    <div class="button d-flex justify-content-center gap-3">
+                                        <button type="submit" class="btn btn-primary btn-sm">
+                                            <i class="fas fa-save"></i> حفظ التعديلات
                                         </button>
+                                        <a asp-action="Index" class="btn btn-secondary btn-sm">
+                                            <i class="fas fa-times-circle"></i> إلغاء
+                                        </a>
                                     </div>
                                 </div>
                             </div>
@@ -73,4 +53,79 @@
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
+}
+
+@section Styles {
+    <style>
+        .appointment-inner {
+            background-color: #f9f9f9;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            margin-top: 50px;
+        }
+
+        .title h3 {
+            font-size: 1.75rem;
+            color: #333;
+        }
+
+        .title p {
+            color: #777;
+            font-size: 1rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .form-control {
+            font-size: 1rem;
+            padding: 0.8rem;
+            border-radius: 0.375rem;
+            border: 1px solid #ccc;
+        }
+
+            .form-control:focus {
+                border-color: #007bff;
+                box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+            }
+
+        .btn {
+            padding: 10px 20px;
+            font-size: 0.85rem;
+        }
+
+        .btn-sm {
+            padding: 8px 16px;
+            font-size: 0.9rem;
+        }
+
+        .btn-primary {
+            background-color: #007bff;
+            border-color: #007bff;
+        }
+
+        .btn-secondary {
+            background-color: #6c757d;
+            border-color: #6c757d;
+        }
+
+        .btn:hover {
+            opacity: 0.9;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .mb-4 {
+            margin-bottom: 2rem !important;
+        }
+    </style>
 }

@@ -4,38 +4,113 @@
     ViewData["Title"] = "تأكيد الحذف";
 }
 
-<div class="container mt-5">
-    <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card border-danger shadow">
-                <div class="card-header bg-danger text-white">
-                    <h4 class="mb-0"><i class="fas fa-exclamation-triangle me-2"></i>@ViewData["Title"]</h4>
-                </div>
-                <div class="card-body">
-                    <h5 class="card-title text-danger">هل أنت متأكد أنك تريد حذف هذا الموقع؟</h5>
-                    <p>سيتم حذف هذا السجل بشكل نهائي ولا يمكن التراجع عن هذا الإجراء.</p>
-                    <hr />
-                    <dl class="row">
-                        <dt class="col-sm-4">اسم الموقع</dt>
-                        <dd class="col-sm-8">@Model.Name</dd>
+@section Styles {
+    <style>
+        .delete-confirmation-card {
+            max-width: 600px;
+            margin: 40px auto;
+            box-shadow: 0 5px 25px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+        }
 
-                        <dt class="col-sm-4">العدد الكلي</dt>
-                        <dd class="col-sm-8">@(Model.FullCount.HasValue? Model.FullCount.Value.ToString() : "N/A")</dd>
-                    </dl>
+            .delete-confirmation-card .card-header {
+                background-color: #dc3545; /* اللون الأحمر */
+                color: white;
+                border-bottom: none;
+                border-radius: 10px 10px 0 0;
+                padding: 15px 20px;
+            }
 
-                    <form asp-action="Delete">
-                        <input type="hidden" asp-for="Id" />
-                        <div class="d-flex justify-content-end gap-2 mt-4">
-                            <a asp-action="Index" class="btn btn-secondary">
-                                <i class="fas fa-times me-2"></i>إلغاء
-                            </a>
-                            <button type="submit" class="btn btn-danger">
-                                <i class="fas fa-trash-alt me-2"></i>نعم، قم بالحذف
-                            </button>
-                        </div>
-                    </form>
+                .delete-confirmation-card .card-header h4 {
+                    margin-bottom: 0;
+                    font-size: 1.5rem;
+                }
+
+            .delete-confirmation-card .card-body {
+                padding: 25px;
+                line-height: 1.7;
+            }
+
+        .alert-warning {
+            background-color: #fff3cd;
+            border-color: #ffeeba;
+            color: #856404;
+        }
+
+        .btn-delete-confirm {
+            background-color: #dc3545;
+            border-color: #dc3545;
+        }
+
+            .btn-delete-confirm:hover {
+                background-color: #c82333;
+                border-color: #bd2130;
+            }
+
+        .page-header {
+            margin-bottom: 30px;
+        }
+
+            .page-header h3 {
+                font-size: 2rem;
+                font-weight: 600;
+                text-align: right;
+            }
+
+            .page-header hr {
+                width: 100%;
+                height: 2px;
+                background-color: #dc3545;
+                border: none;
+                margin-top: 10px;
+            }
+    </style>
+}
+
+<!-- رأس الصفحة -->
+<div class="container">
+    <div class="page-header mb-3">
+        <h3><i class="fas fa-exclamation-triangle me-2"></i> @ViewData["Title"]</h3>
+        <hr />
+    </div>
+</div>
+
+<section class="section">
+    <div class="container">
+        <div class="card delete-confirmation-card">
+            <div class="card-header text-center">
+                <h4><i class="fas fa-exclamation-triangle"></i> تأكيد الحذف</h4>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-danger text-center mt-4" role="alert">
+                    <h4 class="alert-heading"><i class="fas fa-exclamation-triangle me-2"></i>تحذير!</h4>
+                    <p>هل أنت متأكد أنك تريد حذف هذا الموقع بشكل نهائي؟ لا يمكن التراجع عن هذا الإجراء.</p>
                 </div>
+
+                <dl class="row mt-4">
+                    <dt class="col-sm-4">اسم الموقع</dt>
+                    <dd class="col-sm-8">@Model.Name</dd>
+
+                    <dt class="col-sm-4">العدد الكلي</dt>
+                    <dd class="col-sm-8">@(Model.FullCount.HasValue ? Model.FullCount.Value.ToString() : "N/A")</dd>
+                </dl>
+
+                <form asp-action="Delete" method="post">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" asp-for="Id" />
+
+                    <div class="d-flex justify-content-between gap-3 mt-4 pt-3 border-top">
+                        <!-- زر الإلغاء -->
+                        <a asp-action="Index" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left me-2"></i>إلغاء والعودة للقائمة
+                        </a>
+                        <!-- زر الحذف -->
+                        <button type="submit" class="btn btn-danger">
+                            <i class="fas fa-trash-alt me-2"></i>نعم، قم بالحذف
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
-</div>
+</section>

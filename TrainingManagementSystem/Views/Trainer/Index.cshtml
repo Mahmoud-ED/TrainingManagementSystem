@@ -1,115 +1,146 @@
 ﻿@model IEnumerable<TrainerVM>
 
 @{
-    ViewData["Title"] = "المدربون";
-    string defaultAvatarUrl = Url.Content("~/img/OIP.jpeg"); // Fallback to your original default
+    ViewData["Title"] = "إدارة المدربين";
+    string defaultAvatarUrl = Url.Content("~/img/OIP.jpeg");
+    string currentSearchTerm = ViewData["SearchTerm"] as string;
 }
 
-<link href="~/css/tranerindex.css" rel="stylesheet" />
-<section id="team" class="team section">
-    <div class="container">
-        <div class="row page-controls">
-            <div class="col-md-6">
-                <form asp-action="Index" method="get" class="search-form w-100">
-                    <div class="input-group">
-                        <input type="text" name="searchTerm" class="form-control" placeholder="ابحث عن مدرب..." value="@ViewData["SearchTerm"]">
-                        <button class="btn btn-outline-secondary mb-0" type="submit" style="border-color: #1DC792; color: #1DC792;">
-                            <i class="icofont-search-1"></i>
-                        </button>
-                        @if (!string.IsNullOrEmpty(ViewData["SearchTerm"] as string))
-                        {
-                            <a asp-action="Index" class="btn btn-outline-danger mb-0 ms-2">
-                                <i class="icofont-close"></i> مسح
-                            </a>
-                        }
-                    </div>
-                </form>
-            </div>
-            <div class="col-md-6 text-md-end mt-3 mt-md-0">
-                <a asp-action="Create" class="btn btn-add-new">
-                    <i class="icofont-plus"></i> إضافة مدرب جديد
-                </a>
-            </div>
-        </div>
-
-
-        @if (TempData["SuccessMessage"] != null)
-        {
-            <div class="alert alert-success alert-dismissible fade show" role="alert">
-                @TempData["SuccessMessage"]
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-        }
-        @if (TempData["ErrorMessage"] != null)
-        {
-            <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                @TempData["ErrorMessage"]
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
+@section Styles {
+    <style>
+        .trainer-card img {
+            object-fit: cover;
+            height: 220px;
+            width: 100%;
         }
 
-        <div class="row">
-            @if (Model != null && Model.Any())
+        .trainer-card .card-body {
+            text-align: center;
+        }
+
+        .trainer-card .btn {
+            font-size: 0.85rem;
+        }
+
+        .actions-cell {
+            white-space: nowrap;
+        }
+
+        .search-form .form-control {
+            border-radius: 0.375rem 0 0 0.375rem;
+        }
+
+        .search-form .btn {
+            border-radius: 0 0.375rem 0.375rem 0;
+        }
+    </style>
+}
+
+<div class="container-fluid mt-4 mb-5">
+    <!-- رأس الصفحة -->
+    <div class="page-header mb-3 d-flex justify-content-between align-items-center flex-wrap pb-2 border-bottom">
+        <h3><i class="fas fa-chalkboard-teacher me-2"></i> @ViewData["Title"]</h3>
+        <a asp-action="Create" class="btn btn-primary mt-2 mt-md-0">
+            <i class="fas fa-plus me-1"></i> إضافة مدرب جديد
+        </a>
+    </div>
+
+    <!-- مربع البحث الصغير -->
+    <div class="mb-4">
+        <form asp-action="Index" method="get" class="d-flex flex-wrap align-items-center gap-2">
+            <div class="input-group" style="max-width: 350px;">
+                <input type="text" name="searchTerm" class="form-control" placeholder="ابحث عن مدرب..." value="@currentSearchTerm">
+                <button class="btn btn-outline-secondary" type="submit" style="border-color: blue; color: blue;">
+                    <i class="fas fa-search"></i>
+                </button>
+            </div>
+
+            @if (!string.IsNullOrEmpty(currentSearchTerm))
             {
-                @foreach (var item in Model)
-                {
-                    <div class="col-lg-4 col-md-6 col-12">
-                        <div class="single-team">
-                            <div class="t-head">
-                                @{
-                                    string trainerSpecificImageUrl = "";
-                                    if (!string.IsNullOrEmpty(item.ProfileImageUrl))
-                                    {
-                                        trainerSpecificImageUrl = Url.Content($"~/pictures/trainers/{item.ProfileImageUrl}");
-                                    }
-                                    var imageUrl = !string.IsNullOrEmpty(trainerSpecificImageUrl) ? trainerSpecificImageUrl : defaultAvatarUrl;
-                                }
-                                <img src="@imageUrl" alt="صورة المدرب @item.ArName"
-                                     onerror="this.onerror=null; this.src='@defaultAvatarUrl';" />
-                               
+                <a asp-action="Index" class="btn btn-outline-danger">
+                    <i class="fas fa-times"></i> مسح
+                </a>
+            }
+        </form>
+    </div>
+
+    <!-- رسائل النظام -->
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <!-- قائمة المدربين -->
+    <div class="row">
+        @if (Model != null && Model.Any())
+        {
+            @foreach (var item in Model)
+            {
+                <div class="col-lg-4 col-md-6 mb-4">
+                    <div class="card shadow-sm rounded trainer-card h-100">
+                        <img src="@(!string.IsNullOrEmpty(item.ProfileImageUrl) ? Url.Content($"~/pictures/trainers/{item.ProfileImageUrl}") : defaultAvatarUrl)"
+                             alt="صورة المدرب @item.ArName"
+                             onerror="this.onerror=null; this.src='@defaultAvatarUrl';" class="card-img-top" />
+
+                        <div class="card-body">
+                            <h5 class="card-title mb-1">@item.ArName</h5>
+
+                            @if (!string.IsNullOrEmpty(item.EnName))
+                            {
+                                <p class="text-muted mb-2">@item.EnName</p>
+                            }
+
+                            <div class="trainer-contact mb-2">
+                                <p class="mb-0"><i class="fas fa-phone-alt text-secondary me-1"></i> @item.PhoneNo</p>
+                                <p class="mb-0"><i class="fas fa-envelope text-secondary me-1"></i> @item.Email</p>
                             </div>
-                            <div class="t-bottom">
-                                @* <p class="department">مدرب متخصص</p> *@ @* يمكنك إضافة مؤهل أو تخصص رئيسي هنا *@
-                                <h2><a asp-action="Details" asp-route-id="@item.Id">@Html.DisplayFor(modelItem => item.ArName)</a></h2>
-                                @if (!string.IsNullOrEmpty(item.EnName))
-                                {
-                                    <p style="font-size: 0.9em; color: #777;">@Html.DisplayFor(modelItem => item.EnName)</p>
-                                }
-                                <div class="trainer-contact">
-                                    <span class="d-block"><i class="icofont-phone"></i> @Html.DisplayFor(modelItem => item.PhoneNo)</span>
-                                    <span class="d-block"><i class="icofont-email"></i> @Html.DisplayFor(modelItem => item.Email)</span>
-                                </div>
-                                @if (!string.IsNullOrEmpty(item.CVUrl))
-                                {
-                                    <a href="@Url.Content("~/pictures/cvs/" + item.CVUrl)" target="_blank" class="btn btn-sm btn-outline-primary mt-2" style="font-size:0.8rem; padding: 5px 10px;">
-                                        <i class="icofont-file-document"></i> السيرة الذاتية
-                                    </a>
-                                }
 
-                                    <a asp-action="Details" asp-route-id="@item.Id" class="btn" title="التفاصيل"><i class="icofont-eye-alt"></i> التفاصيل</a>
-                                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn" title="تعديل"><i class="icofont-edit"></i> تعديل</a>
-                                    @* Delete button might be better as a modal confirmation *@
-                                <a asp-action="Delete" asp-route-id="@item.Id" class="btn" title="حذف" ><i class="icofont-trash"></i> حذف</a>
+                            @if (!string.IsNullOrEmpty(item.CVUrl))
+                            {
+                                <a href="@Url.Content("~/pictures/cvs/" + item.CVUrl)" target="_blank" class="btn btn-sm btn-outline-primary mt-2">
+                                    <i class="fas fa-file-alt me-1"></i> السيرة الذاتية
+                                </a>
+                            }
 
+                            <div class="d-flex justify-content-center gap-2 flex-wrap mt-3">
+                                <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-info" title="تفاصيل">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary" title="تعديل">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-outline-danger" title="حذف">
+                                    <i class="fas fa-trash-alt"></i>
+                                </a>
                             </div>
                         </div>
                     </div>
-                }
-            }
-            else
-            {
-                <div class="col-12 text-center py-5">
-                    <i class="icofont-search-user icofont-5x text-muted mb-3"></i>
-                    <h5 class="text-secondary mt-3 mb-2">لا يوجد مدربون لعرضهم حاليًا</h5>
-                    <p class="text-muted">
-                        يبدو أنه لم يتم إضافة أي مدربين بعد.
-                        <a asp-action="Create" class="text-primary fw-bold">ابدأ بإضافة مدرب جديد</a>.
-                    </p>
                 </div>
             }
-        </div>
+        }
+        else
+        {
+            <div class="col-12 text-center py-5">
+                <i class="fas fa-user-slash fa-3x text-muted mb-3"></i>
+                <h5 class="text-secondary">لا يوجد مدربون لعرضهم حاليًا</h5>
+                <p class="text-muted">
+                    يبدو أنه لم يتم إضافة أي مدربين بعد.
+                    <a asp-action="Create" class="text-primary fw-bold">ابدأ بإضافة مدرب جديد</a>.
+                </p>
+            </div>
+        }
     </div>
-</section>
+</div>
 
 @section Scripts {
     <script>

@@ -4,36 +4,97 @@
     ViewData["Title"] = "حذف المستوى";
 }
 
-<h1>@ViewData["Title"]</h1>
+<!-- Confirmation Section -->
+<section class="section">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-6 col-md-8 col-12 mx-auto">
+                <div class="card delete-confirmation-card">
+                    <div class="card-header text-center">
+                        <h4><i class="icofont-warning-alt"></i> @ViewData["Title"]</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="alert alert-warning p-3 mb-4" role="alert">
+                            <h5 class="alert-heading"><i class="icofont-notification"></i> تنبيه هام!</h5>
+                            <p>
+                                أنت على وشك حذف المستوى "<strong>@Model.Name</strong>" بشكل نهائي.
+                                هذا الإجراء لا يمكن التراجع عنه.
+                            </p>
+                            <hr>
+                            <p class="mb-0">هل أنت متأكد أنك تريد المتابعة؟</p>
+                        </div>
 
-<h3>هل أنت متأكد أنك تريد حذف هذا المستوى؟</h3>
-<div>
-    <h4>المستوى</h4>
-    <hr />
-    <dl class="row">
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Name)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Name)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Created)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.CreatedDateLocalTime)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Modified)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.ModifiedDateLocalTime)
-        </dd>
-    </dl>
+                        <dl class="row mt-4">
+                            <dt class="col-sm-4">اسم المستوى:</dt>
+                            <dd class="col-sm-8">@Html.DisplayFor(model => model.Name)</dd>
 
-    <form asp-action="Delete">
-        <input type="hidden" asp-for="Id" />
-        <input type="submit" value="حذف" class="btn btn-danger" /> |
-        <a asp-action="Index" class="btn btn-secondary">العودة إلى القائمة</a>
-    </form>
-</div>
+                            <dt class="col-sm-4">تاريخ الإنشاء:</dt>
+                            <dd class="col-sm-8">@Html.DisplayFor(model => model.CreatedDateLocalTime)</dd>
+
+                            <dt class="col-sm-4">تاريخ التعديل:</dt>
+                            <dd class="col-sm-8">@Html.DisplayFor(model => model.ModifiedDateLocalTime)</dd>
+                        </dl>
+
+                        <form asp-action="Delete" method="post">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" asp-for="Id" />
+                            <div class="d-flex justify-content-between mt-4 pt-3 border-top">
+                                <a asp-action="Index" class="btn btn-secondary">
+                                    <i class="fas fa-arrow-left"></i> إلغاء والعودة للقائمة
+                                </a>
+                                <button type="submit" class="btn btn-danger btn-delete-confirm">
+                                    <i class="fas fa-trash-alt"></i> نعم، قم بالحذف
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+@section Styles {
+    <style>
+        .delete-confirmation-card {
+            max-width: 600px;
+            margin: 40px auto;
+            box-shadow: 0 5px 25px rgba(0,0,0,0.1);
+            border-radius: 10px;
+        }
+
+            .delete-confirmation-card .card-header {
+                background-color: #dc3545; /* لون أحمر للخطر */
+                color: white;
+                border-bottom: none;
+                border-radius: 10px 10px 0 0;
+                padding: 15px 20px;
+            }
+
+                .delete-confirmation-card .card-header h4 {
+                    margin-bottom: 0;
+                    font-size: 1.5rem;
+                }
+
+            .delete-confirmation-card .card-body {
+                padding: 25px;
+                line-height: 1.7;
+            }
+
+        .alert-warning {
+            background-color: #fff3cd;
+            border-color: #ffeeba;
+            color: #856404;
+        }
+
+        .btn-delete-confirm {
+            background-color: #dc3545;
+            border-color: #dc3545;
+        }
+
+            .btn-delete-confirm:hover {
+                background-color: #c82333;
+                border-color: #bd2130;
+            }
+    </style>
+}

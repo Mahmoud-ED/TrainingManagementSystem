@@ -2,105 +2,52 @@
 
 @{
     ViewData["Title"] = "قائمة التخصصات";
-    // تأكد أن ملف _ViewStart.cshtml يشير إلى اللي اوت الصحيح
-    // Layout = "_MediplusLayout"; // أو اللي اوت الذي تستخدمه
 }
 
-
-<style>
-    /* ... أنماطك السابقة ... */
-
-    /* --- أنماط جديدة لتحسين الكروت --- */
-    .specialization-card {
-        transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
-        border: 1px solid #e9ecef; /* حدود خفيفة جداً */
-        border-radius: 0.75rem; /* زوايا أكثر استدارة */
-    }
-
-    .specialization-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.1) !important;
-    }
-
-    /* دائرة الأيقونة */
-    .icon-circle {
-        width: 80px;
-        height: 80px;
-        border-radius: 50%;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        margin-left: auto;
-        margin-right: auto;
-        margin-bottom: 1.5rem; /* مسافة بين الدائرة والعنوان */
-        background-color: rgba(0, 123, 255, 0.1); /* خلفية بلون أزرق خفيف وشفاف */
-    }
-
-    .icon-circle i {
-        font-size: 2.5rem; /* حجم الأيقونة داخل الدائرة */
-        color: #007bff; /* لون الأيقونة الأساسي (أزرق) */
-    }
-
-    .specialization-card .card-title {
-        font-size: 1.25rem; /* تكبير حجم الخط للعنوان */
-        color: #212529; /* لون أسود داكن */
-    }
-</style>
-
-<!-- باقي الكود -->
-<div class="container-fluid mt-4">
-
-    <div class="row mb-4 page-header-flex">
-        <div class="col-auto">
-            @* استخدام col-auto لجعل العمود يأخذ حجم المحتوى فقط *@
-            <h2>@ViewData["Title"]</h2>
-        </div>
-        <div class="col-auto text-start">
-            @* text-start أو text-md-end حسب تفضيلك *@
-            <a asp-action="Create" class="btn btn-primary">
-                <i class="icofont-plus-circle"></i> إضافة تخصص جديد
-            </a>
-        </div>
+<div class="container-fluid mt-4 mb-5">
+    <!-- رأس الصفحة -->
+    <div class="page-header mb-3 d-flex justify-content-between align-items-center flex-wrap pb-2 border-bottom">
+        <h3><i class="fas fa-graduation-cap me-2"></i> @ViewData["Title"]</h3>
+        <a asp-action="Create" class="btn btn-primary mt-2 mt-md-0">
+            <i class="fas fa-plus me-1"></i> إضافة تخصص جديد
+        </a>
     </div>
 
-    @* رسائل TempData للنجاح أو الخطأ *@
+    <!-- رسائل النظام -->
     @if (TempData["SuccessMessage"] != null)
     {
         <div class="alert alert-success alert-dismissible fade show" role="alert">
-            <i class="icofont-check-circled"></i> @TempData["SuccessMessage"]
+            @TempData["SuccessMessage"]
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
     }
     @if (TempData["ErrorMessage"] != null)
     {
         <div class="alert alert-danger alert-dismissible fade show" role="alert">
-            <i class="icofont-error"></i> @TempData["ErrorMessage"]
+            @TempData["ErrorMessage"]
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
     }
 
-
-    @if (Model != null && Model.Any())
-    {
-        // --- التغيير الرئيسي هنا ---
-        // تم تقليل عدد الأعمدة في الشاشات الكبيرة (lg) والمتوسطة (md) لإعطاء مساحة أكبر لكل كرت
-        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-2 row-cols-lg-3 g-4">
+    <!-- قائمة التخصصات -->
+    <div class="row">
+        @if (Model != null && Model.Any())
+        {
             @foreach (var item in Model)
             {
-                <div class="col d-flex align-items-stretch">
-                    <div class="card h-100 shadow-sm specialization-card">
+                <div class="col-lg-4 col-md-6 mb-4">
+                    <div class="card shadow-sm rounded specialization-card h-100">
                         <div class="card-body text-center d-flex flex-column p-4">
 
                             <!-- أيقونة التخصص -->
                             <div class="icon-circle">
                                 <i class="icofont-graduate-alt"></i>
-                                @* يمكنك تغيير الأيقونة لأي أيقونة مناسبة أخرى مثل: icofont-certificate-alt-1, icofont-notebook, icofont-tag *@
                             </div>
 
                             <!-- اسم التخصص -->
-                            <h4 class="card-title">
+                            <h5 class="card-title mb-3">
                                 @Html.DisplayFor(modelItem => item.Name)
-                            </h4>
+                            </h5>
 
                             <!-- تاريخ الإنشاء والتعديل -->
                             <div class="mt-auto text-muted small pt-3">
@@ -114,36 +61,36 @@
                                 }
                             </div>
                         </div>
-                        <div class="card-footer bg-light d-flex justify-content-around align-items-center py-2">
-                            <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary" title="تعديل">
-                                <i class="icofont-edit"></i> تعديل
+                        <div class="card-footer bg-light d-flex justify-content-center align-items-center py-2">
+                            <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary mx-1" title="تعديل">
+                                <i class="fas fa-edit"></i>
                             </a>
-                            <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-outline-danger" title="حذف">
-                                <i class="icofont-ui-delete"></i> حذف
+                            <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-outline-danger mx-1" title="حذف">
+                                <i class="fas fa-trash-alt"></i>
                             </a>
                         </div>
                     </div>
                 </div>
             }
-        </div>
-    }
-    else
-    {
-        <div class="alert alert-info text-center" role="alert">
-            <i class="icofont-info-square"></i> لا توجد تخصصات لعرضها حاليًا. يمكنك <a asp-action="Create" class="alert-link">إضافة تخصص جديد</a>.
-        </div>
-    }
-
+        }
+        else
+        {
+            <div class="col-12 text-center py-5">
+                <i class="fas fa-graduation-cap fa-3x text-muted mb-3"></i>
+                <h5 class="text-secondary">لا توجد تخصصات لعرضها حاليًا</h5>
+                <p class="text-muted">
+                    يبدو أنه لم يتم إضافة أي تخصصات بعد.
+                    <a asp-action="Create" class="text-primary fw-bold">ابدأ بإضافة تخصص جديد</a>.
+                </p>
+            </div>
+        }
+    </div>
 </div>
 
 @section Scripts {
-    @{
-        // إذا كنت تستخدم _ValidationScriptsPartial وهو غير ضروري هنا، يمكنك إزالته
-        // await Html.RenderPartialAsync("_ValidationScriptsPartial");
-    }
     <script>
         $(document).ready(function () {
-          
+            // يمكنك إضافة السكريبتات هنا إذا لزم الأمر
         });
     </script>
 }

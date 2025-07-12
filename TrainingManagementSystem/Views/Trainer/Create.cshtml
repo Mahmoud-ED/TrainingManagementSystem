@@ -4,15 +4,13 @@
     ViewData["Title"] = "إضافة مدرب جديد";
 }
 
-
-
 <section class="appointment single-page section">
     <div class="container">
         <div class="row">
             <div class="col-lg-10 col-md-12 col-12 mx-auto">
                 <div class="appointment-inner">
                     <div class="title text-center mb-4">
-                        <h3><i class="icofont-teacher"></i> تفاصيل المدرب الجديد</h3>
+                        <h3><i class="fas fa-chalkboard-teacher"></i> تفاصيل المدرب الجديد</h3>
                         <p>يرجى ملء جميع الحقول المطلوبة بعناية.</p>
                     </div>
 
@@ -45,7 +43,7 @@
                                 <div class="form-group mb-3">
                                     <label asp-for="PhoneNo" class="form-label"></label>
                                     <div class="input-group">
-                                        <span class="input-group-text"><i class="icofont-phone"></i></span>
+                                        <span class="input-group-text"><i class="fas fa-phone"></i></span>
                                         <input asp-for="PhoneNo" class="form-control" placeholder="مثال: 09xxxxxxxx" />
                                     </div>
                                     <span asp-validation-for="PhoneNo" class="text-danger d-block mt-1 small"></span>
@@ -55,7 +53,7 @@
                                 <div class="form-group mb-3">
                                     <label asp-for="Email" class="form-label"></label>
                                     <div class="input-group">
-                                        <span class="input-group-text"><i class="icofont-email"></i></span>
+                                        <span class="input-group-text"><i class="fas fa-envelope"></i></span>
                                         <input asp-for="Email" class="form-control" type="email" placeholder="example@domain.com" />
                                     </div>
                                     <span asp-validation-for="Email" class="text-danger d-block mt-1 small"></span>
@@ -74,7 +72,6 @@
                                     <span asp-validation-for="NationalNo" class="text-danger d-block mt-1 small"></span>
                                 </div>
                             </div>
-
 
                             <div class="col-lg-6 col-md-6 col-12">
                                 <div class="form-group mb-3">
@@ -105,7 +102,7 @@
                                             {
                                                 <div class="form-check">
                                                     <input class="form-check-input" type="checkbox" name="SelectedSpecializationIds" value="@specialization.Value" id="spec_@specialization.Value"
-                                                           @(Model.SelectedSpecializationIds != null && Model.SelectedSpecializationIds.Contains(Guid.Parse(specialization.Value)) ? "checked" : "")>
+                                                    @(Model.SelectedSpecializationIds != null && Model.SelectedSpecializationIds.Contains(Guid.Parse(specialization.Value)) ? "checked" : "")>
                                                     <label class="form-check-label" for="spec_@specialization.Value">
                                                         @specialization.Text
                                                     </label>
@@ -131,7 +128,7 @@
                                     <label asp-for="CVFile" class="form-label"></label>
                                     <div class="input-group">
                                         <input asp-for="CVFile" class="form-control" type="file" id="cvFileInput" />
-                                        <label class="input-group-text" for="cvFileInput"><i class="icofont-file-document"></i></label>
+                                        <label class="input-group-text" for="cvFileInput"><i class="fas fa-file-alt"></i></label>
                                     </div>
                                     <span asp-validation-for="CVFile" class="text-danger d-block mt-1 small"></span>
                                     <small class="form-text text-muted">الملفات المسموح بها: PDF, DOC, DOCX (الحجم الأقصى: 5MB)</small>
@@ -142,7 +139,7 @@
                                     <label asp-for="ProfileImageFile" class="form-label">الصورة الشخصية</label>
                                     <div class="input-group">
                                         <input id="input1" type="file" asp-for="ProfileImageFile" onchange="UploadImageFile(this,'img1','isImg1');" class="form-control custom-file-input" />
-                                        <label class="input-group-text" for="input1"><i class="icofont-image"></i></label>
+                                        <label class="input-group-text" for="input1"><i class="fas fa-image"></i></label>
                                     </div>
                                     <input type="hidden" name="isImg1" id="isImg1" value="@(string.IsNullOrEmpty(Model.ProfileImageUrl) ? "false" : "true")" />
                                     <span asp-validation-for="ProfileImageFile" class="text-danger d-block mt-1 small"></span>
@@ -152,7 +149,7 @@
                                          onclick="return clickFile('input1');"
                                          style="max-width:150px; max-height:150px; object-fit: cover; cursor:pointer; border-radius: 50%; border: 2px solid #eee;"
                                          class="img-thumbnail d-block mx-auto mb-2" alt="الصورة الشخصية" />
-                                    @if (!string.IsNullOrEmpty(Model.ProfileImageUrl) || Model.ProfileImageFile != null) // تم التعديل هنا
+                                    @if (!string.IsNullOrEmpty(Model.ProfileImageUrl) || Model.ProfileImageFile != null)
                                     {
                                         <button type="button" class="btn-close" aria-label="Close"
                                                 onclick="return clearFile('input1','img1','isImg1', '@Url.Content("~/mediplus_theme/img/default-avatar.png")');"
@@ -168,12 +165,12 @@
                             <div class="col-12">
                                 <div class="form-group">
                                     <div class="button d-flex justify-content-center gap-2">
-                                        <a asp-action="Index" class="btn btn-secondary">
-                                            <i class="icofont-close-line-circled"></i> إلغاء
-                                        </a>
                                         <button type="submit" class="btn btn-primary">
-                                            <i class="icofont-save"></i> حفظ المدرب
+                                            <i class="fas fa-save"></i> حفظ المدرب
                                         </button>
+                                        <a asp-action="Index" class="btn btn-secondary">
+                                            <i class="fas fa-times-circle"></i> إلغاء
+                                        </a>
                                     </div>
                                 </div>
                             </div>
@@ -185,115 +182,7 @@
     </div>
 </section>
 
-
 @section Scripts {
-    @{
-        await Html.RenderPartialAsync("_ValidationScriptsPartial");
-        <script src="~/js/inputfileimage.js"></script>
-    }
-    <script>
-        $(document).ready(function () {
-            if ($.fn.select2) {
-                $('#qualificationSelect').select2({
-                    theme: "bootstrap-5",
-                    placeholder: "-- اختر المؤهل --",
-                    allowClear: true,
-                    width: '100%',
-                });
-
-                var $specializationSelect = $('#specializationSelect');
-                var $selectedSpecializationsContainer = $('#selectedSpecializationsContainer');
-
-                $specializationSelect.select2({
-                    theme: "bootstrap-5",
-                    placeholder: "-- اختر التخصصات --",
-                    allowClear: true,
-                    width: '100%',
-                });
-
-                // Function to update the displayed tags
-                function updateSelectedSpecializationsDisplay() {
-                    $selectedSpecializationsContainer.empty(); // Clear previous tags
-                    var selectedData = $specializationSelect.select2('data');
-
-                    selectedData.forEach(function(item) {
-                        if (item.id && item.text) { // Make sure it's a valid item, not the placeholder
-                             var $tag = $(`
-                                <span class="badge bg-primary p-2">
-                                    ${item.text}
-                                    <a href="#" class="text-white ms-1 remove-specialization-tag" data-id="${item.id}" title="إزالة">×</a>
-                                </span>
-                            `);
-                            $selectedSpecializationsContainer.append($tag);
-                        }
-                    });
-                }
-
-                // Initial display update if there are pre-selected values (e.g., on edit page)
-                updateSelectedSpecializationsDisplay();
-
-
-                // Listen for changes on the select2 element
-                $specializationSelect.on('change', function (e) {
-                    updateSelectedSpecializationsDisplay();
-                });
-
-                // Handle click on remove tag button
-                $selectedSpecializationsContainer.on('click', '.remove-specialization-tag', function(e) {
-                    e.preventDefault();
-                    var specializationIdToRemove = $(this).data('id').toString();
-                    var currentValues = $specializationSelect.val() || [];
-
-                    // Remove the ID from the current values
-                    var newValues = currentValues.filter(id => id !== specializationIdToRemove);
-
-                    $specializationSelect.val(newValues).trigger('change'); // Update select2 and trigger its change event
-                });
-
-
-            } else {
-                console.error("Select2 is not loaded.");
-            }
-
-             $('#cvFileInput').on('change',function(e){
-                var fileName = e.target.files[0].name;
-                $(this).next('.input-group-text').html('<i class="icofont-file-document"></i> ' + fileName.substring(0,15) + (fileName.length > 15 ? '...' : ''));
-            })
-
-            // عرض زر الحذف دائماً إذا كان هناك صورة أو ملف محتمل
-            // وهذا يعتمد على منطق UploadImageFile و clearFile لديك
-            // إذا كانت الصورة الافتراضية هي الحالة الوحيدة لعدم وجود صورة، فاجعل الشرط أبسط
-            // var isImg1Value = $('#isImg1').val();
-            // var profileImageUrl = '@Model.ProfileImageUrl';
-            // if (isImg1Value === "true" || (profileImageUrl && profileImageUrl !== '')) {
-            //     // أظهر زر الحذف
-            // } else {
-            //     // أخف زر الحذف
-            // }
-        });
-
-        function clearFile(fileElementId, imgElementId, isImgHiddenId, defaultImgSrc) {
-            document.getElementById(fileElementId).value = "";
-            document.getElementById(imgElementId).src = defaultImgSrc;
-            document.getElementById(isImgHiddenId).value = "false";
-
-            // قد تحتاج إلى إخفاء زر الحذف هنا إذا كان هذا هو المنطق المطلوب
-            // var closeButton = $(document.getElementById(imgElementId)).siblings('.btn-close');
-            // if(closeButton.length) closeButton.hide();
-
-            // إذا كنت تريد تحديث Model.ProfileImageUrl إلى null عند الحذف
-            $('input[name="ProfileImageUrl"]').val('');
-
-            return false;
-        }
-
-        // تأكد أن دالة UploadImageFile تُظهر زر الحذف عند اختيار صورة جديدة
-        // function UploadImageFile(input, imgId, isImgHiddenId) {
-        //     ... your existing code ...
-        //     document.getElementById(isImgHiddenId).value = "true";
-        //     var closeButton = $('#' + imgId).siblings('.btn-close');
-        //     if(closeButton.length) closeButton.show();
-        // }
-
-    </script>
+    await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    <script src="~/js/inputfileimage.js"></script>
 }

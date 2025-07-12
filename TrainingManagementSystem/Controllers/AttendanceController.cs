@@ -178,7 +178,8 @@ public class AttendanceController : Controller
     {
         var courseDetails = await _context.CourseDetails
             .Include(cd => cd.Course)
-            .Include(cd => cd.CoursDetailsTrainer).ThenInclude(cdt => cdt.Trainer) // جلب المدربين
+            .Include(cd => cd.CoursDetailsTrainer).ThenInclude(cdt => cdt.Trainer) // جلب
+                                                                                   // 
             .FirstOrDefaultAsync(cd => cd.Id == courseDetailsId);
 
         if (courseDetails == null) return NotFound();

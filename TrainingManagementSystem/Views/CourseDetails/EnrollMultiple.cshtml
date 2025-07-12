@@ -34,9 +34,15 @@
                     <h4 class="mb-0">@ViewData["Title"]</h4>
                     <small>للدورة: @Model.CourseDetailsName</small>
                 </div>
-                <button type="button" class="btn btn-light" data-bs-toggle="modal" data-bs-target="#addTraineeModal">
+              @*   <button type="button" class="btn btn-primary shadow-sm" data-bs-toggle="modal" data-bs-target="#addTraineeModal">
                     <i class="fas fa-user-plus me-2"></i>إضافة متدرب جديد
-                </button>
+                </button> *@
+
+                <div class="col-6 text-end">
+                    <a class="btn btn-primary shadow-sm">
+                        <i class="fas fa-plus me-2"></i>إضافة متدرب جديد
+                    </a>
+                </div>
             </div>
             <div class="card-body">
                 <div class="row mb-3 p-3 bg-light border rounded">

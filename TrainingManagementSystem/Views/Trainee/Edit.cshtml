@@ -44,7 +44,7 @@
 }
 
 <!-- Breadcrumbs -->
-<div class="breadcrumbs overlay" >
+@* <div class="breadcrumbs overlay">
     <div class="container">
         <div class="bread-inner">
             <div class="row">
@@ -61,17 +61,20 @@
             </div>
         </div>
     </div>
-</div>
+</div> *@
 
 <section class="appointment single-page section">
     <div class="container">
         <div class="row">
             <div class="col-lg-10 col-md-12 col-12 mx-auto">
                 <div class="appointment-inner">
-                    <div class="title text-center mb-4">
+                    <div class="title text-start mb-4">
                         <h3><i class="icofont-edit"></i> تعديل بيانات المتدرب: @Model.ArName</h3>
+                        <hr style="border-top: 2px solid #000; width: 100%; margin-top: 10px;" />
                         <p>يرجى تحديث الحقول المطلوبة.</p>
                     </div>
+
+
 
                     <form asp-action="Edit" asp-route-id="@Model.Id" method="post" enctype="multipart/form-data" class="form">
                         @Html.AntiForgeryToken()
@@ -185,14 +188,18 @@
                         </div>
 
 
-                        <div class="row mt-5">
-                            <div class="col-12 text-center">
-                                <button type="submit" class="btn btn-primary btn-lg" style="background-color: #1DC792; border-color: #1DC792;">
-                                    <i class="icofont-save"></i> حفظ التعديلات
-                                </button>
-                                <a asp-action="Index" class="btn btn-outline-secondary btn-lg ms-2">
-                                    <i class="icofont-close-line-circled"></i> إلغاء
-                                </a>
+                        <div class="row mt-4">
+                            <div class="col-12">
+                                <div class="form-group">
+                                    <div class="button d-flex justify-content-center gap-2">
+                                        <button type="submit" class="btn btn-primary">
+                                            <i class="fas fa-save"></i> حفظ التعديلات
+                                        </button>
+                                        <a asp-action="Index" class="btn btn-secondary">
+                                            <i class="fas fa-times-circle"></i> إلغاء
+                                        </a>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </form>

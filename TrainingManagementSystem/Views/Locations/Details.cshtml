@@ -6,7 +6,7 @@
 
 <div class="container mt-5">
     <div class="card shadow-lg border-0">
-        <div class="card-header bg-info text-white">
+        <div class="card-header bg-primary text-white">
             <h3 class="mb-0"><i class="fas fa-map-marker-alt me-2"></i>@ViewData["Title"]: @Model.Name</h3>
         </div>
         <div class="card-body p-4">
@@ -58,7 +58,7 @@
             </div>
         </div>
         <div class="card-footer bg-light text-end">
-            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-success">
+            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">
                 <i class="fas fa-edit me-2"></i>تعديل
             </a>
             <a asp-action="Index" class="btn btn-secondary">

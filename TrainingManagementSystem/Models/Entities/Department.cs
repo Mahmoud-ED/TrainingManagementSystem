@@ -7,6 +7,7 @@ namespace TrainingManagementSystem.Models.Entities
     {
         [StringLength(100)]
         [Required]
+        [Display(Name = "اسم القسم")] 
         public string Name { get; set; }
 
         public List<Trainee> Trainees { get; set; } = new List<Trainee>();

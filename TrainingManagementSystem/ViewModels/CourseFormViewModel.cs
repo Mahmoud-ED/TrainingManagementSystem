@@ -83,7 +83,8 @@ public class CourseFormViewModel // (نفس الـ ViewModel السابق مع �
     public List<SelectListItem> CourseParents { get; set; } = new();
 
 
-    // لإدارة المدربين (كما كان)
+    // لإدارة
+    // (كما كان)
     [Display(Name = "المدربون")]
     public List<Guid> SelectedTrainerIds { get; set; } = new List<Guid>();
     public List<TrainerCheckboxViewModel> AvailableTrainers { get; set; }

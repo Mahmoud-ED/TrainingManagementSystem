@@ -48,7 +48,7 @@
         .trainee-id-badge {
             display: inline-block;
             background-color: #e8f9f5; /* أخضر فاتح جداً */
-            color: #1DC792;
+            /* color: #1DC792; */
             padding: 0.3rem 0.8rem;
             border-radius: 20px;
             font-weight: 600;
@@ -120,7 +120,7 @@
 
                 .info-list .info-label i {
                     margin-right: 8px;
-                    color: #1DC792;
+                    /* color: #1DC792; */
                     width: 20px; /* لتوحيد المسافات */
                     text-align: center;
                 }
@@ -161,8 +161,8 @@
 
             .course-entry:hover {
                 transform: translateY(-5px);
-                box-shadow: 0 10px 20px -10px rgba(29, 199, 146, 0.4);
-                border-color: #1DC792;
+               /*  box-shadow: 0 10px 20px -10px rgba(29, 199, 146, 0.4);
+                border-color: #1DC792; */
             }
 
             /* الخط العمودي للتايم لاين */
@@ -187,7 +187,7 @@
                 height: 20px;
                 border-radius: 50%;
                 background-color: #fff;
-                border: 3px solid #1DC792;
+              /*   border: 3px solid #1DC792; */
                 z-index: 2;
             }
 
@@ -210,7 +210,7 @@
             }
 
                 .course-entry-header h6 a:hover {
-                    color: #1DC792;
+                  /*   color: #1DC792; */
                 }
 
         .course-meta-data, .course-results {
@@ -260,7 +260,7 @@
 }
 
 <!-- Breadcrumbs (لا تغيير هنا) -->
-<div class="breadcrumbs overlay">
+@* <div class="breadcrumbs overlay">
     <div class="container">
         <div class="bread-inner">
             <div class="row">
@@ -277,6 +277,10 @@
             </div>
         </div>
     </div>
+</div> *@
+
+<div class="page-header mb-3 d-flex justify-content-between align-items-center flex-wrap pb-2 border-bottom">
+    <h3><i class="fas fa-chalkboard-teacher me-2"></i> @ViewData["Title"]</h3>
 </div>
 
 <section class="section py-5">
@@ -300,15 +304,18 @@
                     }
                 </div>
             </div>
-
-            <div class="profile-actions">
-                <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary" style="background-color: #1DC792; border-color: #1DC792;">
-                    <i class="icofont-edit"></i> تعديل
+            <div class="profile-actions d-flex">
+                <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary d-flex align-items-center justify-content-start">
+                    <i class="fas fa-edit me-2"></i> تعديل
                 </a>
-                <a asp-action="Index" class="btn btn-outline-secondary ms-2">
-                    <i class="icofont-arrow-left"></i> عودة
+                <a asp-action="Index" class="btn btn-secondary ms-2 d-flex align-items-center justify-content-start">
+                    <i class="fas fa-arrow-left me-2"></i> عودة
                 </a>
             </div>
+
+
+
+
         </div>
 
         <div class="row">
@@ -403,7 +410,7 @@
                         <i class="icofont-learn me-2"></i>السجل التدريبي
                         @if (Model.CourseTrainees != null)
                         {
-                            <span class="badge rounded-pill" style="background-color: #1DC792;">@Model.CourseTrainees.Count</span>
+                            <span class="badge rounded-pill" style="background-color:blue ;">@Model.CourseTrainees.Count</span>
                         }
                     </h5>
                 </div>
