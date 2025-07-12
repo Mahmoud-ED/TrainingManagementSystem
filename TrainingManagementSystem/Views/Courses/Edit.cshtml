@@ -73,22 +73,7 @@
                                 <span asp-validation-for="CourseClassificationId" class="text-danger d-block mt-1"></span>
                             </div>
 
-                            <div class="col-md-6">
-                                <label asp-for="LevelId" class="form-label"></label>
-                                <select asp-for="LevelId" class="form-select" asp-items="ViewBag.LevelId">
-                                    <option value="">-- اختر مستوى --</option>
-                                </select>
-                                <span asp-validation-for="LevelId" class="text-danger d-block mt-1"></span>
-                            </div>
-
-                            <div class="col-md-6">
-                                <label asp-for="CourseParentId" class="form-label"></label>
-                                <select asp-for="CourseParentId" class="form-select" asp-items="ViewBag.CourseParentId">
-                                    <option value="">-- لا يوجد مرجع (اختياري) --</option>
-                                </select>
-                                <span asp-validation-for="CourseParentId" class="text-danger d-block mt-1"></span>
-                            </div>
-
+                        
                             <div class="col-md-12">
                                 <label asp-for="Description" class="form-label"></label>
                                 <textarea asp-for="Description" class="form-control" rows="4" placeholder="ادخل وصفاً موجزاً للدورة..."></textarea>

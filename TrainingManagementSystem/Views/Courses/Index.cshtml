@@ -15,7 +15,7 @@
             transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
             display: flex;
             flex-direction: column;
-            height: 100%;
+            height: 100%; /* For equal height cards in a row */
         }
 
             .course-card:hover {
@@ -41,7 +41,7 @@
             font-size: 0.9rem;
             color: #6c757d;
             margin-bottom: 0.75rem;
-            display: block;
+            display: block; /* Ensure it takes its own line if needed */
         }
 
         .course-card-info p {
@@ -51,24 +51,24 @@
         }
 
             .course-card-info p i {
-                margin-right: 8px;
-                color: #007bff;
+                margin-right: 8px; /* For RTL, this is correct */
+                color: #007bff; /* Theme color */
                 width: 16px;
                 text-align: center;
             }
 
         .course-card-actions {
-            margin-top: auto;
+            margin-top: auto; /* Pushes actions to the bottom */
             padding-top: 1rem;
             border-top: 1px solid #f0f0f0;
             display: flex;
-            gap: 0.5rem;
-            justify-content: space-between;
+            gap: 0.5rem; /* Space between buttons */
+            justify-content: space-between; /* Distribute buttons */
         }
 
             .course-card-actions .btn {
                 font-size: 0.8rem;
-                flex-grow: 1;
+                flex-grow: 1; /* Make buttons take equal width */
             }
 
         .course-badge {
@@ -79,11 +79,8 @@
             display: inline-block;
         }
 
-        .page-header h3 {
-            font-size: 1.75rem;
-            font-weight: 700;
-            color: #000;
-            margin: 0;
+        .page-header h1 i {
+            margin-right: 10px;
         }
 
         .no-courses-message {
@@ -98,9 +95,9 @@
 
 <div class="container-fluid mt-4">
     <div class="page-header mb-4 d-flex justify-content-between align-items-center pb-2 border-bottom">
-        <h3><i class="fas fa-layer-group me-2"></i> @ViewData["Title"]</h3>
+        <h1><i class="icofont-certificate-alt-1"></i> @ViewData["Title"]</h1>
         <a asp-action="Create" class="btn btn-primary">
-            <i class="fas fa-plus me-2"></i> إنشاء تصنيف جديد
+            <i class="icofont-plus"></i> إنشاء تصنيف جديد
         </a>
     </div>
 
@@ -112,6 +109,7 @@
     {
         <div class="alert alert-danger alert-dismissible fade show">@TempData["ErrorMessage"]<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
     }
+
 
     @if (Model.Any())
     {
@@ -134,27 +132,16 @@
                                         <i class="icofont-tag"></i> @item.CourseClassification.Name
                                     </span>
                                 }
-                                @if (item.Level != null)
-                                {
-                                    <span class="badge bg-secondary course-badge">
-                                        <i class="icofont-filter"></i> @item.Level.Name
-                                    </span>
-                                }
+                             
                             </div>
 
                             <div class="course-card-info">
-                                @if (item.CourseParent != null && !string.IsNullOrEmpty(item.CourseParent.Name))
-                                {
-                                    <p><i class="icofont-link"></i> <strong>الدورة السابقة:</strong> @item.CourseParent.Name</p>
-                                }
-                                else
-                                {
-                                    <p><i class="icofont-link"></i> <strong>الدورة السابقة:</strong> لا يوجد</p>
-                                }
+                               
                                 @if (item.CourseDetails != null && item.CourseDetails.Any())
                                 {
                                     <p><i class="icofont-listing-number"></i> @item.CourseDetails.Count @(item.CourseDetails.Count == 1 ? "محور" : (item.CourseDetails.Count == 2 ? "محورين" : (item.CourseDetails.Count > 2 && item.CourseDetails.Count < 11 ? "محاور" : "محور"))) </p>
                                 }
+
                             </div>
 
                             <div class="course-card-actions">
@@ -164,6 +151,7 @@
                                 <a asp-action="ManagePrerequisites" asp-route-id="@item.Id" class="btn btn-sm btn-outline-success">
                                     <i class="fas fa-sitemap me-1"></i> المتطلبات
                                 </a>
+
                             </div>
                         </div>
                     </div>
@@ -182,5 +170,5 @@
 </div>
 
 @section Scripts {
-@* Add any specific scripts for this page if needed *@
+    @* Add any specific scripts for this page if needed *@
 }

@@ -1,4 +1,4 @@
-/* =====================================
+﻿/* =====================================
 Template Name: 	Mediplus.
 Author Name: Naimur Rahman
 Website: http://wpthemesgrid.com/
@@ -4662,3 +4662,68 @@ body {
 /*=========================
 	End RTL Version CSS
 ===========================*/
+/* =================================================================== */
+/*  Custom Radio Button Styles for Attendance                          */
+/* =================================================================== */
+
+/* حاوية الأزرار */
+.attendance-radio-group {
+	display: flex;
+	gap: 10px; /* مسافة بين الأزرار */
+	justify-content: center; /* توسيط الأزرار */
+}
+
+	/* إخفاء زر الراديو الأصلي */
+	.attendance-radio-group input[type="radio"] {
+		opacity: 0;
+		position: fixed;
+		width: 0;
+	}
+
+	/* تصميم الـ Label ليبدو كزر */
+	.attendance-radio-group label {
+		display: inline-block;
+		padding: 8px 16px;
+		font-family: sans-serif, Arial;
+		font-size: 14px;
+		border: 2px solid #ddd;
+		border-radius: 25px; /* حواف دائرية */
+		cursor: pointer;
+		transition: all 0.2s ease-in-out;
+		background-color: #f8f9fa; /* لون افتراضي فاتح */
+		color: #333; /* لون الخط الافتراضي */
+		text-align: center;
+		min-width: 90px;
+	}
+
+		/* تغيير المظهر عند مرور الماوس */
+		.attendance-radio-group label:hover {
+			transform: translateY(-2px);
+			box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+		}
+
+	/* تصميم الزر عند تحديده (أهم جزء) */
+	.attendance-radio-group input[type="radio"]:checked + label {
+		color: white; /* لون الخط أبيض عند الاختيار */
+		border-color: transparent; /* إخفاء الحدود عند الاختيار */
+		box-shadow: 0 4px 10px rgba(0,0,0,0.2); /* ظل أعمق */
+		transform: translateY(-2px);
+	}
+
+		/* تخصيص الألوان لكل حالة بناءً على كلاس إضافي */
+		.attendance-radio-group input[type="radio"]:checked + label.status-present {
+			background-color: #28a745; /* أخضر - حاضر */
+		}
+
+		.attendance-radio-group input[type="radio"]:checked + label.status-absent {
+			background-color: #dc3545; /* أحمر - غائب */
+		}
+
+		.attendance-radio-group input[type="radio"]:checked + label.status-late {
+			background-color: #ffc107; /* أصفر - متأخر */
+			color: #212529; /* لون خط داكن للأصفر */
+		}
+
+		.attendance-radio-group input[type="radio"]:checked + label.status-excused {
+			background-color: #17a2b8; /* أزرق سماوي - بعذر */
+		}

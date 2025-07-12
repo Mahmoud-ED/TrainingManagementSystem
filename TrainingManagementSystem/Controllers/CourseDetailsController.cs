@@ -1159,20 +1159,28 @@ namespace TrainingManagementSystem.Controllers
             {
                 return BadRequest("لا يمكن طباعة الشهادة لأن المتدرب لم يحصل على درجة.");
             }
+            //var courseTrainee = await _context.CourseTrainees
+            //    .Include(ct => ct.CourseDetails) // لجلب تفاصيل تنفيذ الدورة
+            //        .ThenInclude(cd => cd.Course) // لجلب اسم الدورة الرئيسي وبياناتها
+            //    .Include(ct => ct.CourseDetails)
+            //        .ThenInclude(cd => cd.Locations) // إذا كان الموقع جدول منفصل
+            //    .FirstOrDefaultAsync(ct => ct.Id == id);
+
+
             var courseTrainee = await _context.CourseTrainees
-                .Include(ct => ct.Trainee) // لجلب اسم المتدرب وبياناته
-                .Include(ct => ct.CourseDetails) // لجلب تفاصيل تنفيذ الدورة
-                    .ThenInclude(cd => cd.Course) // لجلب اسم الدورة الرئيسي وبياناتها
-                .Include(ct => ct.CourseDetails)
-                    .ThenInclude(cd => cd.Locations) // إذا كان الموقع جدول منفصل
-                .FirstOrDefaultAsync(ct => ct.Id == id);
+    .Include(ct => ct.Trainee)
+    .Include(ct => ct.CourseDetails)
+        .ThenInclude(cd => cd.Course) // جلب الدورة من تفاصيل الدورة
+    .Include(ct => ct.CourseDetails)
+        .ThenInclude(cd => cd.Locations) // جلب الموقع من تفاصيل الدورة
+    .FirstOrDefaultAsync(ct => ct.Id == id);
 
             if (courseTrainee == null)
             {
                 return NotFound("بيانات التسجيل غير موجودة.");
             }
 
-            if (courseTrainee.Trainee == null || courseTrainee.CourseDetails == null || courseTrainee.CourseDetails.Course == null)
+            if ( courseTrainee.CourseDetails == null || courseTrainee.CourseDetails.Course == null)
             {
                 // هذا يعني أن بعض البيانات المرتبطة مفقودة، يجب معالجة هذا
                 return BadRequest("بيانات مرتبطة بالدورة أو المتدرب مفقودة.");

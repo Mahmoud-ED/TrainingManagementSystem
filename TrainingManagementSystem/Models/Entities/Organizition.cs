@@ -16,11 +16,9 @@ namespace TrainingManagementSystem.Models.Entities
 
         //-----------------------------------------------------------
         [ValidateNever]
-        public Category Category { get; set; }
+        public Category? Category { get; set; }
 
-        [Required(ErrorMessage = "Category is required")]
-        [Display(Name = "Categories")]
-        public Guid CategoryId { get; set; }
+        public Guid? CategoryId { get; set; }
 
         //-----------------------------------------------------------
 
