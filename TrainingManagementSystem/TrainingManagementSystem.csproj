@@ -12,6 +12,7 @@
     <Folder Include="wwwroot\pictures\trainers\" />
     <Folder Include="wwwroot\pictures\userProfile\" />
     <Folder Include="wwwroot\pictures\users\" />
+    <Folder Include="wwwroot\uploads\plans\" />
   </ItemGroup>
 
   <ItemGroup>
