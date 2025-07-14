@@ -161,7 +161,7 @@ namespace TrainingManagementSystem.Controllers
         }
 
         [Audit("انشاء-عرض", "خطة تدريبية")]
-        public async Task<IActionResult> Create()
+        public async Task<IActionResult> Create(Guid? id)
         {
 
 
