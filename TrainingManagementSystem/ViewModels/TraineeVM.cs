@@ -18,6 +18,7 @@ namespace TrainingManagementSystem.ViewModels
         public string ArName { get; set; }
 
 
+        public int Year { get; set; }
         public string? NUM { get; set; }
 
         [StringLength(100)]

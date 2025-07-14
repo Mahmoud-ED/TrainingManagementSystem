@@ -59,6 +59,7 @@ namespace TrainingManagementSystem.Models.Entities
         [Display(Name = "المؤهل العلمي")]
         public Guid QualificationId { get; set; }
 
+        public int Year { get; set; }
 
         [StringLength(200)]
         public string Address { get; set; }

@@ -16,8 +16,9 @@ public class Trainer : BaseEntity
     [Required]
     public string PhoneNo { get; set; }
 
+    public int Year { get; set; }
+
     [EmailAddress]
-    [Required]
     public string Email { get; set; }
 
     [StringLength(10, MinimumLength = 10, ErrorMessage = "National ID must be 10 digits.")]

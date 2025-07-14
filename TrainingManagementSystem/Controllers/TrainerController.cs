@@ -201,6 +201,7 @@ namespace TrainingManagementSystem.Controllers
                 Id = trainer.Id,
                 ArName = trainer.ArName,
                 EnName = trainer.EnName,
+                Year = trainer.Year, 
                 PhoneNo = trainer.PhoneNo,
                 Email = trainer.Email,
                 NationalNo = trainer.NationalNo,
@@ -237,6 +238,7 @@ namespace TrainingManagementSystem.Controllers
                     }
 
                     trainerToUpdate.ArName = viewModel.ArName;
+                    trainerToUpdate.Year = viewModel.Year;
                     trainerToUpdate.EnName = viewModel.EnName;
                     trainerToUpdate.PhoneNo = viewModel.PhoneNo;
                     trainerToUpdate.Email = viewModel.Email;

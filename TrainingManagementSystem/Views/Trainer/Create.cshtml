@@ -63,6 +63,21 @@
 
                         <h5 class="form-section-title mt-4">المعلومات الإضافية</h5>
                         <hr class="mt-1 mb-3">
+                        @{
+                            var currentYear = DateTime.Now.Year;
+                            var years = Enumerable.Range(currentYear - 50, 51).Reverse()
+                            .Select(y => new SelectListItem { Value = y.ToString(), Text = y.ToString() });
+                        }
+
+                        <div class="col-lg-6 col-md-6 col-12">
+                            <div class="form-group mb-3">
+                                <label asp-for="Year" class="form-label">سنة التعيين </label>
+                                <select asp-for="Year" class="form-control" asp-items="years">
+                                    <option value="">اختر السنة</option>
+                                </select>
+                                <span asp-validation-for="Year" class="text-danger d-block mt-1 small"></span>
+                            </div>
+                        </div>
 
                         <div class="row">
                             <div class="col-lg-6 col-md-6 col-12">

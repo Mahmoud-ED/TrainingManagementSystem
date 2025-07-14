@@ -342,6 +342,11 @@
                                 <span class="info-label"><i class="icofont-graduate-alt"></i>المؤهل</span>
                                 <span class="info-value">@(Model.Qualification?.Name ?? "غير محدد")</span>
                             </li>
+
+                            <li>
+                                <span class="info-label"><i class="icofont-graduate-alt"></i>سنوات الخبرة</span>
+                                <span class="info-value">@(DateTime.Now.Year-Model.Year)</span>
+                            </li>
                             <li>
                                 <span class="info-label"><i class="icofont-atom"></i>التخصص</span>
                                 <span class="info-value">@(Model.Specialization?.Name ?? "غير محدد")</span>

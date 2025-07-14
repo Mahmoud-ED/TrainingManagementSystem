@@ -235,6 +235,7 @@ namespace TrainingManagementSystem.Controllers
                 {
                     Id = Guid.NewGuid(),
                     NUM = viewModel.NUM,
+                    Year = viewModel.Year,
                     ArName = viewModel.ArName,
                     EnName = viewModel.EnName,
                     PhoneNo = viewModel.PhoneNo,
@@ -282,6 +283,7 @@ namespace TrainingManagementSystem.Controllers
             {
                 Id = trainee.Id,
                 ArName = trainee.ArName,
+                Year = trainee.Year,
                 EnName = trainee.EnName,
                 PhoneNo = trainee.PhoneNo,
                 Email = trainee.Email,
@@ -323,6 +325,7 @@ namespace TrainingManagementSystem.Controllers
                     var traineeToUpdate = await _traineeUoW.Entity.GetByIdAsync(viewModel.Id);
                     if (traineeToUpdate == null) return NotFound();
 
+                    traineeToUpdate.Year = viewModel.Year;
                     traineeToUpdate.ArName = viewModel.ArName;
                     traineeToUpdate.EnName = viewModel.EnName;
                     traineeToUpdate.PhoneNo = viewModel.PhoneNo;
