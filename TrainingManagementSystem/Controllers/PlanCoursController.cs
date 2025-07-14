@@ -163,7 +163,47 @@ namespace TrainingManagementSystem.Controllers
         [Audit("انشاء-عرض", "خطة تدريبية")]
         public async Task<IActionResult> Create()
         {
-            var viewModel = new CourseFormViewModel();
+
+
+
+            var courseList = await _context.Courses
+            .Include(c => c.CourseClassification)
+            .Include(c => c.Level)
+            .Include(c => c.CourseParent)
+            .Include(c => c.CourseDetails)
+                .ThenInclude(cd => cd.Status)
+            .Include(c => c.CourseDetails)     // Eager load CourseDetails again to chain another .ThenInclude
+                .ThenInclude(cd => cd.Locations) // **** IF Location IS AN ENTITY ****
+            .Include(c => c.CourseDetails)     // Eager load CourseDetails again
+                .ThenInclude(cd => cd.CourseTrainees)
+            .Include(c => c.CourseTrainers)
+                .ThenInclude(ct => ct.Trainer).ToListAsync();
+
+
+            var viewModel = new CourseFormViewModel
+            {
+                CourseList = courseList,
+                CourseClassifications = (await _context.CourseClassifications
+                    .OrderBy(c => c.Name)
+                    .Select(c => new SelectListItem { Value = c.Id.ToString(), Text = c.Name })
+                    .ToListAsync()),
+
+                Levels = (await _context.Levels
+                    .OrderBy(l => l.Name)
+                    .Select(l => new SelectListItem { Value = l.Id.ToString(), Text = l.Name })
+                    .ToListAsync()),
+
+                CourseParents = (await _context.CourseParent
+                    .OrderBy(cp => cp.Name)
+                    .Select(cp => new SelectListItem { Value = cp.Id.ToString(), Text = cp.Name })
+                    .ToListAsync()),
+
+            };
+
+            // إضافة خيار فارغ للقوائم المنسدلة
+            viewModel.CourseClassifications.Insert(0, new SelectListItem { Value = "", Text = "-- اختر تصنيف الدورة --" });
+            viewModel.Levels.Insert(0, new SelectListItem { Value = "", Text = "-- اختر المستوى --" });
+            viewModel.CourseParents.Insert(0, new SelectListItem { Value = "", Text = "-- اختر الدورة المرجعية --" });
             await PopulateViewModelDataAsync(viewModel);
             return View(viewModel);
         }

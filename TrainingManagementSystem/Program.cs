@@ -41,11 +41,8 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
     options.User.RequireUniqueEmail = true; // ÚäÏ ÇäÔÇÁ ÇáãÓÊÎÏã íÌÈ ÇÓÊÎÏÇã ÈÑíÏ ÅáßÊÑæäí ÝÑíÏ
 })
        .AddEntityFrameworkStores<ApplicationDbContext>()
-    //ÈÞÇÚÏÉ ÇáÈíÇäÇÊ ááæÕæá Çáì ÇáÌÏÇæá æÇÏÑÇÁ ÇáÅÓÊÚáÇãÇÊ Identity ÑÈØ
-    .AddDefaultTokenProviders(); //íõÓÊÎÏã ãæÝÑ ÇáÑãæÒ ÇáÅÝÊÑÇÖí áÅäÔÇÁ ÑãæÒ ÅÚÇÏÉ ÊÚííä ßáãÉ ÇáãÑæÑ æÊÛííÑ ÇáÈÑíÏ ÇáÅáßÊÑæäí æÅÑÓÇáåÇ Åáì ÇáÈÑíÏ ÇáÅáßÊÑæäí æÇáåÇÊÝ æÇáãÕÇÏÞÉ ÇáËäÇÆíÉ .
+    .AddDefaultTokenProviders(); 
 
-
-//ÕÇáÍÉ ÅáÇ áãÏÉ ÇáÏÞÇÆÞ Çæ ÇáÓÇÚÇÊ ÇáãÍÏÏÉ ÈÚÏ ÅäÔÇÆåÇ//DataProtectorTokenProvider//áä Êßæä ÇáÑãæÒ ÇáÊí íÊã ÅäÔÇÄåÇ ÈæÇÓØÉ ãæÝÑ ÇáÑãæÒ
 builder.Services.Configure<DataProtectionTokenProviderOptions>(options =>
                                options.TokenLifespan = TimeSpan.FromMinutes(15));
 //opt.TokenLifespan = TimeSpan.FromDays(1));
@@ -110,9 +107,10 @@ builder.Services.AddMvc(options =>
 }).AddXmlSerializerFormatters();
 builder.Services.AddHttpContextAccessor(); //AsyncActionFilter áÅÓÊÚãÇáåÇ áÌáÈ ÇáíæÒÑ ÇáÍÇáí Ýí 
 
+builder.Services.AddHostedService<CourseStatusUpdaterService>();
 
 builder.Services.AddSingleton<UserSessionTracker>();
-builder.Services.AddHostedService<CourseStatusUpdaterService>();
+
 
 var app = builder.Build();
 
@@ -127,10 +125,12 @@ else if (app.Environment.IsDevelopment())
 
 
 
+//builder.WebHost.UseKestrel();
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();
+app.UseAntiforgery();
 
 app.UseAuthentication();//Who are you//ááÊÍÞÞ ãä åæíÉ ÇáãÓÊÎÏã¡ ÇáÇÓã æßáãÉ ÇáãÑæÑ æÇáÑãÒ ÇáÎÇÕ æÇáãÕÇÏÞÉ ÇáËäÇÆíÉ
 app.UseAuthorization();//What you allowed to do//ááÊÍÞÞ ãä ÕáÇÍíÉ ÇáãÓÊÎÏã
