@@ -515,5 +515,27 @@ namespace TrainingManagementSystem.Controllers
             //    System.IO.File.Delete(filePath);
             //}
         }
+
+
+        public async Task<IActionResult> GenerateIdCard(Guid? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            // جلب المتدرب مع تضمين الكيانات المرتبطة لعرض أسمائها في البطاقة
+            var trainee = await _context.Trainers
+                .FirstOrDefaultAsync(m => m.Id == id);
+
+            if (trainee == null)
+            {
+                return NotFound();
+            }
+
+
+            return View(trainee);
+        }
+
     }
 }

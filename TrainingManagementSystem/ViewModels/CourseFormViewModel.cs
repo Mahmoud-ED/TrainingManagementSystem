@@ -29,7 +29,7 @@ public class CourseDetailFormEntryViewModel
     public DateTime? EndDate { get; set; }
 
     [Display(Name = "الموقع")]
-    public Guid LocationId { get; set; }
+    public Guid? LocationId { get; set; }
 
     [Display(Name = "نوع الدورة")]
     public Guid CourseTypeId { get; set; }

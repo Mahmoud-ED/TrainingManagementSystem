@@ -17,11 +17,10 @@
         if (string.IsNullOrEmpty(statusName)) return "secondary";
         switch (statusName.ToLower())
         {
-            case "close": return "success";
-            case "next": return "info";
-            case "open": return "primary";
-            case "cansel": return "danger";
-            case "مؤجلة": return "warning text-dark"; // text-dark لتحسين القراءة على الخلفية الصفراء
+            case "لم يتم التنفيد": return "success";
+            case "مستهدفة": return "info";
+            case "قيد التنفيد": return "primary";
+            case "قيد التسجيل": return "warning text-dark"; // text-dark لتحسين القراءة على الخلفية الصفراء
             default: return "secondary";
         }
     }

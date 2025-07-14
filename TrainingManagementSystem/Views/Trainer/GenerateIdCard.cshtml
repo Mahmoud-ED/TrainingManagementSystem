@@ -1,0 +1,317 @@
+﻿@model Trainer
+
+@{
+    ViewData["Title"] = "بطاقة تعريف المتدرب";
+    Layout = null; // لا نستخدم Layout رئيسي لتسهيل الطباعة
+
+    // بناء الرابط لمحتوى الـ QR Code
+    string qrContent = Url.Action("Details", "Trainer", new { id = Model.Id }, Context.Request.Scheme)
+                       ?? $"Fallback: Name: {Model.ArName}, ID: {Model.Id}";
+}
+
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"]</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* --- أغلب الـ CSS يبقى كما هو، التغييرات في الأسفل --- */
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: #e9ebee;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 20px 0;
+        }
+
+        .page-title {
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .id-card-wrapper {
+            display: flex;
+            gap: 30px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .card-base {
+            width: 8.56cm;
+            height: 5.4cm;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .id-card-front .card-header {
+            background: linear-gradient(135deg, #0d47a1 0%, #1976d2 100%);
+            color: white;
+            padding: 8px;
+            text-align: center;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+            .id-card-front .card-header .org-logo {
+                height: 25px;
+                margin-bottom: 4px;
+                filter: brightness(0) invert(1);
+            }
+
+        .id-card-front .card-body {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            flex-grow: 1;
+        }
+
+        .id-card-front .profile-picture {
+            width: 120px;
+            height: 120px;
+            object-fit: cover;
+            border: 3px solid #f0f0f0;
+            border-radius: 8px;
+            background-color: #e0e0e0;
+        }
+
+        .id-card-front .trainee-details {
+            margin-right: 12px;
+            flex-grow: 1;
+        }
+
+        .id-card-front .trainee-name {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #1a237e;
+            margin: 0 0 5px 0;
+        }
+
+        .id-card-front .trainee-title {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #555;
+            margin: 0 0 8px 0;
+        }
+
+        .id-card-front .trainee-id {
+            font-size: 0.8rem;
+            color: #333;
+        }
+
+            .id-card-front .trainee-id strong {
+                font-weight: 600;
+            }
+
+        .id-card-front .card-footer {
+            background-color: #f5f5f5;
+            padding: 5px;
+            text-align: center;
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: #0d47a1;
+        }
+
+        /* ======== تصميم الوجه الخلفي للبطاقة (مع تعديلات) ======== */
+        .magnetic-stripe {
+            height: 20px;
+            background-color: #333;
+            margin-top: 15px;
+        }
+
+        .id-card-back .back-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center; /* لمحاذاة العناصر عمودياً */
+            padding: 10px;
+            flex-grow: 1;
+        }
+
+        .id-card-back .info-section {
+            font-size: 0.75rem;
+            line-height: 1.6;
+            flex-grow: 1; /* دع قسم المعلومات يأخذ المساحة المتبقية */
+        }
+
+            .id-card-back .info-section dt {
+                font-weight: 600;
+                color: #555;
+                display: inline;
+            }
+
+            .id-card-back .info-section dd {
+                font-weight: 400;
+                color: #000;
+                display: inline;
+                margin-right: 5px;
+            }
+
+            .id-card-back .info-section div {
+                margin-bottom: 2px;
+            }
+
+        /* ==== تعديل رئيسي هنا: تحديد حجم ثابت وواضح لحاوية الـ QR ==== */
+        #qr-code-container {
+            width: 120px; /* حجم كبير وواضح */
+            height: 120px; /* حجم كبير وواضح */
+            margin-right: 10px; /* مسافة بسيطة عن المعلومات */
+        }
+
+            /* تأكد من أن الصورة أو الكانفاس المولدة تملأ الحاوية */
+            #qr-code-container img, #qr-code-container canvas {
+                width: 100% !important;
+                height: 100% !important;
+            }
+
+        .id-card-back .card-footer-back {
+            font-size: 0.6rem;
+            color: #888;
+            text-align: center;
+            padding: 8px;
+            border-top: 1px solid #eee;
+        }
+
+        .print-button {
+            margin-top: 30px;
+            padding: 12px 30px;
+            font-size: 1.1rem;
+            font-family: 'Cairo', sans-serif;
+            cursor: pointer;
+            border: none;
+            background-color: #28a745;
+            color: white;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+
+            .print-button:hover {
+                background-color: #218838;
+            }
+
+        @@media print {
+            * {
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+
+            body {
+                margin: 0;
+                padding: 0;
+                background-color: #fff;
+            }
+
+            @@page {
+                size: A4;
+                margin: 1.5cm;
+            }
+
+            .print-button, .page-title {
+                display: none;
+            }
+
+            .id-card-wrapper {
+                margin: 0;
+                padding: 0;
+                gap: 0;
+                display: block;
+            }
+
+            .card-base {
+                box-shadow: none;
+                border: 1px solid #999;
+                page-break-inside: avoid;
+                margin: 0 auto 2cm;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <h2 class="page-title">معاينة بطاقة المتدرب</h2>
+
+    <div class="id-card-wrapper">
+
+        <!-- ============== الوجه الأمامي للبطاقة ============== -->
+        <div class="card-base id-card-front">
+            <div class="card-header">
+                <img src="/img/oo.png" alt="Logo" class="org-logo" />
+                <div>نظام إدارة التدريب</div>
+            </div>
+            <div class="card-body">
+                <img class="profile-picture" src="../img/nn.jpg" />
+                <div class="trainee-details">
+                    <h3 class="trainee-name">@Model.ArName</h3>
+                    <div class="trainee-id">
+                       @*  <strong>الرقم:</strong> @(Model. Id?? "غير محدد") *@
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============== الوجه الخلفي للبطاقة ============== -->
+        <div class="card-base id-card-back">
+            <div class="magnetic-stripe"></div>
+            <div class="back-content">
+                <div class="info-section">
+                    <dl>
+                        <div><dt>Name:</dt> <dd>@Model.EnName</dd></div>
+                        <div><dt>National ID:</dt> <dd>@Model.NationalNo</dd></div>
+                        <div><dt>Qualification:</dt> <dd>@Model.Qualification?.Name</dd></div>
+                       
+                    </dl>
+                </div>
+                <!-- ==== تعديل رئيسي هنا: تبسيط حاوية الـ QR ==== -->
+                <div id="qr-code-container" data-qr-content="@qrContent">
+                    <!-- سيتم توليد الـ QR Code هنا بواسطة الجافاسكريبت -->
+                </div>
+            </div>
+            <div class="card-footer-back">
+                هذه البطاقة ملك للمؤسسة ويجب إعادتها عند انتهاء التدريب.
+            </div>
+        </div>
+    </div>
+
+    <button class="print-button" onclick="window.print()">طباعة البطاقة</button>
+
+    <script src="https://cdn.jsdelivr.net/gh/davidshimjs/qrcodejs@gh-pages/qrcode.min.js"></script>
+    <script>
+        // ==== تعديل رئيسي هنا: تبسيط كود توليد الـ QR ====
+        document.addEventListener('DOMContentLoaded', function () {
+            var qrContainer = document.getElementById('qr-code-container');
+            if (qrContainer) {
+                var content = qrContainer.getAttribute('data-qr-content');
+
+                if (content) {
+                    // حجم الـ QR Code - يجب أن يتطابق مع الحجم المحدد في الـ CSS
+                    var qrSize = 120;
+
+                    // مسح أي محتوى سابق وتوليد الـ QR الجديد بالحجم المحدد
+                    qrContainer.innerHTML = '';
+                    new QRCode(qrContainer, {
+                        text: content,
+                        width: qrSize,
+                        height: qrSize,
+                        colorDark: "#000000",
+                        colorLight: "#ffffff",
+                        correctLevel: QRCode.CorrectLevel.H
+                    });
+                } else {
+                    console.error("محتوى الـ QR مفقود.");
+                    qrContainer.innerHTML = "خطأ";
+                }
+            }
+        });
+    </script>
+</body>
+</html>

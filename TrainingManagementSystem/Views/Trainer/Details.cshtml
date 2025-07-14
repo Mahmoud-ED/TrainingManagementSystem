@@ -310,9 +310,35 @@
                 <div class="widget">
                     <div class="widget-header">
                         <h5><i class="fas fa-user-alt me-2 text-primary"></i> معلومات المدرب</h5>
-                        <button onclick="printTrainerCard()" class="btn btn-sm btn-primary d-flex align-items-center">
-                            <i class="fas fa-print me-2"></i> <span>طباعة بطاقة تعريفية</span>
-                        </button>
+
+                        <a asp-action="GenerateIdCard" asp-route-id="@Model.Id" class="btn btn-info btn-sm" target="_blank">
+                            <i class="fa-solid fa-id-card"></i> طباعة بطاقة
+                        </a>
+                        <!-- بطاقة التعريف العلوية -->
+                        <div class="profile-header animate__animated animate__fadeInDown">
+                            <img src="@profileImageUrl" alt="صورة المتدرب @Model.ArName" class="profile-image-xl"
+                                 onerror="this.onerror=null; this.src='@Url.Content("~/img/OIP.jpeg")';" />
+
+                            <div class="profile-info">
+                                <h2>@Model.ArName <small class="text-muted">/ @Model.EnName</small></h2>
+                                <div>
+                                  @*   @if (!string.IsNullOrEmpty(Model.NUM))
+                                    {
+                                        <span class="trainee-id-badge"><i class="icofont-qr-code"></i> @Model.NUM</span>
+                                    } *@
+                                   
+                                </div>
+                            </div>
+
+                            <div class="profile-actions">
+                                <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary" style="background-color: #1DC792; border-color: #1DC792;">
+                                    <i class="icofont-edit"></i> تعديل
+                                </a>
+                                <a asp-action="Index" class="btn btn-outline-secondary ms-2">
+                                    <i class="icofont-arrow-left"></i> عودة
+                                </a>
+                            </div>
+                        </div>
                     </div>
                     <div class="widget-body">
                         <ul class="info-list-styled">
