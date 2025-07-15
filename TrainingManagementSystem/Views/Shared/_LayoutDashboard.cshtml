@@ -227,7 +227,10 @@
                             </ul>
                         </li>
                     </ul>
-
+                    <a asp-action="Logout" asp-controller="Account" class="nav-link  btn btn-danger ">
+                        <i class="mdi mdi-logout menu-icon"></i>
+                        <span class="menu-title"> تسجيل خروج</span>
+                    </a>
                     <!-- الجزء الأيسر من القائمة: المستخدم والصلاحيات -->
                     <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
                         <li class="nav-item dropdown">
@@ -240,6 +243,7 @@
                                 <li><a class="dropdown-item" asp-route-userId="@_userManager.GetUserId(User)" asp-controller="Account" asp-action="UserProfile"><i target="_blank" class="fa-solid fa-user-circle fa-fw"></i>الملف الشخصي</a></li>
                                 <li><a class="dropdown-item" asp-controller="Users" asp-action="Users"><i class="fa-solid fa-users fa-fw"></i>إدارة المستخدمين</a></li>
                                 <li><a class="dropdown-item" asp-controller="Roles" asp-action="Roles"><i class="fa-solid fa-user-tag fa-fw"></i>إدارة الصلاحيات</a></li>
+                                
                             </ul>
                         </li>
                     </ul>

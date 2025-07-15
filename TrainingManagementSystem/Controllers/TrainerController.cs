@@ -93,6 +93,9 @@ namespace TrainingManagementSystem.Controllers
 
             var trainer = await _trainer.Entity
                 .Include(t => t.Qualification)
+                .Include(t => t.CoursDetailsTrainer)
+                  .ThenInclude(t => t.CourseDetails)
+                  .ThenInclude(t =>t.Locations)
                 .Include(t => t.TrainerSpecializations)
                     .ThenInclude(ts => ts.Specialization)
                 .AsNoTracking()

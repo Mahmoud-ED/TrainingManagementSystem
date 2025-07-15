@@ -438,9 +438,13 @@
                                         }
 
                                         <div class="course-actions">
-                                            <a asp-controller="CourseDetails" asp-action="PrintCertificate" asp-route-id="@courseReg.Id" class="btn btn-sm btn-outline-info">
-                                                <i class="icofont-printer"></i> طباعة شهادة
-                                            </a>
+                                            @if (!string.IsNullOrEmpty(courseReg.CertificateNumber))
+                                            {
+                                                <a asp-controller="CourseDetails" asp-action="PrintCertificate" asp-route-id="@courseReg.Id" class="btn btn-sm btn-outline-info">
+                                                    <i class="icofont-printer"></i> طباعة شهادة
+                                                </a>
+                                            }
+                                           
                                             <a asp-controller="CourseDetails" asp-action="EditEnrollment" asp-route-courseTraineeId="@courseReg.Id" class="btn btn-sm btn-outline-success ms-2">
                                                 <i class="icofont-edit-alt"></i> تعديل التسجيل
                                             </a>

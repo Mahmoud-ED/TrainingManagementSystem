@@ -346,21 +346,21 @@
                                 <i class="fas fa-user"></i>
                                 <div>
                                     <div class="info-label">الاسم بالإنجليزية</div>
-                                    <div class="info-value">@Model.EnName ?? "غير متوفر"</div>
+                                    <div class="info-value">@Model.EnName</div>
                                 </div>
                             </li>
                             <li>
                                 <i class="fas fa-id-card"></i>
                                 <div>
                                     <div class="info-label">الرقم الوطني</div>
-                                    <div class="info-value">@Model.NationalNo ?? "غير متوفر"</div>
+                                    <div class="info-value">@Model.NationalNo</div>
                                 </div>
                             </li>
                             <li>
                                 <i class="fas fa-building"></i>
                                 <div>
                                     <div class="info-label">جهة العمل</div>
-                                    <div class="info-value">@Model.Employer ?? "غير متوفر"</div>
+                                    <div class="info-value">@Model.Employer</div>
                                 </div>
                             </li>
                             <li>
@@ -383,23 +383,23 @@
                         <h5><i class="fas fa-chalkboard-teacher me-2 text-primary"></i> الدورات التي قدمها</h5>
                     </div>
                     <div class="widget-body">
-                        @{
-                            var coursesTaught = new[] {
-                        new { Name = "مقدمة في C#", Date = "مارس 2024", Location = "قاعة 1" },
-                        new { Name = "PMP", Date = "فبراير 2024", Location = "أونلاين" },
-                        new { Name = "تصميم قواعد البيانات", Date = "ديسمبر 2023", Location = "قاعة 3" }
-                        };
-                        }
 
-                        @if (coursesTaught.Any())
+
+                        @if (Model.CoursDetailsTrainer != null && Model.CoursDetailsTrainer.Any())
                         {
-                            @foreach (var course in coursesTaught)
+                            foreach (var trainerCourse in Model.CoursDetailsTrainer)
                             {
+                                var course = trainerCourse.CourseDetails;
                                 <div class="course-taught-item">
                                     <div class="course-icon-container"><i class="fas fa-certificate"></i></div>
                                     <div class="course-taught-info">
-                                        <h6>@course.Name</h6>
-                                        <p>@course.Date | <i class="fas fa-map-marker-alt"></i> @course.Location</p>
+                                        <h6>@course?.Name</h6>
+                                        <p>
+                                            @course?.StartDate.ToString("yyyy-MM-dd")
+                                            @course?.EndDate
+                                            | <i class="fas fa-map-marker-alt"></i>
+                                            @* @course?.Locations?.FirstOrDefault()?.Name *@
+                                        </p>
                                     </div>
                                 </div>
                             }
