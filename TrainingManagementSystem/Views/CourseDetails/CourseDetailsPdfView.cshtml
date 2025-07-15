@@ -240,10 +240,11 @@
             <dl class="details-list">
                 <dt>اسم الدورة:</dt>
                 <dd>@Model.Course.Name @(!string.IsNullOrEmpty(Model.Course.Code) ? $"({Model.Course.Code})" : "")</dd>
-                <dt>تصنيف الدورة:</dt>
+                <dt>محور الدورة:</dt>
                 <dd>@Model.Course.CourseClassification.Name</dd>
+               @* 
                 <dt>المستوى:</dt>
-                <dd>@Model.Course.Level.Name</dd>
+                <dd>@Model.Course.Level.Name</dd> *@
                 @if (!string.IsNullOrEmpty(Model.Course.Description))
                 {
                     <dt>وصف الدورة:</dt>
@@ -266,8 +267,8 @@
                 <dd>@Model.Numberoftargets متدرب</dd>
                 <dt>الموقع:</dt>
                 <dd>@Model.LocationName</dd>
-                <dt>نوع الدورة:</dt>
-                <dd>@Model.CourseTypeName</dd>
+                @* <dt>نوع الدورة:</dt>
+                <dd>@Model.CourseTypeName</dd> *@
                 <dt>الحالة:</dt>
                 <dd>
                     @{

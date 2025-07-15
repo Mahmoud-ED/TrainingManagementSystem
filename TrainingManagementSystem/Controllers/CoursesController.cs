@@ -378,60 +378,60 @@ namespace TrainingManagementSystem.Controllers
         }
 
 
-        [HttpGet]
-        public async Task<IActionResult> StudyPlan()
-        {
-            // 1. جلب كل الدورات التي لها مستوى وتصنيف
-            var allCourses = await _context.Courses
-                .Where(c => c.LevelId.HasValue)
-                .AsNoTracking()
-                .ToListAsync();
+        //[HttpGet]
+        //public async Task<IActionResult> StudyPlan()
+        //{
+        //    // 1. جلب كل الدورات التي لها مستوى وتصنيف
+        //    var allCourses = await _context.Courses
+        //        .Where(c => c.LevelId.HasValue)
+        //        .AsNoTracking()
+        //        .ToListAsync();
 
-            // 2. إنشاء خرائط (Dictionaries) لتحويل GUIDs إلى أرقام صفوف وأعمدة
-            var levelToRowMap = allCourses
-                .Select(c => c.LevelId.Value)
-                .Distinct()
-                .Select((levelId, index) => new { levelId, row = index + 1 })
-                .ToDictionary(item => item.levelId, item => item.row);
+        //    // 2. إنشاء خرائط (Dictionaries) لتحويل GUIDs إلى أرقام صفوف وأعمدة
+        //    var levelToRowMap = allCourses
+        //        .Select(c => c.LevelId.Value)
+        //        .Distinct()
+        //        .Select((levelId, index) => new { levelId, row = index + 1 })
+        //        .ToDictionary(item => item.levelId, item => item.row);
 
-            var classificationToColMap = allCourses
-                .Select(c => c.CourseClassificationId)
-                .Distinct()
-                .Select((classId, index) => new { classId, col = index + 1 })
-                .ToDictionary(item => item.classId, item => item.col);
+        //    var classificationToColMap = allCourses
+        //        .Select(c => c.CourseClassificationId)
+        //        .Distinct()
+        //        .Select((classId, index) => new { classId, col = index + 1 })
+        //        .ToDictionary(item => item.classId, item => item.col);
 
-            // 3. تحويل الدورات إلى CourseNodeViewModel مع تحديد الصف والعمود
-            var courseNodes = allCourses.Select(c => new CourseNodeViewModel
-            {
-                Id = c.Id,
-                Name = c.Name,
-                Code = c.Code,
-                DurationHours = c.DurationHours,
-                Row = levelToRowMap.ContainsKey(c.LevelId.Value) ? levelToRowMap[c.LevelId.Value] : 0,
-                Column = classificationToColMap.ContainsKey(c.CourseClassificationId) ? classificationToColMap[c.CourseClassificationId] : 0
-            }).ToList();
+        //    // 3. تحويل الدورات إلى CourseNodeViewModel مع تحديد الصف والعمود
+        //    var courseNodes = allCourses.Select(c => new CourseNodeViewModel
+        //    {
+        //        Id = c.Id,
+        //        Name = c.Name,
+        //        Code = c.Code,
+        //        DurationHours = c.DurationHours,
+        //        Row = levelToRowMap.ContainsKey(c.LevelId.Value) ? levelToRowMap[c.LevelId.Value] : 0,
+        //        Column = classificationToColMap.ContainsKey(c.CourseClassificationId) ? classificationToColMap[c.CourseClassificationId] : 0
+        //    }).ToList();
 
-            // 4. جلب علاقات المتطلبات
-            var prerequisiteLinks = await _context.CoursePrerequisites
-                .AsNoTracking()
-                .Select(p => new PrerequisiteLinkViewModel
-                {
-                    // السهم يخرج من المتطلب المسبق (Source) إلى الدورة التالية (Target)
-                    SourceId = "course-" + p.PrerequisiteCourseId,
-                    TargetId = "course-" + p.CourseId
-                }).ToListAsync();
+        //    // 4. جلب علاقات المتطلبات
+        //    var prerequisiteLinks = await _context.CoursePrerequisites
+        //        .AsNoTracking()
+        //        .Select(p => new PrerequisiteLinkViewModel
+        //        {
+        //            // السهم يخرج من المتطلب المسبق (Source) إلى الدورة التالية (Target)
+        //            SourceId = "course-" + p.PrerequisiteCourseId,
+        //            TargetId = "course-" + p.CourseId
+        //        }).ToListAsync();
 
-            // 5. تجميع كل شيء في الـ ViewModel الرئيسي
-            var finalViewModel = new CoursePlanViewModel
-            {
-                Courses = courseNodes,
-                Prerequisites = prerequisiteLinks,
-                MaxRow = levelToRowMap.Values.DefaultIfEmpty(0).Max(),
-                MaxColumn = classificationToColMap.Values.DefaultIfEmpty(0).Max()
-            };
+        //    // 5. تجميع كل شيء في الـ ViewModel الرئيسي
+        //    var finalViewModel = new CoursePlanViewModel
+        //    {
+        //        Courses = courseNodes,
+        //        Prerequisites = prerequisiteLinks,
+        //        MaxRow = levelToRowMap.Values.DefaultIfEmpty(0).Max(),
+        //        MaxColumn = classificationToColMap.Values.DefaultIfEmpty(0).Max()
+        //    };
 
-            return View("StudyPlan", finalViewModel); // سننشئ View باسم StudyPlan.cshtml
-        }
+        //    return View("StudyPlan", finalViewModel); // سننشئ View باسم StudyPlan.cshtml
+        //}
 
 
         // هذه الدالة المساعدة تقوم ببناء الهيكل الشجري

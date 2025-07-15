@@ -9,9 +9,10 @@
         <div class="col-md-12">
             <h1 class="display-6">@ViewData["Title"]</h1>
             <p class="text-muted">عرض تفصيلي لمعلومات الخطة والمدربين المرتبطين بها.</p>
-            <a asp-action="PrintPlanAsPdf" asp-route-id="@Model.Id" class="btn btn-info" target="_blank">
+            <a asp-action="_PlanCoursPdfReport" asp-route-id="@Model.Id" class="btn btn-info" target="_blank">
                 <i class="fas fa-print me-2"></i>طباعة التقرير (PDF)
             </a>
+
             <hr />
         </div>
     </div>

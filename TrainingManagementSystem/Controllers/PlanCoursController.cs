@@ -275,7 +275,28 @@ namespace TrainingManagementSystem.Controllers
         //        .ToListAsync();
         //    return PartialView("_CourseDetailFormEntry", new CourseDetailFormEntryViewModel { StartDate = DateTime.Today });
         //}
+        [HttpGet]
+        [Audit("طباعة", "خطة تدريبية")] // يمكنك استخدام نفس السمة الموجودة في الإجراءات الأخرى
+        public async Task<IActionResult> _PlanCoursPdfReport(Guid id)
+        {
+            // 1. جلب بيانات الخطة التدريبية المطلوبة من قاعدة البيانات
+            // من المهم استخدام Include لجلب البيانات المرتبطة التي يحتاجها التقرير مثل اسم الدورة
+            var planCours = await _context.PlanCours
+                .Include(p => p.Course) // ضروري جدًا لأن التقرير يستخدم @Model.Course.Name
+                .FirstOrDefaultAsync(p => p.Id == id);
 
+            // 2. التحقق مما إذا كانت الخطة موجودة
+            if (planCours == null)
+            {
+                return NotFound(); // إذا لم يتم العثور على الخطة، يتم إرجاع خطأ 404
+            }
+
+            // 3. إرجاع صفحة التقرير وتمرير بيانات الخطة إليها
+            // "PlanCoursReport" يجب أن يكون هو اسم ملف .cshtml الخاص بالتقرير
+            // بناءً على الكود الذي أرفقته، يبدو أن لديك ملفين للتقرير. اختر الاسم الصحيح للملف الذي تريد عرضه
+            // سأفترض أن اسم الملف هو _PlanCoursPdfReport.cshtml
+            return View("_PlanCoursPdfReport", planCours);
+        }
 
         [HttpGet]
         public async Task<IActionResult> GetCourseDetailEntryPartial(int index)
