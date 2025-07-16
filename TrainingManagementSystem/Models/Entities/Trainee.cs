@@ -27,8 +27,7 @@ namespace TrainingManagementSystem.Models.Entities
         [Required]
         public string PhoneNo { get; set; }
 
-        [StringLength(10, MinimumLength = 10, ErrorMessage = "National ID must be 10 digits.")] // مثال للسعودية
-        [RegularExpression(@"^[12]\d{9}$", ErrorMessage = "National ID format is invalid.")] // مثال للسعودية
+        [StringLength(13, MinimumLength = 13, ErrorMessage = "National ID must be 13 digits.")] // مثال للسعودية
         public string NationalNo { get; set; }
 
 

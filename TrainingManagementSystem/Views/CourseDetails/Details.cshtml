@@ -70,10 +70,10 @@
                         <h6 class="text-muted small">الحالة</h6>
                         @{
                             string statusBadgeClass = "bg-secondary"; // Default
-                            if (Model.StatusName?.ToLower().Contains("مكتملة") == true) { statusBadgeClass = "bg-success"; }
-                            else if (Model.StatusName?.ToLower().Contains("جارية") == true) { statusBadgeClass = "bg-primary"; }
-                            else if (Model.StatusName?.ToLower().Contains("مجدولة") == true) { statusBadgeClass = "bg-info text-dark"; }
-                            else if (Model.StatusName?.ToLower().Contains("ملغاة") == true) { statusBadgeClass = "bg-danger"; }
+                            if (Model.StatusName?.ToLower().Contains("تم التنفيذ") == true) { statusBadgeClass = "bg-success"; }
+                            else if (Model.StatusName?.ToLower().Contains("قيد التنفيذ") == true) { statusBadgeClass = "bg-primary"; }
+                            else if (Model.StatusName?.ToLower().Contains("مستهدفة") == true) { statusBadgeClass = "bg-info text-dark"; }
+                            else if (Model.StatusName?.ToLower().Contains("لم يتم التنفيذ") == true) { statusBadgeClass = "bg-danger"; }
                         }
                         <span class="badge @statusBadgeClass p-2 fs-6">@Model.StatusName</span>
                     </div>
@@ -154,7 +154,7 @@
                                             <td class="text-center">
                                                 <div class="btn-group btn-group-sm" role="group">
                                                     <a asp-controller="CourseDetails" asp-action="EditEnrollment" asp-route-courseTraineeId="@trainee.CourseTraineeId" class="btn btn-outline-primary" title="تعديل"><i class="fas fa-edit"></i></a>
-                                                    <a asp-action="PrintCertificate" asp-route-id="@trainee.CourseTraineeId" class="btn btn-outline-info" title="طباعة شهادة" target="_blank"><i class="fas fa-print"></i></a>
+                                                    <a asp-controller="Print" asp-action="PrintCertificate" asp-route-id="@trainee.CourseTraineeId" class="btn btn-outline-info" title="طباعة شهادة" target="_blank"><i class="fas fa-print"></i></a>
                                                     <button type="button" class="btn btn-outline-danger" title="إلغاء التسجيل" onclick="confirmRemoveEnrollment('@trainee.CourseTraineeId', '@trainee.TraineeName')"><i class="fas fa-user-times"></i></button>
                                                 </div>
                                             </td>

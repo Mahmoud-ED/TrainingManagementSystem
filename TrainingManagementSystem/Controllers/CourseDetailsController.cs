@@ -83,7 +83,6 @@ namespace TrainingManagementSystem.Controllers
                                         .ToListAsync();
 
             var upcomingCourses = courseDetailsList
-                                    .Where(cd => cd.Status?.Name == "مستهدفة" && cd.StartDate >= DateTime.Today)
                                     .OrderByDescending(cd => cd.Created)
                                     .ToList();
 
