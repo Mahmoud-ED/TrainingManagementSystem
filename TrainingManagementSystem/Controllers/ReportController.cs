@@ -37,8 +37,7 @@ public class ReportController : Controller
             .Where(cd => cd.StartDate.Year == currentYear)
             .CountAsync();
 
-        var totalTrainees = await _context.CourseTrainees
-            .Where(ct => ct.CourseDetails.StartDate.Year == currentYear)
+        var totalTrainees = await _context.Trainees
             .CountAsync();
 
         var averageAttendance = await _context.CourseTrainees
@@ -129,7 +128,7 @@ public class ReportController : Controller
     {
         // 1. جلب كل الدورات المخطط لها لهذا العام (كمثال)
         var currentYear = DateTime.Now.Year;
-        var plannedCourses = await _context.PlanCours
+        var plannedCourses = await _context.CourseDetails
             .Include(p => p.Course) // نحتاج اسم الدورة من الجدول الرئيسي
             .Where(p => p.StartDate.Year == currentYear)
             .ToListAsync();
@@ -151,6 +150,9 @@ public class ReportController : Controller
 
         var executedCount = plannedCourses.Count(p => executedCourseIds.Contains(p.CourseId));
         var upcomingCount = plannedCourses.Count(p => p.StartDate > DateTime.Now && !executedCourseIds.Contains(p.CourseId));
+
+
+
         var notExecutedCount = plannedCourses.Count(p => p.StartDate <= DateTime.Now && !executedCourseIds.Contains(p.CourseId));
 
         // حساب النسبة المئوية للإنجاز
