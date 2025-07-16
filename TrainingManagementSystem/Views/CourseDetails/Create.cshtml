@@ -29,17 +29,16 @@
                     </div>
                     <div class="card-body">
                         <div class="row">
-                            @* <div class="col-md-8">
-                                <h4>@Model.Course.Name <small class="text-muted">(@Model.Course.Level?.Name)</small></h4>
+                            <div class="col-md-8">
+                                <h4>@Model.Course.Name </h4>
                                 @if (!string.IsNullOrEmpty(Model.Course.Description))
                                 {
                                     <p class="text-muted"><em>@Model.Course.Description</em></p>
                                 }
-                            </div> *@
+                            </div>
                             <div class="col-md-4 text-md-end">
                                 <p class="mb-1"><strong>المحور:</strong> @Model.Course.CourseClassification?.Name</p>
-@*                                 <p class="mb-0"><strong>المستوى:</strong> @Model.Course.Level?.Name</p>
- *@                            </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -82,10 +81,7 @@
                                             {
                                                 <span class="badge bg-secondary me-1">@courseItem.CourseClassification.Name</span>
                                             }
-                                            @if (courseItem.Level != null)
-                                            {
-                                                <span class="badge bg-info">@courseItem.Level.Name</span>
-                                            }
+                                          
                                         </div>
                                     </div>
                                     <div class="card-footer text-center bg-light">

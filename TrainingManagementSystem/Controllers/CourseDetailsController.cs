@@ -83,17 +83,17 @@ namespace TrainingManagementSystem.Controllers
                                         .ToListAsync();
 
             var upcomingCourses = courseDetailsList
-                                    .Where(cd => cd.Status?.Name == "Open" && cd.StartDate >= DateTime.Today)
+                                    .Where(cd => cd.Status?.Name == "مستهدفة" && cd.StartDate >= DateTime.Today)
                                     .OrderByDescending(cd => cd.Created)
                                     .ToList();
 
             var viewModel = new CourseDetailsIndexViewModel
             {
                 CourseDetailsList = courseDetailsList,
-                ActiveCoursesCount = courseDetailsList.Count(cd => cd.Status?.Name == "Open"),
+                ActiveCoursesCount = courseDetailsList.Count(cd => cd.Status?.Name == "قيد التنفيد"),
                 CompletedCoursesCount = courseDetailsList.Count(cd => cd.Status?.Name == "Close"),
-                PostponedCoursesCount = courseDetailsList.Count(cd => cd.Status?.Name == "Next"),
-                CancelledCoursesCount = courseDetailsList.Count(cd => cd.Status?.Name == "Cansel"),
+                PostponedCoursesCount = courseDetailsList.Count(cd => cd.Status?.Name == "مستهدفة"),
+                CancelledCoursesCount = courseDetailsList.Count(cd => cd.Status?.Name == "لم يتم التنفيد"),
                 UpcomingCoursesCount = upcomingCourses.Count,
                 NextUpcomingCourse = upcomingCourses.FirstOrDefault(),
                 TotalRegisteredTrainees = courseDetailsList.Sum(cd => cd.CourseTrainees?.Count ?? 0)

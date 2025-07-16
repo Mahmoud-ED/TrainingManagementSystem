@@ -52,14 +52,6 @@ namespace TrainingManagementSystem.Models
         public DbSet<Attendance> Attendances { get; set; }
 
 
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        {
-            optionsBuilder
-                .UseSqlServer("Server=.;Database=TMS;Trusted_Connection=True;MultipleActiveResultSets=true;TrustServerCertificate=True;")
-                .ConfigureWarnings(warnings =>
-                    warnings.Ignore(RelationalEventId.PendingModelChangesWarning));
-        }
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);

@@ -242,9 +242,6 @@
                 <dd>@Model.Course.Name @(!string.IsNullOrEmpty(Model.Course.Code) ? $"({Model.Course.Code})" : "")</dd>
                 <dt>محور الدورة:</dt>
                 <dd>@Model.Course.CourseClassification.Name</dd>
-               @* 
-                <dt>المستوى:</dt>
-                <dd>@Model.Course.Level.Name</dd> *@
                 @if (!string.IsNullOrEmpty(Model.Course.Description))
                 {
                     <dt>وصف الدورة:</dt>
